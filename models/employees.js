@@ -35,6 +35,7 @@ class Employee{
             return true
         }
         catch(error){
+            console.log(error.message)
              return false
         }
 
