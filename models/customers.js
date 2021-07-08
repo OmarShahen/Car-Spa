@@ -22,12 +22,9 @@ const pool = new Pool({
     port: config.db.port
 })
 
-pool.on('error', (error, client)=>console.log('Error In The Client', error.messsage))
 
 
 class Customer{
-    
-
 
     async addCustomer(firstName, lastName, email, password, accountCreationDate){
 

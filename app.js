@@ -1,7 +1,12 @@
 const customer = require('./models/customers')
-
-customer.deleteCustomersByEmail('ahmed@gmail.com').then(data=>console.log(data))
-
+const employee = require('./models/employees')
 
 
 
+
+
+employee.setEmployeeToWork(5)
+.then(data=>console.log(data))
+
+employee.getAllEmployees()
+.then(data=>console.log(data))
