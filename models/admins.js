@@ -6,11 +6,6 @@
     + Read Admin
 */
 
-
-
-
-
-
 const config = require('../config/config')
 const { Pool, Client } = require('pg')
 
