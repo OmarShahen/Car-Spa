@@ -8,6 +8,12 @@
     + Read Phone By Customer ID
     + Read Phone By Employee ID
     + Read Phone By Admin ID
+    + Delete Customer Phone Number
+    + Delete Employee Phone Number
+    + Delete Admin Phone Number
+    + Update Customer Phone Number
+    + Update Employee Phone Number
+    + Update Admin Phone Number
  */
 
 
@@ -74,13 +80,13 @@ class Phone{
         }
     }
 
-    async setCustomerPhoneNumber(phoneNumber, customerID)
+    async setCustomerPhoneNumber(customerID, oldPhoneNumber, newPhoneNumber)
     {
         try{
             
-            const query = 'UPDATE phones SET PhoneNumber = $1 WHERE CustomerID = $2'
+            const query = 'UPDATE phones SET PhoneNumber = $1 WHERE CustomerID = $2 AND PhoneNumber = $3'
             const client = await pool.connect()
-            const result = await client.query(query, [phoneNumber, customerID])
+            const result = await client.query(query, [newPhoneNumber, customerID, oldPhoneNumber])
             return true
         }
         catch(error)
@@ -89,13 +95,13 @@ class Phone{
             return false
         }
     }
-    async setEmployeePhoneNumber(phoneNumber, employeeID)
+    async setEmployeePhoneNumber(employeeID, oldPhoneNumber, newPhoneNumber)
     {
         try{
             
-            const query = 'UPDATE phones SET PhoneNumber = $1 WHERE EmployeeID = $2'
+            const query = 'UPDATE phones SET PhoneNumber = $1 WHERE EmployeeID = $2 AND PhoneNumber = $3'
             const client = await pool.connect()
-            const result = await client.query(query, [phoneNumber, employeeID])
+            const result = await client.query(query, [newPhoneNumber, employeeID, oldPhoneNumber])
             return true
         }
         catch(error)
@@ -104,13 +110,13 @@ class Phone{
             return false
         }
     }
-    async setAdminPhoneNumber(phoneNumber, adminID)
+    async setAdminPhoneNumber(adminID, oldPhoneNumber, newPhoneNumber)
     {
         try{
             
-            const query = 'UPDATE phones SET PhoneNumber = $1 WHERE AdminID = $2'
+            const query = 'UPDATE phones SET PhoneNumber = $1 WHERE AdminID = $2 AND PhoneNumber = $3'
             const client = await pool.connect()
-            const result = await client.query(query, [phoneNumber, adminID])
+            const result = await client.query(query, [newPhoneNumber, adminID, oldPhoneNumber])
             return true
         }
         catch(error)
