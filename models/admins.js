@@ -3,7 +3,8 @@
     + Add Admin
     + Remove Admin
     + Update Admin
-    + Read Admin
+    + Read Admin By ID
+    + Read Admin By Email
 */
 
 const config = require('../config/config')
@@ -39,7 +40,23 @@ class Admin{
         }
     }
 
-    async getAdmin(adminID)
+    async getAdminByEmail(adminEmail)
+    {
+        try{
+
+            const query = 'SELECT ID, FirstName, LastName, Email FROM admins WHERE email = $1'
+            const client = await pool.connect()
+            const adminData = await client.query(query, [adminEmail])
+            return adminData.rows
+        }
+        catch(error)
+        {
+            console.log(error.message)
+            return false
+        }
+    }
+
+    async getAdminByID(adminID)
     {
         try{
             const query = 'SELECT ID, FirstName, LastName, email FROM admins WHERE ID = $1'
