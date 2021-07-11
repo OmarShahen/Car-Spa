@@ -14,6 +14,7 @@
     + Update Customer Phone Number
     + Update Employee Phone Number
     + Update Admin Phone Number
+    + Read User By Phone Number
  */
 
 
@@ -32,7 +33,7 @@ const pool = new Pool({
 class Phone{
 
 
-    async addCustomerPhoneNumber(phoneNumber, customerID)
+    async addCustomerPhoneNumberByID(phoneNumber, customerID)
     {
         try{
 
@@ -48,7 +49,7 @@ class Phone{
         }
     }
 
-    async addEmployeePhoneNumber(phoneNumber, employeeID)
+    async addEmployeePhoneNumberByID(phoneNumber, employeeID)
     {
         try{
 
@@ -64,7 +65,7 @@ class Phone{
         }
     }
 
-    async addAdminPhoneNumber(phoneNumber, adminID)
+    async addAdminPhoneNumberByID(phoneNumber, adminID)
     {
         try{
 
@@ -264,6 +265,21 @@ class Phone{
         {
             console.log(error.message)
             return false
+        }
+    }
+
+    async checkPhoneNumberExist(phoneNumber)
+    {
+        try{
+
+            const query = 'SELECT * FROM phones WHERE PhoneNumber = $1'
+            const client = await pool.connect()
+            const result = await client.query(query, [phoneNumber])
+            return result.rows
+        }
+        catch(error)
+        {
+            console.log(error.message)
         }
     }
 

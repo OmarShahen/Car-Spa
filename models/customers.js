@@ -44,7 +44,7 @@ class Customer{
     {
         try{
 
-            const query = 'SELECT FirstName, LastName, email, accountCreationDate FROM customers'
+            const query = 'SELECT ID, FirstName, LastName, email, accountCreationDate FROM customers'
             const client = await pool.connect()
             const customersData = await client.query(query)
             return customersData.rows
@@ -59,7 +59,7 @@ class Customer{
     {
         try{
 
-            const query = 'SELECT FirstName, LastName, email, accountCreationDate FROM customers WHERE ID = $1'
+            const query = 'SELECT ID, FirstName, LastName, email, accountCreationDate FROM customers WHERE ID = $1'
             const client = await pool.connect()
             const customerData = await client.query(query, [customerId])
             return customerData.rows
@@ -75,10 +75,26 @@ class Customer{
     {
         try{
 
-            const query = 'SELECT FirstName, LastName, email, accountCreationDate FROM customers WHERE email = $1'
+            const query = 'SELECT ID, FirstName, LastName, email, password, accountCreationDate FROM customers WHERE email = $1'
             const client = await pool.connect()
             const customerData = await client.query(query, [customerEmail])
             return customerData.rows
+        }
+        catch(error)
+        {
+            console.log(error.message)
+            return false
+        }
+    }
+
+    async getCustomerByEmailAndPassword(customerEmail, customerPassword)
+    {
+        try{
+
+            const query = 'SELECT ID, FirstName, LastName, email, accountCreationDate FROM customers WHERE email = $1 AND password = $2'
+            const client = await pool.connect()
+            const customerData = await client.query(query, [customerEmail, customerPassword])
+            return customerData
         }
         catch(error)
         {
