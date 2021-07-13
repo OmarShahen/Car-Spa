@@ -14,7 +14,9 @@ class Verfication{
 
     checkEmptyInput(input)
     {
-        if(input.split(' ').join('') == '')
+        try{
+
+            if(input.split(' ').join('') == '')
         {
             return {
                 accepted: false,
@@ -24,6 +26,13 @@ class Verfication{
         return {
             accepted: true
         }
+        }
+        catch(error)
+        {
+            console.log(error.message)
+            return false
+        }
+
     }
 
 
@@ -132,6 +141,8 @@ class Verfication{
             return false
         }
     }   
+
+     
 
     
 }

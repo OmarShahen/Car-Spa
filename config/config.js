@@ -8,5 +8,8 @@ module.exports = {
         port: 5432,
         ssl: true
     },
-    secretKey: 'obgpoirhgi0h3-wojvo3jgb=034jv=-0o43nb-0gng'
+    secretKey: 'obgpoirhgi0h3-wojvo3jgb=034jv=-0o43nb-0gng',
+    mailAccount: 'autocarspa77@gmail.com',
+    mailAccountPassword: 'nashar77',
+    employeesFiles: '../'
 }

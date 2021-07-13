@@ -26,12 +26,12 @@ const pool = new Pool({
 
 class Employee{
 
-    async addEmployee(firstName, lastName, password, accountCreationDate){
+    async addEmployee(firstName, lastName, address, nationalID,password, criminalRecord,accountCreationDate){
 
         try{
-            const query = 'INSERT INTO employees (FirstName, LastName, password, accountCreationDate) VALUES ($1, $2, $3, $4)'
+            const query = 'INSERT INTO employees (FirstName, LastName, address, NationalID, password, CriminalRecord, AccountCreationDate) VALUES ($1, $2, $3, $4, $5, $6, $7)'
             const client = await pool.connect()
-            const result = await client.query(query, [firstName, lastName, password, accountCreationDate])
+            const result = await client.query(query, [firstName, lastName, address, nationalID, password, criminalRecord, accountCreationDate])
             return true
         }
         catch(error){
@@ -45,7 +45,7 @@ class Employee{
     {
         try{
 
-            const query = 'SELECT ID, FirstName, LastName, active, StillWorking, accountCreationDate FROM employees'
+            const query = 'SELECT ID, FirstName, LastName, address, NationalID, CriminalRecord, active, StillWorking, AccountCreationDate FROM employees'
             const client = await pool.connect()
             const employeeData = await client.query(query)
             return employeeData.rows
@@ -60,7 +60,7 @@ class Employee{
     {
         try{
 
-            const query = 'SELECT ID, FirstName, LastName, active FROM employees WHERE active = True'
+            const query = 'SELECT ID, FirstName, LastName, address, NationalID, CriminalRecord, active, StillWorking, AccountCreationDate FROM employees WHERE active = True'
             const client = await pool.connect()
             const employeesData = await client.query(query)
             return employeesData.rows
@@ -76,7 +76,7 @@ class Employee{
     {
         try{
 
-            const query = 'SELECT ID, FirstName, LastName, active FROM employees WHERE active = False'
+            const query = 'SELECT ID, FirstName, LastName, address, NationalID, CriminalRecord, active, StillWorking, AccountCreationDate FROM employees WHERE active = False'
             const client = await pool.connect()
             const employeesData = await client.query(query)
             return employeesData.rows
@@ -92,7 +92,7 @@ class Employee{
     {
         try{
 
-            const query = 'SELECT ID, FirstName, LastName, accountCreationDate FROM employees WHERE ID = $1'
+            const query = 'SELECT ID, FirstName, LastName, address, NationalID, CriminalRecord, active, StillWorking, AccountCreationDate FROM employees WHERE ID = $1'
             const client = await pool.connect()
             const employeeData = await client.query(query, [employeeID])
             return employeeData.rows
@@ -104,13 +104,13 @@ class Employee{
         }
     }
 
-    async setEmployeeDataByID(employeeID, firstName, lastName)
+    async setEmployeeDataByID(employeeID, firstName, lastName, address, nationalID, criminalRecord)
     {
         try{
 
-            const query = 'UPDATE employees SET FirstName = $1, LastName = $2 WHERE ID = $3'
+            const query = 'UPDATE employees SET FirstName = $1, LastName = $2, address = $3, NationalID = $4, CriminalRecord = $5 WHERE ID = $6'
             const client = await pool.connect()
-            const result = await client.query(query, [firstName, lastName, employeeID])
+            const result = await client.query(query, [firstName, lastName, address, nationalID, criminalRecord, employeeID])
             return true
         }
         catch(error)

@@ -44,7 +44,7 @@ class Admin{
     {
         try{
 
-            const query = 'SELECT ID, FirstName, LastName, Email FROM admins WHERE email = $1'
+            const query = 'SELECT ID, FirstName, LastName, Email, password FROM admins WHERE email = $1'
             const client = await pool.connect()
             const adminData = await client.query(query, [adminEmail])
             return adminData.rows
