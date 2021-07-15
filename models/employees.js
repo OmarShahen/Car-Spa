@@ -29,13 +29,14 @@ class Employee{
     async addEmployee(firstName, lastName, address, nationalID,password, criminalRecord,accountCreationDate){
 
         try{
+            
             const query = 'INSERT INTO employees (FirstName, LastName, address, NationalID, password, CriminalRecord, AccountCreationDate) VALUES ($1, $2, $3, $4, $5, $6, $7)'
             const client = await pool.connect()
             const result = await client.query(query, [firstName, lastName, address, nationalID, password, criminalRecord, accountCreationDate])
             return true
         }
         catch(error){
-            console.log(error.message)
+            console.log(error)
              return false
         }
 
@@ -99,6 +100,22 @@ class Employee{
         }
         catch(error)
         {
+            console.log(error.message)
+            return false
+        }
+    }
+
+    async getEmployeeByNationalID(nationalID){
+
+        try{
+
+            const query = 'SELECT * FROM employees WHERE NationalID = $1'
+            const client = await pool.connect()
+            const employeeData = await client.query(query, [nationalID])
+            return employeeData.rows
+        }
+        catch(error)
+        {   
             console.log(error.message)
             return false
         }

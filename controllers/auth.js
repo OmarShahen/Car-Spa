@@ -3,7 +3,7 @@
 const authRouter = require('express').Router()
 const jwt = require('jsonwebtoken')
 const customerDB = require('../models/customers')
-const EmployeeDB = require('../models/employees')
+const employeeDB = require('../models/employees')
 const adminDB = require('../models/admins')
 const phoneDB = require('../models/phones')
 const verify = require('./verify-input')
@@ -420,10 +420,9 @@ authRouter.post('/admins/login', async (request, response)=>{
     }
 })
 
-authRouter.post('/employees/sign-up', verifyToken, fileValidation,async (request, response, next)=>{
+authRouter.post('/employees/sign-up', verifyToken, fileValidation, async (request, response, next)=>{
 
     try{
-        console.log(request.body)
 
         const adminData = await adminDB.getAdminByID(request.userID)
         if(adminData.length == 0)
@@ -467,6 +466,15 @@ authRouter.post('/employees/sign-up', verifyToken, fileValidation,async (request
             return response.status(406).send({
                 accepted: false,
                 message: checkNationalID.message
+            })
+        }
+
+        const nationalIDExist = await employeeDB.getEmployeeByNationalID(request.body.employeeNationalID)
+        if(nationalIDExist.length != 0)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: 'this national ID is already taken'
             })
         }
 
@@ -516,25 +524,27 @@ authRouter.post('/employees/sign-up', verifyToken, fileValidation,async (request
 
 
         const file = request.files.employeeCriminalRecord
-        file.mv('./employees-files/' + request.body.employeeFirstName + '-' + request.body.employeeLastName + '.png', (error, result)=>{
-            if(error)
-            {
-                console.log(error.message)
-                return response.status(500).send({
-                    accepted: false,
-                    message: 'internal server error'
-                }) 
-            }
+        const fileSavePath = './employees-files/' + request.body.employeeFirstName + '-' + request.body.employeeLastName + '.png'
+        const fileUploading = await file.mv(fileSavePath)
 
-            return response.status(200).send({
-                accepted: true,
-                message: 'uploaded successfully'
-            })
+        const addEmployee = await employeeDB.addEmployee(
+            request.body.employeeFirstName,
+            request.body.employeeLastName,
+            request.body.employeeAddress,
+            request.body.employeeNationalID,
+            bcrypt.hashSync(request.body.employeePassword, 8),
+            fileSavePath,
+            new Date()
+        )
 
+        const employeeData = await employeeDB.getEmployeeByNationalID(request.body.employeeNationalID)
 
-        })
-
-
+        return response.status(200).send({
+            accepted: true,
+            message: 'account created successfully',
+            token: jwt.sign({userID: employeeData[0].id}, config.secretKey, {expiresIn: '30d'})
+        })  
+        
     }
     catch(error)
     {

@@ -3,7 +3,6 @@
 
 const fileValidation = (request, response, next)=>{
 
-        console.log('Here')
         if(!request.files)
         {
             return response.status(406).send({
