@@ -9,7 +9,7 @@ module.exports = {
         ssl: true*/
         user: 'doadmin',
         host: 'db-postgresql-nyc3-74306-do-user-9140176-0.b.db.ondigitalocean.com',
-        database: 'defaultdb',
+        database: 'car-spa',
         password: 'nfqxwylnqbmk97fm',
         port: '25060',
         sslmode: 'require'
