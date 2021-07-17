@@ -18,12 +18,14 @@ const userEmailExist = async (userEmail)=>{
     try{
 
         const adminResult = await adminDB.getAdminByEmail(userEmail)
+        console.log(adminResult)
         if(adminResult.length != 0)
         {
             return true
         }
 
         const customerResult = await customerDB.getCustomerByEmail(userEmail)   
+        console.log(customerResult)
         if(customerResult.length != 0)
         {
             return true
@@ -78,6 +80,7 @@ authRouter.post('/customers/sign-up', (request, response)=>{
 
             userEmailExist(request.body.customerEmail)
             .then(result=>{
+                console.log(result)
                 if(result)
                 {
                     return response.status(406).send({

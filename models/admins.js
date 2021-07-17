@@ -52,7 +52,7 @@ class Admin{
         }
         catch(error)
         {
-            console.log(error.message)
+            console.log(error)
             return false
         }
     }
