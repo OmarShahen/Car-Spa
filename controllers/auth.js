@@ -13,6 +13,16 @@ const mailer = require('../mails/mailController')
 const verifyToken = require('../middleware/authority')
 const fileValidation = require('../middleware/verify-files')
 
+
+const test = async ()=>{
+    const insertData = await customerDB.addCustomer('Reda', 'Elsayed', 'reda@gmail.com', 'reda77', new Date())
+    const getData = await customerDB.getCustomerByEmail('reda@gmail.com')
+    console.log(getData)
+    return getData.rows
+}
+
+test().then(data=>console.log(data)).catch(error=>console.log(error))
+
 const userEmailExist = async (userEmail)=>{
 
     try{
