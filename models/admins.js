@@ -15,7 +15,8 @@ const pool = new Pool({
     host: config.db.host,
     database: config.db.database,
     password: config.db.password,
-    port: config.db.port
+    port: config.db.port,
+    ssl: true
 })
 
 class Admin{
