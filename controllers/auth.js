@@ -22,12 +22,15 @@ const pool = new Pool({
     host: config.db.host
 })
 
-const client = await pool.connect()
-const result = await client.query('SELECT * FROM customers')
-console.log(result)
 
 
 const test = async ()=>{
+
+    const client = await pool.connect()
+    const result = await client.query('SELECT * FROM customers')
+    console.log(result)
+
+
     const getData = await customerDB.getAllCustomers()
     console.log('Here')
     console.log(getData)
