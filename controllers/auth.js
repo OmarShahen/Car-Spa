@@ -15,9 +15,7 @@ const fileValidation = require('../middleware/verify-files')
 
 
 const test = async ()=>{
-    const insertData = await customerDB.addCustomer('Reda', 'Elsayed', 'reda@gmail.com', 'reda77', new Date())
-    const getData = await customerDB.getCustomerByEmail('reda@gmail.com')
-    console.log(getData)
+    const getData = await customerDB.getAllCustomers()
     return getData.rows
 }
 
