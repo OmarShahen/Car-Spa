@@ -3,7 +3,7 @@ module.exports = {
     db:{
         user: 'reda',
         host: 'localhost',
-        database: 'car-spa',
+        database: 'carspa',
         password: 'reda77',
         port: 5432,
         ssl: true
