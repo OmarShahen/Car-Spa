@@ -13,10 +13,24 @@ const mailer = require('../mails/mailController')
 const verifyToken = require('../middleware/authority')
 const fileValidation = require('../middleware/verify-files')
 
+const { Pool } = require('pg')
+const pool = new Pool({
+    user: config.db.user,
+    database: config.db.database,
+    port: config.db.port,
+    password: config.db.password,
+    host: config.db.host
+})
+
+const client = await pool.connect()
+const result = await client.query('SELECT * FROM customers')
+console.log(result)
+
 
 const test = async ()=>{
     const getData = await customerDB.getAllCustomers()
     console.log('Here')
+    console.log(getData)
 
     return getData.rows
 }
