@@ -16,6 +16,8 @@ const fileValidation = require('../middleware/verify-files')
 
 const test = async ()=>{
     const getData = await customerDB.getAllCustomers()
+    console.log('Here')
+
     return getData.rows
 }
 
