@@ -22,8 +22,8 @@ const pool = new Pool({
     database: config.db.database,
     password: config.db.password,
     port: config.db.port,
-    ssl: true,
-    sslmode: 'require'
+    ssl: config.db.ssl,
+    sslmode: config.db.sslmode
 })
 
 class Employee{
