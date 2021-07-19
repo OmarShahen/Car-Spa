@@ -20,14 +20,12 @@ const userEmailExist = async (userEmail)=>{
     try{
 
         const adminResult = await adminDB.getAdminByEmail(userEmail)
-        console.log(adminResult)
         if(adminResult.length != 0)
         {
             return true
         }
 
         const customerResult = await customerDB.getCustomerByEmail(userEmail)   
-        console.log(customerResult)
         if(customerResult.length != 0)
         {
             return true
