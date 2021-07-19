@@ -1,5 +1,3 @@
-
-
 const authRouter = require('express').Router()
 const jwt = require('jsonwebtoken')
 const customerDB = require('../models/customers')
@@ -12,33 +10,10 @@ const bcrypt = require('bcrypt')
 const mailer = require('../mails/mailController')
 const verifyToken = require('../middleware/authority')
 const fileValidation = require('../middleware/verify-files')
+const verifyInput = require('./verify-input')
+const { checkPhoneNumber } = require('./verify-input')
+const { response } = require('express')
 
-const { Pool } = require('pg')
-const pool = new Pool({
-    user: config.db.user,
-    database: config.db.database,
-    port: config.db.port,
-    password: config.db.password,
-    host: config.db.host
-})
-
-
-
-const test = async ()=>{
-
-    const client = await pool.connect()
-    const result = await client.query('SELECT * FROM customers')
-    console.log(result)
-
-
-    const getData = await customerDB.getAllCustomers()
-    console.log('Here')
-    console.log(getData)
-
-    return getData.rows
-}
-
-test().then(data=>console.log(data)).catch(error=>console.log(error))
 
 const userEmailExist = async (userEmail)=>{
 
@@ -69,162 +44,155 @@ const userEmailExist = async (userEmail)=>{
 }
 
 
+authRouter.post('/customers/sign-up', async (request, response)=>{
 
+    try{
 
-authRouter.post('/customers/sign-up', (request, response)=>{
-
-    // Check First Name
-    verify.checkName(request.body.customerFirstName)
-    .then(data=>{
-        if(!data.accepted)
+        const checkFirstName1 = await verify.checkEmptyInput(request.body.customerFirstName)
+        if(!checkFirstName1.accepted)
         {
             return response.status(406).send({
                 accepted: false,
-                message: data.message
+                message: checkFirstName1.message,
+                field: 'first name'
             })
         }
 
-        // Check Last Name
-        verify.checkName(request.body.customerLastName)
-        .then(data=>{
-            if(!data.accepted)
-            {
-                return response.status(406).send({
+        const checkFirstName2 = await verify.checkName(request.body.customerFirstName)
+        if(!checkFirstName2.accepted)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: checkFirstName2.message,
+                field: 'first name'
+            })
+        }
+
+        const checkLastName1 = await verify.checkEmptyInput(request.body.customerLastName)
+        if(!checkLastName1.accepted)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: checkLastName1.message,
+                field: 'last name'
+            })
+        }
+
+        const checkLastName2 = await verify.checkName(request.body.customerLastName)
+        if(!checkLastName2.accepted)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: checkLastName2.message,
+                field: 'last name'
+            })
+        }   
+
+        const checkEmail = verify.checkEmail(request.body.customerEmail)
+        if(!checkEmail.accepted)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: checkEmail.message,
+                field: 'email'
+            })
+        }
+
+        const emailExist = await userEmailExist(request.body.customerEmail)
+        if(emailExist)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: 'this email is already taken',
+                field: 'email'
+            })
+        }
+
+        const checkPhone = await checkPhoneNumber(request.body.customerPhoneNumber)
+        if(!checkPhone.accepted)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: checkPhone.message,
+                field: 'phone number'
+            })
+        }
+
+        const phoneNumber = await phoneDB.checkPhoneNumberExist(request.body.customerPhoneNumber)
+        if(phoneNumber.length != 0)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: 'this phone number is already taken',
+                field: 'phone number'
+            })
+        }
+
+        const checkPassword = verify.checkEmptyInput(request.body.customerPassword)
+        if(!checkPassword.accepted)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: checkPassword.message,
+                field: 'password'
+            })
+        }
+
+        const checkConfirmPassword = verify.checkEmptyInput(request.body.customerConfirmPassword)
+        if(!checkConfirmPassword.accepted)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: checkConfirmPassword.message,
+                field: 'password'
+            })
+        }
+
+        if(request.body.customerPassword != request.body.customerConfirmPassword)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: 'confirm password is not the same as password',
+                field: 'confirm password'
+            })
+        }
+
+        const createCustomer = await customerDB.addCustomer(
+            request.body.customerFirstName,
+            request.body.customerLastName,
+            request.body.customerEmail,
+            bcrypt.hashSync(request.body.customerPassword, 8),
+            new Date()
+        )
+
+        const getCustomer = await customerDB.getCustomerByEmail(request.body.customerEmail)
+        const addCustomerPhone = await phoneDB.addCustomerPhoneNumberByID(request.body.customerPhoneNumber, getCustomer[0].id)
+        const sendMail = await mailer(request.body.customerEmail, request.body.customerFirstName)
+
+        jwt.sign({userID: getCustomer[0].id}, config.secretKey, {expiresIn: '30d'}, (error, token)=>{
+            if(error)
+                return response.status(500).send({
                     accepted: false,
-                    message: data.message
+                    message: 'internal server error'
                 })
-            }
-
-            // Check Email
-            const checkMail = verify.checkEmail(request.body.customerEmail)
-            if(!checkMail.accepted)
-            {
-                return response.status(406).send({
-                    accepted: false,
-                    message: checkMail.message
-                })
-            }
-
-            userEmailExist(request.body.customerEmail)
-            .then(result=>{
-                console.log(result)
-                if(result)
-                {
-                    return response.status(406).send({
-                        accepted: false,
-                        message: 'this email is already taken'
-                    })
-                }
-
-            // Check Phone Number
-            verify.checkPhoneNumber(request.body.customerPhoneNumber)
-            .then(result=>{
-                if(!result.accepted)
-                {
-                    return response.status(406).send({
-                        accepted: false,
-                        message: result.message
-                    })
-                }
-
-            phoneDB.checkPhoneNumberExist(request.body.customerPhoneNumber)
-            .then(result=>{
-                if(result.length != 0)
-                {
-                    return response.status(406).send({
-                        accepted: false,
-                        message: 'this phone number is already taken'
-                    })
-                    
-                }
-
-            // Check Password
-            const checkPassword = verify.checkEmptyInput(request.body.customerPassword)
-            if(!checkPassword.accepted)
-            {
-                return response.status(406).send({
-                    accepted: false,
-                    message: checkPassword.message
-                })
-            }
-
-            // Check Confirm Password
-            const checkConfirmPassword = verify.checkEmptyInput(request.body.customerConfirmPassword)
-            if(!checkConfirmPassword.accepted)
-            {
-                return response.status(406).send({
-                    accepted: false,
-                    message: checkConfirmPassword.message
-                })
-            }
-
-            if(request.body.customerPassword != request.body.customerConfirmPassword)
-            {
-                return response.status(406).send({
-                    accepted: false,
-                    message: 'confirm password is not the same as password'
-                })
-            }
-
-            // Create Clean customer
-            jwt.sign({customerEmail: request.body.customerEmail}, config.secretKey, {expiresIn: '30d'},
-             (error, result)=>{
-                 if(error)
-                 {
-                    console.log(error.message)
-                    return response.status(500).send({
-                        accepted: false,
-                        message: 'internal server error'
-                    })
-                 }
-
-                 customerDB.addCustomer(
-                     request.body.customerFirstName,
-                     request.body.customerLastName,
-                     request.body.customerEmail,
-                     bcrypt.hashSync(request.body.customerPassword, 8),
-                     new Date()
-                 )
-                 .then(result=>{
-                    
-                    customerDB.getCustomerByEmail(request.body.customerEmail)
-                    .then(customerData=>{                        
-                        phoneDB.addCustomerPhoneNumberByID(request.body.customerPhoneNumber, customerData[0].id)
-                        .then(result=>{
-
-                            mailer(request.body.customerEmail, request.body.customerFirstName)
-                            .then(result=>{
-                                return response.status(200).send({
-                                    accepted: true,
-                                    message: 'account created successfully',
-                                    token: jwt.sign({userID: customerData.id}, config.secretKey, {expiresIn: '30d'})
-                                })
-                            })
-                        })
-                    })
-                 })
-             })
-
-
-
-
             
+            return response.status(200).send({
+                accepted: true,
+                message: 'account created successfully',
+                token: token
             })
-
-            })
-
-            
-            })
-            
-            })
-
         })
-    .catch(error=>{
+
+    }                    
+    catch(error)
+    {
         console.log(error)
         return response.status(500).send({
+            accepted: false,
             message: 'internal server error'
         })
-    })
+    }
+    
     })
     
 authRouter.post('/customers/login', async (request, response)=>{

@@ -1,12 +1,11 @@
 
 module.exports = {
     db:{
-        user: 'reda',
+        user: 'postgres',
         host: 'localhost',
-        database: 'carspa',
-        password: 'reda77',
+        database: 'CarSpa',
+        password: 'Shahen77',
         port: 5432,
-        ssl: true
        /* username: 'doadmin',
         password: 'r4b1alncgj3qvx9i',
         host: 'db-postgresql-nyc3-88756-do-user-9140176-0.b.db.ondigitalocean.com',

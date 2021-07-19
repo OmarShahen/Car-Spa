@@ -12,6 +12,8 @@ const validator = require("email-validator");
 class Verfication{
 
 
+    
+
     checkEmptyInput(input)
     {
         try{
