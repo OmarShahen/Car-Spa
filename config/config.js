@@ -1,10 +1,10 @@
 
 module.exports = {
     db:{
-        user: 'postgres',
+        user: 'reda',
         host: 'localhost',
         database: 'CarSpa',
-        password: 'Shahen77',
+        password: 'reda77',
         port: 5432,
        /* username: 'doadmin',
         password: 'r4b1alncgj3qvx9i',
