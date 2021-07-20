@@ -167,18 +167,10 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
         const addCustomerPhone = await phoneDB.addCustomerPhoneNumberByID(request.body.customerPhoneNumber, getCustomer[0].id)
         const sendMail = await mailer(request.body.customerEmail, request.body.customerFirstName)
 
-        jwt.sign({userID: getCustomer[0].id}, config.secretKey, {expiresIn: '30d'}, (error, token)=>{
-            if(error)
-                return response.status(500).send({
-                    accepted: false,
-                    message: 'internal server error'
-                })
-            
-            return response.status(200).send({
-                accepted: true,
-                message: 'account created successfully',
-                token: token
-            })
+        return response.status(200).send({
+            accepted: true,
+            message: 'created account successfully',
+            token: jwt.sign({userID: getCustomer[0].id}, config.secretKey, {expiresIn: '30d'})
         })
 
     }                    
@@ -429,6 +421,7 @@ authRouter.post('/employees/sign-up', verifyToken, fileValidation, async (reques
             })
         }
 
+
         const checkFirstName = await verify.checkName(request.body.employeeFirstName)
         if(!checkFirstName.accepted)
         {
@@ -490,7 +483,8 @@ authRouter.post('/employees/sign-up', verifyToken, fileValidation, async (reques
                 accepted: false,
                 message: 'this phone number is already taken'
             })
-        }   
+        } 
+        
 
         const checkPassword = verify.checkEmptyInput(request.body.employeePassword)
         if(!checkPassword.accepted)
@@ -518,6 +512,7 @@ authRouter.post('/employees/sign-up', verifyToken, fileValidation, async (reques
             })
         }
 
+        
 
         const file = request.files.employeeCriminalRecord
         const fileSavePath = './employees-files/' + request.body.employeeFirstName + '-' + request.body.employeeLastName + '.png'
@@ -534,17 +529,19 @@ authRouter.post('/employees/sign-up', verifyToken, fileValidation, async (reques
         )
 
         const employeeData = await employeeDB.getEmployeeByNationalID(request.body.employeeNationalID)
+        const addEmployeePhone = await phoneDB.addEmployeePhoneNumberByID(request.body.employeePhoneNumber, employeeData[0].id)
+
 
         return response.status(200).send({
             accepted: true,
             message: 'account created successfully',
             token: jwt.sign({userID: employeeData[0].id}, config.secretKey, {expiresIn: '30d'})
-        })  
+        })
         
     }
     catch(error)
     {
-        console.log(error)
+        console.error(error)
         return response.status(500).send({
             accepted: false,
             message: 'internal server error'
@@ -554,33 +551,35 @@ authRouter.post('/employees/sign-up', verifyToken, fileValidation, async (reques
 })
 
 
-authRouter.post('/file-upload', fileValidation, async (request, response, next)=>{
+authRouter.post('/employees/login', async (request, response)=>{
     try{
 
-    
-    if(!request.files)
-    {
-        return response.status(406).send({
-            accepted: false,
-            message: 'empty files'
-        })
-    }
-
-    const file = request.files.photo
-    file.mv('./employees-files/' + file.name, (error, result)=>{
-        if(error)
+        const employeeData = await phoneDB.getEmployeeByPhone(request.body.employeePhoneNumber)
+        if(employeeData.length == 0)
         {
-            console.log(error)
-            return response.status(500).send({
+            return response.status(406).send({
                 accepted: false,
-                message: 'internal server error'
+                message: 'this phone number does not exist'
             })
         }
+
+        const isPasswordValid = bcrypt.compareSync(request.body.employeePassword, employeeData[0].password)
+        if(!isPasswordValid)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: 'bad credentials'
+            })
+        }
+
         return response.status(200).send({
             accepted: true,
-            message: 'uploaded successfully'
+            message: 'login successfully',
+            token: jwt.sign({userID: employeeData[0].id}, config.secretKey, {expiresIn: '30d'})
         })
-    })
+
+
+
     }
     catch(error)
     {

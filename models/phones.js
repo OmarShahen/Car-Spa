@@ -45,7 +45,7 @@ class Phone{
         }
         catch(error)
         {
-            console.log(error.message)
+            console.log(error)
             return false
         }
     }
@@ -61,7 +61,7 @@ class Phone{
         }
         catch(error)
         {
-            console.log(error.message)
+            console.log(error)
             return false
         }
     }
@@ -77,7 +77,7 @@ class Phone{
         }
         catch(error)
         {
-            console.log(error.message)
+            console.log(error)
             return false
         }
     }
@@ -93,7 +93,7 @@ class Phone{
         }
         catch(error)
         {
-            console.log(error.message)
+            console.log(error)
             return false
         }
     }
@@ -108,7 +108,7 @@ class Phone{
         }
         catch(error)
         {
-            console.log(error.message)
+            console.log(error)
             return false
         }
     }
@@ -123,7 +123,7 @@ class Phone{
         }
         catch(error)
         {
-            console.log(error.message)
+            console.log(error)
             return false
         }
     }
@@ -139,7 +139,7 @@ class Phone{
         }
         catch(error)
         {
-            console.log(error.message)
+            console.log(error)
             return false
         }
     }
@@ -154,7 +154,7 @@ class Phone{
         }
         catch(error)
         {
-            console.log(error.message)
+            console.log(error)
             return false
         }
     }
@@ -169,7 +169,7 @@ class Phone{
         }
         catch(error)
         {
-            console.log(error.message)
+            console.log(error)
             return false
         }
     }
@@ -185,7 +185,7 @@ class Phone{
         }
         catch(error)
         {
-            console.log(error.message)
+            console.log(error)
             return false
         }
     }
@@ -200,7 +200,7 @@ class Phone{
         }
         catch(error)
         {
-            console.log(error.message)
+            console.log(error)
             return false
         }
     }
@@ -215,7 +215,7 @@ class Phone{
         }
         catch(error)
         {
-            console.log(error.message)
+            console.log(error)
             return false
         }
     }
@@ -232,7 +232,7 @@ class Phone{
         }
         catch(error)
         {
-            console.log(error.message)
+            console.log(error)
             return false
         }
     }
@@ -240,7 +240,7 @@ class Phone{
     {
         try{
 
-            const query = `SELECT ID, FirstName, LastName, AccountCreationDate
+            const query = `SELECT ID, FirstName, LastName, password, NationalID, AccountCreationDate
                            FROM employees WHERE ID = (SELECT EmployeeID FROM phones WHERE PhoneNumber = $1)`
             const client = await pool.connect()
             const employeeData = await client.query(query, [phoneNumber])
@@ -248,7 +248,7 @@ class Phone{
         }
         catch(error)
         {
-            console.log(error.message)
+            console.log(error)
             return false
         }
     }
@@ -264,7 +264,7 @@ class Phone{
         }
         catch(error)
         {
-            console.log(error.message)
+            console.log(error)
             return false
         }
     }
@@ -280,7 +280,7 @@ class Phone{
         }
         catch(error)
         {
-            console.log(error.message)
+            console.log(error)
         }
     }
 

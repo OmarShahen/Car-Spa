@@ -3,6 +3,8 @@
 
 const fileValidation = (request, response, next)=>{
 
+    try{
+
         if(!request.files)
         {
             return response.status(406).send({
@@ -16,7 +18,7 @@ const fileValidation = (request, response, next)=>{
         const fileExtension = file.name.split('.')[file.name.split('.').length-1]
         let valid = false
 
-        for(let i=0;i<validExtensions.length;i++)
+       for(let i=0;i<validExtensions.length;i++)
         {
             if(validExtensions[i] == fileExtension)
             {
@@ -32,7 +34,14 @@ const fileValidation = (request, response, next)=>{
             })
         }
 
+    }
+    catch(error)
+    {
+        console.log(error)
+    }
+    finally{
         next()
+    }
 
     }
 
