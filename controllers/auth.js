@@ -1,5 +1,7 @@
 const authRouter = require('express').Router()
-const jwt = require('jsonwebtoken')
+const customerJWT = require('jsonwebtoken')
+const employeeJWT = require('jsonwebtoken')
+const adminJWT = require('jsonwebtoken')
 const customerDB = require('../models/customers')
 const employeeDB = require('../models/employees')
 const adminDB = require('../models/admins')
@@ -8,7 +10,7 @@ const verify = require('./verify-input')
 const config = require('../config/config')
 const bcrypt = require('bcrypt')
 const mailer = require('../mails/mailController')
-const verifyToken = require('../middleware/authority')
+const { adminVerifyToken } = require('../middleware/authority')
 const fileValidation = require('../middleware/verify-files')
 const verifyInput = require('./verify-input')
 const { checkPhoneNumber } = require('./verify-input')
@@ -159,7 +161,7 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
             request.body.customerFirstName,
             request.body.customerLastName,
             request.body.customerEmail,
-            bcrypt.hashSync(request.body.customerPassword, 8),
+            bcrypt.hashSync(request.body.customerPassword, config.bcryptRounds),
             new Date()
         )
 
@@ -170,7 +172,7 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
         return response.status(200).send({
             accepted: true,
             message: 'created account successfully',
-            token: jwt.sign({userID: getCustomer[0].id}, config.secretKey, {expiresIn: '30d'})
+            token: customerJWT.sign({customerID: getCustomer[0].id}, config.customerSecretKey, {expiresIn: '30d'})
         })
 
     }                    
@@ -218,7 +220,7 @@ authRouter.post('/customers/login', async (request, response)=>{
         return response.status(200).send({
             accepted: true,
             message: 'login successfully',
-            token: jwt.sign({userID: customerData[0].id}, config.secretKey, {expiresIn: '30d'})
+            token: customerJWT.sign({customerID: customerData[0].id}, config.customerSecretKey, {expiresIn: '30d'})
         })
       
     }
@@ -346,7 +348,7 @@ authRouter.post('/admins/sign-up', async (request, response)=>{
             request.body.adminFirstName,
             request.body.adminLastName,
             request.body.adminEmail,
-            bcrypt.hashSync(request.body.adminPassword, 8)
+            bcrypt.hashSync(request.body.adminPassword, config.bcryptRounds)
         )
 
         const adminData = await adminDB.getAdminByEmail(request.body.adminEmail)
@@ -356,7 +358,7 @@ authRouter.post('/admins/sign-up', async (request, response)=>{
 
             accepted: true,
             message: 'account created successfully',
-            token: jwt.sign({userID: adminData[0].id}, config.secretKey, {expiresIn: '30d'})
+            token: adminJWT.sign({adminID: adminData[0].id}, config.adminSecretKey, {expiresIn: '30d'})
         })
 
 
@@ -395,7 +397,7 @@ authRouter.post('/admins/login', async (request, response)=>{
         return response.status(200).send({
             accepted: true,
             message: 'login successfully',
-            token: jwt.sign({userID: adminResult[0].id}, config.secretKey, {expiresIn: '30d'})
+            token: adminJWT.sign({adminID: adminResult[0].id}, config.adminSecretKey, {expiresIn: '30d'})
         })
     }
     catch(error)
@@ -408,7 +410,7 @@ authRouter.post('/admins/login', async (request, response)=>{
     }
 })
 
-authRouter.post('/employees/sign-up', verifyToken, fileValidation, async (request, response, next)=>{
+authRouter.post('/employees/sign-up', adminVerifyToken, fileValidation, async (request, response, next)=>{
 
     try{
 
@@ -523,7 +525,7 @@ authRouter.post('/employees/sign-up', verifyToken, fileValidation, async (reques
             request.body.employeeLastName,
             request.body.employeeAddress,
             request.body.employeeNationalID,
-            bcrypt.hashSync(request.body.employeePassword, 8),
+            bcrypt.hashSync(request.body.employeePassword, config.bcryptRounds),
             fileSavePath,
             new Date()
         )
@@ -535,7 +537,7 @@ authRouter.post('/employees/sign-up', verifyToken, fileValidation, async (reques
         return response.status(200).send({
             accepted: true,
             message: 'account created successfully',
-            token: jwt.sign({userID: employeeData[0].id}, config.secretKey, {expiresIn: '30d'})
+            token: employeeJWT.sign({employeeID: employeeData[0].id}, config.employeeSecretKey, {expiresIn: '30d'})
         })
         
     }
@@ -575,7 +577,7 @@ authRouter.post('/employees/login', async (request, response)=>{
         return response.status(200).send({
             accepted: true,
             message: 'login successfully',
-            token: jwt.sign({userID: employeeData[0].id}, config.secretKey, {expiresIn: '30d'})
+            token: employeeJWT.sign({employeeID: employeeData[0].id}, config.employeeSecretKey, {expiresIn: '30d'})
         })
 
 

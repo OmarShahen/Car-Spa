@@ -15,7 +15,10 @@ module.exports = {
         ssl: true*/
         
     },
-    secretKey: 'obgpoirhgi0h3-wojvo3jgb=034jv=-0o43nb-0gng',
+    customerSecretKey: 'obgpoirhgi0h3-wojvo3jgb=034jv=-0o43nb-0gng',
+    employeeSecretKey: 'obih-4g-4npgneongenvefojgldjvoejogjgjrljlr',
+    adminSecretKey: 'ubf98fwnksnnbp3p3pvnpnpfneih40g-4493ncwepvnpg',
+    bcryptRounds: 8,
     mailAccount: 'autocarspa77@gmail.com',
     mailAccountPassword: 'Nashar77',
     employeesFiles: '../'

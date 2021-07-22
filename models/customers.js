@@ -55,11 +55,28 @@ class Customer{
         }
     }
 
+    async getCustomerDataWithPhoneByID(customerID)
+    {
+        try{
+
+            const query = `SELECT customers.FirstName, customers.LastName, customers.email, customers.AccountCreationDate,
+                            phones.PhoneNumber FROM customers INNER JOIN phones
+                            ON phones.CustomerID = customers.ID
+                            WHERE customerID = $1`
+            const client = await pool.connect()
+            const customersData = await client.query(query, [customerID])
+            return customersData.rows
+        }
+        catch(error)
+        {
+            return error
+        }
+    }
     async getCustmerByID(customerId)
     {
         try{
 
-            const query = 'SELECT ID, FirstName, LastName, email, accountCreationDate FROM customers WHERE ID = $1'
+            const query = 'SELECT ID, FirstName, LastName, email, password, accountCreationDate FROM customers WHERE ID = $1'
             const client = await pool.connect()
             const customerData = await client.query(query, [customerId])
             return customerData.rows

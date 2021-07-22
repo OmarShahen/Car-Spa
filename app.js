@@ -16,6 +16,9 @@ app.use(fileUpload())
 const auth = require('./controllers/auth')
 app.use('/api/auth', auth)
 
+const customers = require('./controllers/customers')
+app.use('/api', customers)
+
 app.get('/', (request, response)=>{
     return response.send('Welcome Sir')
 })

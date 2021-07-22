@@ -1,32 +1,33 @@
 
-const jwt = require('jsonwebtoken')
+const adminJWT = require('jsonwebtoken')
+const customerJWT = require('jsonwebtoken')
+const employeeJWT = require('jsonwebtoken')
 const config = require('../config/config')
 
 
-const verifyToken = async (request, response, next)=>{
+const adminVerifyToken = async (request, response, next)=>{
 
     try{
 
         const token = request.headers['x-access-token']
         if(!token)
         {
-            return response.status(500).send({
+            return response.status(406).send({
                 accepted: false,
                 message: 'no token provided'
             }) 
         }
 
-        jwt.verify(token, config.secretKey, (error, decoded)=>{
+        adminJWT.verify(token, config.adminSecretKey, (error, decoded)=>{
             if(error)
             {
-                console.log(error.message)
                 return response.status(500).send({
                     accepted: false,
-                    message: 'internal server error'
+                    message: 'unauthorized to access this data'
                 })
             }
 
-            request.userID = decoded.userID
+            request.adminID = decoded.adminID
             next()
         })
     }
@@ -41,4 +42,81 @@ const verifyToken = async (request, response, next)=>{
 
 }
 
-module.exports = verifyToken
+const customerVerifyToken = async (request, response, next)=>{
+    try{
+
+        const token = request.headers['x-access-token']
+        if(!token)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: 'no token provided'
+            })
+        }
+
+        customerJWT.verify(token, config.customerSecretKey, (error, decoded)=>{
+            if(error)
+            {
+                return response.status(500).send({
+                    accepted: false,
+                    message: 'unauthorized to access this data'
+                })
+            }
+
+            request.customerID = decoded.customerID
+            next()
+        })
+
+        
+    }
+    catch(error)
+    {
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+}
+
+const employeeVerifyToken = async (request, response, next)=>{
+
+    try{
+
+        const token = request.headers['x-access-token']
+        if(!token)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: 'no token provided'
+            })
+        }
+
+        employeeJWT.verify(token, config.employeeSecretKey, (error, decoded)=>{
+            if(error)
+            {
+                return response.status(500).send({
+                    accepted: false,
+                    message: 'unauthorized to access this data'
+                })
+            }
+
+            request.employeeID = decoded.employeeID
+            next()
+        })
+    }
+    catch(error)
+    {
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+}
+
+
+
+module.exports = {
+    adminVerifyToken,
+    customerVerifyToken,
+    employeeVerifyToken
+}
