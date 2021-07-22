@@ -172,6 +172,7 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
         return response.status(200).send({
             accepted: true,
             message: 'created account successfully',
+            id: getCustomer[0].id,
             token: customerJWT.sign({customerID: getCustomer[0].id}, config.customerSecretKey, {expiresIn: '30d'})
         })
 
@@ -220,6 +221,7 @@ authRouter.post('/customers/login', async (request, response)=>{
         return response.status(200).send({
             accepted: true,
             message: 'login successfully',
+            id: customerData[0].id,
             token: customerJWT.sign({customerID: customerData[0].id}, config.customerSecretKey, {expiresIn: '30d'})
         })
       
@@ -358,6 +360,7 @@ authRouter.post('/admins/sign-up', async (request, response)=>{
 
             accepted: true,
             message: 'account created successfully',
+            id: adminData[0].id,
             token: adminJWT.sign({adminID: adminData[0].id}, config.adminSecretKey, {expiresIn: '30d'})
         })
 
@@ -397,6 +400,7 @@ authRouter.post('/admins/login', async (request, response)=>{
         return response.status(200).send({
             accepted: true,
             message: 'login successfully',
+            id: adminResult[0].id,
             token: adminJWT.sign({adminID: adminResult[0].id}, config.adminSecretKey, {expiresIn: '30d'})
         })
     }
@@ -537,6 +541,7 @@ authRouter.post('/employees/sign-up', adminVerifyToken, fileValidation, async (r
         return response.status(200).send({
             accepted: true,
             message: 'account created successfully',
+            id: employeeData[0].id,
             token: employeeJWT.sign({employeeID: employeeData[0].id}, config.employeeSecretKey, {expiresIn: '30d'})
         })
         
@@ -577,6 +582,7 @@ authRouter.post('/employees/login', async (request, response)=>{
         return response.status(200).send({
             accepted: true,
             message: 'login successfully',
+            id: employeeData[0].id,
             token: employeeJWT.sign({employeeID: employeeData[0].id}, config.employeeSecretKey, {expiresIn: '30d'})
         })
 
