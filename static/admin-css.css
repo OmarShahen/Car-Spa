@@ -1,0 +1,66 @@
+
+.container-fluid{
+    font-family: 'Open Sans', sans-serif;
+}
+
+.right-part{
+    background-color: #41A7F2;
+    height: 100vh;
+    color: #fff;
+    text-align: center;
+}
+
+.right-part h1{
+    font-weight: normal;
+    font-size: 48px;
+    padding-top: 5rem;
+}
+
+.left-part{
+    text-align: center;
+}
+
+.left-part h1{
+    font-weight: normal;
+    font-size: 48px;
+    padding-top: 5rem;
+}
+
+#admin-login{
+    padding-top: 6rem;
+}
+
+
+#admin-login input{
+    background-color: #fff;
+    border: none;
+    border-bottom: 1px solid #41A7F2;
+    padding-left: 2rem;
+    font-size: large;
+    margin-bottom: 5rem;
+}
+
+input{
+    outline: none;
+}
+
+#admin-login input[type="submit"]{
+    background-color: #41A7F2;
+    color: #fff;
+    padding-left: 0;
+    width: 218px;
+    height: 50px;
+    margin-bottom: 2rem;
+}
+a{
+    font-weight: bold;
+}
+
+
+@media only screen and (max-width: 1000px){
+    .right-part{
+        display: none;
+    }
+}
+
+

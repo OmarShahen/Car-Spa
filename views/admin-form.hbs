@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Form</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="/admin-css.css"/>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet"/>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12 col-md-6 left-part">
+                <h1>
+                    Hello, Boss
+                </h1>
+                <div>
+                    <form method="POST" id="admin-login" action="/api/admins/login-form/submit">
+                        <input type="email" name="adminEmail" placeholder="Admin Email" required><br>
+                        <input type="password" name="adminPassword" placeholder="Admin Password" required><br>
+                        <input type="submit" value="SIGN IN">
+                    </form>
+                    <p>
+                        <a href="#">Forgot Password</a>
+                    </p>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-6 right-part">
+                <h1>Glade to see you!</h1>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
