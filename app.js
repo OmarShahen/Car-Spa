@@ -27,6 +27,7 @@ const admins = require('./controllers/admins')
 app.use('/api', admins)
 
 app.get('/', (request, response)=>{
+    console.log(request.headers.host)
     return response.send('Welcome Sir')
 })
 

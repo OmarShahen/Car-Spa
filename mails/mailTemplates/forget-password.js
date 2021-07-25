@@ -1,5 +1,5 @@
 
-const welcomeMailTemplate = (userName, callback)=>{
+const forgotPasswordMailTemplate = (userName, callback)=>{
 
     const content =  {htmlMessage: `
                     <html lang="en">
@@ -11,13 +11,14 @@ const welcomeMailTemplate = (userName, callback)=>{
                             text-align: center;
                             background-color: #F3F4F8;
                             color: #000000;
+                            font-size: 1rem;
                         }
                         p{
                             color: #000000;
                         }
                         h1{
-                            text-align: center;
-                            font-size: 24px;
+                            text-align: left;
+                            font-size: 2rem;
                             font-weight: normal;
                             color: #000000;
 
@@ -26,13 +27,18 @@ const welcomeMailTemplate = (userName, callback)=>{
                             color: #000000;
                         }
                         button{
-                            color: white;
-                            background-color: #41A7F2;
+                            color: #41A7F2;
+                            /*background-color: #41A7F2;*/
+                            background-color: #fff;
                             border: none;
                             box-shadow: none;
                             width: 189px;
                             height: 41px;
 
+                        }
+                        a{
+                            color: #41A7F2;
+                            text-decoration: none;
                         }
                         .container{
                             margin-left: auto;
@@ -71,25 +77,27 @@ const welcomeMailTemplate = (userName, callback)=>{
                         <div class="bigger-container">
                             <div class="container">
                                 <h1>
-                                    Welcome <span>${userName}</span>
+                                    Hi, <span>Boss</span>
                                 </h1>
 
                                 <p>
-                                    Hi ${userName},<br>
-                                    You created your account <span>successfully</span><br>
-                                    we 're excited to have you get started. To<br>
-                                    order your first wash, just press on the button below.
-                                </p>
+                                Someone has asked to reset the password for your account.<br><br>
+                                If you did not request a password reset, you can disregard this email.
+                                No changes have been made to your account.<br><br>
+                                
+                                To reset your password, click on reset password link and within 90 minutes the link will expire:
+                                </p><br>
                                 <div class="btn-div">
                                     <button>
-                                        Order Now
+                                        <a href="http://localhost:5000/api/admins/login-form">
+                                            RESET PASSWORD
+                                        </a>    
                                     </button>
                                 </div>
                                 
 
                                 <p>
-                                If you have any questions, just reply to this<br>
-                                email we 're always happy to help out.<br><br>
+                               <br><br>
 
                                 Cheers,<br>
                                 The CAR-SPA Team
@@ -125,4 +133,4 @@ const welcomeMailTemplate = (userName, callback)=>{
                 
 };
 
-module.exports = welcomeMailTemplate;
+module.exports = forgotPasswordMailTemplate;

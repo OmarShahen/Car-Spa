@@ -9,7 +9,7 @@ const phoneDB = require('../models/phones')
 const verify = require('./verify-input')
 const config = require('../config/config')
 const bcrypt = require('bcrypt')
-const mailer = require('../mails/mailController')
+const { sendWelcomeMail } = require('../mails/mailController')
 const { adminVerifyToken } = require('../middleware/authority')
 const fileValidation = require('../middleware/verify-files')
 const verifyInput = require('./verify-input')
@@ -167,7 +167,7 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
 
         const getCustomer = await customerDB.getCustomerByEmail(request.body.customerEmail)
         const addCustomerPhone = await phoneDB.addCustomerPhoneNumberByID(request.body.customerPhoneNumber, getCustomer[0].id)
-        const sendMail = await mailer(request.body.customerEmail, request.body.customerFirstName)
+        const sendMail = await sendWelcomeMail(request.body.customerEmail, request.body.customerFirstName)
 
         return response.status(200).send({
             accepted: true,

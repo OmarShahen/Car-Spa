@@ -24,20 +24,123 @@
                     Hello, Boss
                 </h1>
                 <div>
-                    <form method="POST" id="admin-login" action="/api/admins/login-form/submit">
-                        <input type="email" name="adminEmail" placeholder="Admin Email" required><br>
-                        <input type="password" name="adminPassword" placeholder="Admin Password" required><br>
+                    <form method="POST" id="admin-login" action="/api/admins/login-form/review">
+                        <p id="email-error"></p>
+                        <input type="email" id="adminEmail" name="adminEmail" placeholder="Admin Email" required><br>
+                        <p id="password-error"></p>
+                        <input type="password" id="adminPassword" name="adminPassword" placeholder="Admin Password" required><br>
                         <input type="submit" value="SIGN IN">
                     </form>
                     <p>
-                        <a href="#">Forgot Password</a>
+                        <a href="#" id="forgot-password">Forgot Password</a>
                     </p>
                 </div>
+            </div>
+
+            <!--Forgot Password Part-->
+
+            <div class="col-sm-12 col-md-6 forgot-password-part">
+                <h1>
+                    Forgot Password?
+                </h1>
+                
+                <div class="alert alert-info Alerts">
+                    <p><strong style="padding-right: 0.5rem;">Alert!</strong>will send verfication link to this account</p>
+                </div>
+                <form id="forgot-password-form">
+                    <p id="forgot-password-email-error"></p>
+                    <input type="email" id="adminEmail" name="adminEmail" placeholder="Email" required><br>
+                    <input type="submit" value="SEND">
+                </form>
             </div>
             <div class="col-sm-12 col-md-6 right-part">
                 <h1>Glade to see you!</h1>
             </div>
         </div>
     </div>
+
+    <!--Login Form Part-->
+
+    <script>
+
+
+
+            const loginForm = document.querySelector('#admin-login')
+
+            document.querySelector('#adminEmail').addEventListener('input', ()=>{
+                document.querySelector('#email-error').style.display = 'none'
+            })
+
+            document.querySelector('#adminPassword').addEventListener('input', ()=>{
+               document.querySelector('#password-error').style.display = 'none' 
+            })
+
+            document.querySelector('#admin-login').addEventListener('submit', (e)=>{
+            e.preventDefault()
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = ()=>{
+                const serverResponse = JSON.parse(xhttp.responseText)
+                if(!serverResponse.accepted)
+                {
+                    if(serverResponse.field == 'email')
+                    {
+                        document.querySelector('#email-error').style.display = 'block'
+                        document.querySelector('#email-error').innerHTML = serverResponse.message
+                    }
+
+                    if(serverResponse.field == 'password')
+                    {
+                        document.querySelector('#password-error').style.display = 'block'
+                        document.querySelector('#password-error').innerHTML = serverResponse.message
+                    }
+                }
+
+                loginForm.submit()
+
+
+                
+            }
+
+            const email = loginForm['adminEmail'].value
+            const password = loginForm['adminPassword'].value
+
+            xhttp.open('POST', '/api/admins/login-form/submit', true)
+            xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded')
+            xhttp.send('adminEmail=' + email + '&adminPassword=' + password)
+
+        })
+
+
+
+    </script>
+
+    <!--Forgot Password Part-->
+    <script>
+        document.querySelector('#forgot-password').addEventListener('click', (e)=>{
+
+            e.preventDefault()
+            document.querySelector('.left-part').style.display = 'none'
+            document.querySelector('.forgot-password-part').style.display = 'block'
+
+        })
+
+        document.querySelector('#forgot-password-form').addEventListener('submit', (e)=>{
+            e.preventDefault()
+            const xhttp = new XMLHttpRequest()
+            xhttp.onload = ()=>{
+                console.log(xhttp.responseText)
+            }
+
+            xhttp.open('POST', '/api/admins/forgot-password', true)
+            xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded')
+            xhttp.send('adminEmail=' + document.querySelector('#forgot-password-form')['adminEmail'].value)
+        })
+
+
+
+
+
+
+    </script>
 </body>
 </html>

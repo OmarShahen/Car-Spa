@@ -20,18 +20,31 @@
     text-align: center;
 }
 
-.left-part h1{
+.left-part h1, .forgot-password-part h1{
     font-weight: normal;
     font-size: 48px;
     padding-top: 5rem;
+}
+
+.Alerts{
+
+    margin-top: 8rem;
 }
 
 #admin-login{
     padding-top: 6rem;
 }
 
+#forgot-password-form{
+    padding-top: 5rem;
+}
 
-#admin-login input{
+.forgot-password-part{
+    display: none;
+    text-align: center;
+}
+
+input{
     background-color: #fff;
     border: none;
     border-bottom: 1px solid #41A7F2;
@@ -40,11 +53,16 @@
     margin-bottom: 5rem;
 }
 
+#email-error, #password-error{
+    display: none;
+    color: red;
+}
+
 input{
     outline: none;
 }
 
-#admin-login input[type="submit"]{
+#admin-login input[type="submit"], #forgot-password-form input[type="submit"]{
     background-color: #41A7F2;
     color: #fff;
     padding-left: 0;

@@ -43,11 +43,65 @@ adminRoute.post('/admins/login-form/submit', async (request, response)=>{
     catch(error)
     {
         console.log(error)
-        return response.status(500)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error',
+            field: 'server'
+        })
     }
 })
 
 
+adminRoute.post('/admins/login-form/review', async (request, response)=>{
+    try{
+
+        const adminData = await adminDB.getAdminByEmail(request.body.adminEmail)
+        if(adminData.length == 0)
+        {
+            return response.status(406)
+        }
+
+        if(!bcrypt.compareSync(request.body.adminPassword, adminData[0].password))
+        {
+            return response.status(401)
+        }
+
+        return response.render('admin-dashboard')
+        
+    }
+    catch(error)
+    {
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
+adminRoute.post('/admins/forgot-password', async (request, response)=>{
+    try{
+
+        const adminData = await adminDB.getAdminByEmail(request.body.adminEmail)
+        if(adminData.length == 0)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: 'this account does not exist'
+            })
+        }
+
+        console.log(adminData)
+        return response.status(200).send('Done yaba')
+    }
+    catch(error)
+    {
+        console.log(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
 
 
 
