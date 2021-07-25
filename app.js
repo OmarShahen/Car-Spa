@@ -3,6 +3,7 @@ const express = require('express')
 const morgan = require('morgan')
 const bodyParser = require('body-parser')
 const fileUpload = require('express-fileupload')
+const path = require('path')
 
 
 
@@ -13,7 +14,8 @@ app.use(bodyParser.urlencoded({extended: true}))
 app.use(fileUpload())
 app.use(express.static('static'))
 
-app.set('views', __dirname + '/views')
+
+app.set('views', path.join(__dirname + '/views'))
 app.set('view engine', 'hbs')
 
 
