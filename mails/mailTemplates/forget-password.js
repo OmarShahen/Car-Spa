@@ -1,5 +1,5 @@
 
-const forgotPasswordMailTemplate = (userName, callback)=>{
+const forgotPasswordMailTemplate = (userName, link, callback)=>{
 
     const content =  {htmlMessage: `
                     <html lang="en">
@@ -89,7 +89,7 @@ const forgotPasswordMailTemplate = (userName, callback)=>{
                                 </p><br>
                                 <div class="btn-div">
                                     <button>
-                                        <a href="http://localhost:5000/api/admins/login-form">
+                                        <a href=${link}>
                                             RESET PASSWORD
                                         </a>    
                                     </button>

@@ -39,7 +39,7 @@ const sendWelcomeMail = (userMail, userName)=>{
 
 const adminForgotPassword = (adminMail, resetLink)=>{
     return new Promise((resolve, reject)=>{
-        forgotPasswordMail(adminMail)
+        forgotPasswordMail(adminMail, resetLink)
         .then(content=>{
         mailOptions = {
             from: config.mailAccount,

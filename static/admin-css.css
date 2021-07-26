@@ -31,6 +31,14 @@
     margin-top: 8rem;
 }
 
+.Alerts-success{
+    display: none;
+}
+
+#forgot-password-email-error{
+    color: red;
+}
+
 #admin-login{
     padding-top: 6rem;
 }

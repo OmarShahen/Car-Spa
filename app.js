@@ -4,6 +4,7 @@ const morgan = require('morgan')
 const bodyParser = require('body-parser')
 const fileUpload = require('express-fileupload')
 const path = require('path')
+const config = require('./config/config')
 
 
 
@@ -46,7 +47,4 @@ app.get('/', (request, response)=>{
 
 
 
-
-const port = 5000
-
-app.listen(port, ()=>console.log('Server Is Running on Port',port))
+app.listen(config.port, ()=>console.log('Server Is Running on Port', config.port))

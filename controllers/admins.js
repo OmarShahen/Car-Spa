@@ -1,10 +1,22 @@
 
-const adminRoute = require('express')()
+const adminRoute = require('express').Router()
 const path = require('path')
 const config = require('../config/config')
 const adminDB = require('../models/admins')
 const bcrypt = require('bcrypt')
+const { adminForgotPassword } = require('../mails/mailController')
 
+
+const formatHost = (host)=>{
+    
+    if(host == 'localhost:' + config.port)
+    {
+        return 'http://' + host + '/api/admins/forgot-password-form'
+    }
+    else{
+        return 'https://' + host + '/api/admins/forgot-password-form'
+    }
+}
 
 adminRoute.get('/admins/login-form', (request, response)=>{
 
@@ -90,8 +102,13 @@ adminRoute.post('/admins/forgot-password', async (request, response)=>{
             })
         }
 
-        console.log(adminData)
-        return response.status(200).send('Done yaba')
+        const url = formatHost(request.headers.host) + '/' + new Date().toString().split(' ').join('*')
+        const mailResult = await adminForgotPassword(request.body.adminEmail, url)
+    
+        return response.status(200).send({
+            accepted: true,
+            message: 'verfication link is sent to your mail'
+        })
     }
     catch(error)
     {
@@ -103,7 +120,24 @@ adminRoute.post('/admins/forgot-password', async (request, response)=>{
     }
 })
 
+adminRoute.get('/admins/forgot-password-form/:date', async (request, response)=>{
+    try{
 
+        console.log(request.params.date.split('*').join(' '))
+        
+
+        return response.status(200).send({
+            accepted: true
+        })
+    }
+    catch(error)
+    {
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
 
 
 

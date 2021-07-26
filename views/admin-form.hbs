@@ -47,6 +47,14 @@
                 <div class="alert alert-info Alerts">
                     <p><strong style="padding-right: 0.5rem;">Alert!</strong>will send verfication link to this account</p>
                 </div>
+                <div class="alert alert-success alert-dismissible Alerts-success">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <p>
+                        <strong>
+                            Check Your Mail
+                        </strong>
+                    </p>
+                </div>
                 <form id="forgot-password-form">
                     <p id="forgot-password-email-error"></p>
                     <input type="email" id="adminEmail" name="adminEmail" placeholder="Email" required><br>
@@ -60,11 +68,7 @@
     </div>
 
     <!--Login Form Part-->
-
     <script>
-
-
-
             const loginForm = document.querySelector('#admin-login')
 
             document.querySelector('#adminEmail').addEventListener('input', ()=>{
@@ -96,9 +100,7 @@
                 }
 
                 loginForm.submit()
-
-
-                
+     
             }
 
             const email = loginForm['adminEmail'].value
@@ -116,6 +118,11 @@
 
     <!--Forgot Password Part-->
     <script>
+
+        document.querySelector('#forgot-password-form')['adminEmail'].addEventListener('input', ()=>{
+            document.querySelector('#forgot-password-email-error').style.display = 'none'
+        })
+
         document.querySelector('#forgot-password').addEventListener('click', (e)=>{
 
             e.preventDefault()
@@ -128,7 +135,16 @@
             e.preventDefault()
             const xhttp = new XMLHttpRequest()
             xhttp.onload = ()=>{
-                console.log(xhttp.responseText)
+                const serverResponse = JSON.parse(xhttp.responseText)
+                if(serverResponse.accepted)
+                {
+                    document.querySelector('.Alerts-success').style.display = 'block'
+                }
+                else
+                {
+                    document.querySelector('#forgot-password-email-error').style.display = 'block'
+                    document.querySelector('#forgot-password-email-error').innerHTML = serverResponse.message
+                }
             }
 
             xhttp.open('POST', '/api/admins/forgot-password', true)
