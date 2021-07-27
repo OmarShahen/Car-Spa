@@ -5,6 +5,10 @@ const config = require('../config/config')
 const adminDB = require('../models/admins')
 const bcrypt = require('bcrypt')
 const { adminForgotPassword } = require('../mails/mailController')
+const moment = require('moment')
+const jwt = require('jsonwebtoken')
+const { adminVerifyToken } = require('../middleware/authority')
+
 
 
 const formatHost = (host)=>{
@@ -102,7 +106,8 @@ adminRoute.post('/admins/forgot-password', async (request, response)=>{
             })
         }
 
-        const url = formatHost(request.headers.host) + '/' + new Date().toString().split(' ').join('*')
+        const token = jwt.sign({adminID: adminData[0].id}, config.adminSecretKey, {expiresIn: '90m'})
+        const url = formatHost(request.headers.host) + '/' + token
         const mailResult = await adminForgotPassword(request.body.adminEmail, url)
     
         return response.status(200).send({
@@ -120,18 +125,51 @@ adminRoute.post('/admins/forgot-password', async (request, response)=>{
     }
 })
 
-adminRoute.get('/admins/forgot-password-form/:date', async (request, response)=>{
+adminRoute.get('/admins/forgot-password-form/:token', async (request, response)=>{
     try{
 
-        console.log(request.params.date.split('*').join(' '))
-        
-
-        return response.status(200).send({
-            accepted: true
+        jwt.verify(request.params.token, config.adminSecretKey, (error, decoded)=>{
+            if(error)
+            {
+                return response.status(500).send({
+                    accepted: false,
+                    message: 'internal server error'
+                })
+            }
+            
+            return response.render('admin-new-password', {token: request.params.token})
         })
     }
     catch(error)
     {
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
+adminRoute.post('/admins/forgot-password-form/submit', async (request, response)=>{
+    try{
+
+        const decoded = jwt.verify(request.body.accessToken, config.adminSecretKey)
+            
+        if(request.body.adminNewPassword != request.body.adminConfirmNewPassword)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: 'the passwords must match'
+            })
+        }
+
+        const encryptedPassword = bcrypt.hashSync(request.body.adminNewPassword, config.bcryptRounds)
+        const adminResult = await adminDB.setAdminPassword(encryptedPassword, decoded.adminID)
+        return response.redirect('/api/admins/login-form')
+
+    }
+    catch(error)
+    {
+        console.log(error)
         return response.status(500).send({
             accepted: false,
             message: 'internal server error'

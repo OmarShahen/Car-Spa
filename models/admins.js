@@ -87,6 +87,21 @@ class Admin{
         }
     }
 
+    async setAdminPassword(newPassword, adminID)
+    {
+        try{
+
+            const query = 'UPDATE admins SET password = $1 WHERE ID = $2'
+            const client = await pool.connect()
+            const result = await client.query(query, [newPassword, adminID])
+            return true
+        }
+        catch(error)
+        {
+            return error
+        }
+    }
+
     async deleteAdmin(adminID)
     {
         try{
