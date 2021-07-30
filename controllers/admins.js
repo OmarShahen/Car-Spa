@@ -36,7 +36,7 @@ adminRoute.post('/admins/login-form/submit', async (request, response)=>{
         {
             return response.status(406).send({
                 accepted: false,
-                message: 'this email does not exist',
+                message: 'This email does not exist',
                 field: 'email'
             })
         }
@@ -45,7 +45,7 @@ adminRoute.post('/admins/login-form/submit', async (request, response)=>{
         {
             return response.status(401).send({
                 accepted: false,
-                message: 'bad credentials',
+                message: 'Bad credentials',
                 field: 'password'
             })
         }
