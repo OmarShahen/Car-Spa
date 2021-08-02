@@ -5,6 +5,8 @@ const bodyParser = require('body-parser')
 const fileUpload = require('express-fileupload')
 const path = require('path')
 const config = require('./config/config')
+const flash = require('req-flash')
+const session = require('express-session')
 
 
 
@@ -14,6 +16,9 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(fileUpload())
 app.use(express.static('static'))
+app.use(session({secret: config.adminSecretKey, resave: false, saveUninitialized: false}))
+app.use(flash())
+
 
 
 app.set('views', path.join(__dirname + '/views'))

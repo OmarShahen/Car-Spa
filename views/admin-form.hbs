@@ -26,14 +26,15 @@
                     Hello, <strong>Boss!</strong>
                 </h1>
                 <div>
-                    <form method="POST" id="admin-login" action="/api/admins/login-form/review">
+                    <form method="POST" id="admin-login" action="/api/admins/login-form/submit">
                     <div class="input-container">
-                        <p id="email-error"></p>
-                        <input type="email" id="adminEmail" name="adminEmail" placeholder="Admin Email" required><br>
+                        <p id="email-error">{{ submissionResponse.emailError }}</p>
+                        <input type="email" id="adminEmail" name="adminEmail" placeholder="Admin Email" value="{{submissionResponse.email}}"required><br>
                     </div>
                     <div class="input-container">
-                        <p id="password-error"></p>
-                        <input type="password" id="adminPassword" name="adminPassword" placeholder="Admin Password" required><br>
+                        <p id="password-error">{{ submissionResponse.passwordError }}</p>
+                        <input type="password" id="adminPassword" name="adminPassword" placeholder="Admin Password" value="{{submissionResponse.password}}" required>
+                        <br>
                     </div>
                         <input type="submit" value="SIGN IN">
                     </form>
@@ -85,7 +86,7 @@
                document.querySelector('#password-error').style.display = 'none' 
             })
 
-            document.querySelector('#admin-login').addEventListener('submit', (e)=>{
+            /*document.querySelector('#admin-login').addEventListener('submit', (e)=>{
             e.preventDefault()
             const xhttp = new XMLHttpRequest();
             xhttp.onload = ()=>{
@@ -101,7 +102,7 @@
                     if(serverResponse.field == 'password')
                     {
                         document.querySelector('#password-error').style.display = 'block'
-                        document.querySelector('#password-error').innerHTML = serverResponse.message
+                        document.querySele8ctor('#password-error').innerHTML = serverResponse.message
                     }
                 }
 
@@ -116,7 +117,7 @@
             xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded')
             xhttp.send('adminEmail=' + email + '&adminPassword=' + password)
 
-        })
+        })*/
 
 
 

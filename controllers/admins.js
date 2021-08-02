@@ -24,36 +24,34 @@ const formatHost = (host)=>{
 
 adminRoute.get('/admins/login-form', (request, response)=>{
 
-    return response.render('admin-form')
+    console.log(request.flash('submissionData'))
+    return response.render('admin-form', {'submissionResponse': request.flash('submissionData')})
 })
 
 adminRoute.post('/admins/login-form/submit', async (request, response)=>{
 
     try{
 
+        submissionData = {
+            email: request.body.adminEmail,
+            password: request.body.adminPassword
+        }
         const adminData = await adminDB.getAdminByEmail(request.body.adminEmail)
         if(adminData.length == 0)
         {
-            return response.status(406).send({
-                accepted: false,
-                message: 'This email does not exist',
-                field: 'email'
-            })
+            submissionData.emailError = 'This email does not exist'
+            request.flash('submissionData', submissionData)
+            return response.redirect('/api/admins/login-form')
         }
 
         if(!bcrypt.compareSync(request.body.adminPassword, adminData[0].password))
         {
-            return response.status(401).send({
-                accepted: false,
-                message: 'Bad credentials',
-                field: 'password'
-            })
+            submissionData.passwordError = 'Wrong password'
+            request.flash('submissionData', submissionData)
+            return response.redirect('/api/admins/login-form')
         }
 
-        return response.status(200).send({
-            accepted: true,
-            message: 'Passed'
-        })
+        return response.render('admin-dashboard')
 
     }
     catch(error)
@@ -68,7 +66,7 @@ adminRoute.post('/admins/login-form/submit', async (request, response)=>{
 })
 
 
-adminRoute.post('/admins/login-form/review', async (request, response)=>{
+/*adminRoute.post('/admins/login-form/review', async (request, response)=>{
     try{
 
         const adminData = await adminDB.getAdminByEmail(request.body.adminEmail)
@@ -92,7 +90,7 @@ adminRoute.post('/admins/login-form/review', async (request, response)=>{
             message: 'internal server error'
         })
     }
-})
+})*/
 
 adminRoute.post('/admins/forgot-password', async (request, response)=>{
     try{

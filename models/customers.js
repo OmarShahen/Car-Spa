@@ -120,13 +120,13 @@ class Customer{
         }
     }
 
-    async setCustomersDataByID(customerID, firstName, lastName, email)
+    async setCustomersDataByID(customerID, email)
     {
         try{
 
-            const query = 'UPDATE customers SET FirstName = $1, LastName = $2, email = $3 WHERE ID = $4'
+            const query = 'UPDATE customers SET email = $1 WHERE ID = $2'
             const client = await pool.connect()
-            const result = await client.query(query, [firstName, lastName, email, customerID])
+            const result = await client.query(query, [email, customerID])
             return true
         }
         catch(error)

@@ -2,6 +2,7 @@ const config = require('../config/config')
 const nodeMailer = require('nodemailer');
 const welcomeMailHTML = require('./mailTemplates/welcome-mail');
 const forgotPasswordMail = require('./mailTemplates/forget-password')
+const updateMailTemplate = require('./mailTemplates/update-mail')
 
 
 
@@ -59,4 +60,24 @@ const adminForgotPassword = (adminMail, resetLink)=>{
 
 }
 
-module.exports = { sendWelcomeMail, adminForgotPassword } 
+const updateMail = (userMail, userName)=>{
+    return new Promise((resolve, reject)=>{
+
+        updateMailTemplate(userName).then(content=>{
+
+            mailOptions = {
+                from: config.mailAccount,
+                to: userMail,
+                subject: 'Check Update Message',
+                text: content.plainMessage,
+                html: content.htmlMessage
+            };
+
+            transporter.sendMail(mailOptions)
+            .then(info=>resolve(true))
+            .catch(err=>reject(err));
+    })
+    })
+}
+
+module.exports = { sendWelcomeMail, adminForgotPassword, updateMail } 

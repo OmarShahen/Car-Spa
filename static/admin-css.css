@@ -66,7 +66,6 @@ input{
 
 
 #email-error, #password-error{
-    display: none;
     color: red;
 }
 
@@ -85,6 +84,10 @@ input{
 }
 a{
     font-weight: bold;
+    color: #25AEFF;
+}
+
+#view-password{
     color: #25AEFF;
 }
 
