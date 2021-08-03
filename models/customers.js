@@ -26,12 +26,12 @@ const pool = new Pool({
 
 class Customer{
 
-    async addCustomer(firstName, lastName, email, password, accountCreationDate){
+    async addCustomer(firstName, lastName, email, password, country, city, accountCreationDate){
 
         try{
-            const query = 'INSERT INTO customers (FirstName, LastName, email, password, accountCreationDate) VALUES ($1, $2, $3, $4, $5)'
+            const query = 'INSERT INTO customers (FirstName, LastName, email, password, country, city, accountCreationDate) VALUES ($1, $2, $3, $4, $5, $6, $7)'
             const client = await pool.connect()
-            const result = await client.query(query, [firstName, lastName, email, password, accountCreationDate])
+            const result = await client.query(query, [firstName, lastName, email, password, country, city, accountCreationDate])
             return true
         }
         catch(error){
@@ -44,7 +44,7 @@ class Customer{
     {
         try{
 
-            const query = 'SELECT ID, FirstName, LastName, email, accountCreationDate FROM customers'
+            const query = 'SELECT ID, FirstName, LastName, email, country, city, accountCreationDate FROM customers'
             const client = await pool.connect()
             const customersData = await client.query(query)
             return customersData.rows
@@ -60,7 +60,7 @@ class Customer{
         try{
 
             const query = `SELECT customers.FirstName, customers.LastName, customers.email, customers.AccountCreationDate,
-                            phones.PhoneNumber FROM customers INNER JOIN phones
+                            customers.country, customers.city, phones.PhoneNumber FROM customers INNER JOIN phones
                             ON phones.CustomerID = customers.ID
                             WHERE customerID = $1`
             const client = await pool.connect()
@@ -76,7 +76,7 @@ class Customer{
     {
         try{
 
-            const query = 'SELECT ID, FirstName, LastName, email, password, accountCreationDate FROM customers WHERE ID = $1'
+            const query = 'SELECT ID, FirstName, LastName, email, password, country, city, accountCreationDate FROM customers WHERE ID = $1'
             const client = await pool.connect()
             const customerData = await client.query(query, [customerId])
             return customerData.rows
@@ -92,7 +92,7 @@ class Customer{
     {
         try{
 
-            const query = 'SELECT ID, FirstName, LastName, email, password, accountCreationDate FROM customers WHERE email = $1'
+            const query = 'SELECT ID, FirstName, LastName, email, password, country, city, accountCreationDate FROM customers WHERE email = $1'
             const client = await pool.connect()
             const customerData = await client.query(query, [customerEmail])
             return customerData.rows
@@ -108,7 +108,7 @@ class Customer{
     {
         try{
 
-            const query = 'SELECT ID, FirstName, LastName, email, accountCreationDate FROM customers WHERE email = $1 AND password = $2'
+            const query = 'SELECT ID, FirstName, LastName, email, country, city, accountCreationDate FROM customers WHERE email = $1 AND password = $2'
             const client = await pool.connect()
             const customerData = await client.query(query, [customerEmail, customerPassword])
             return customerData

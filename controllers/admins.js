@@ -24,7 +24,6 @@ const formatHost = (host)=>{
 
 adminRoute.get('/admins/login-form', (request, response)=>{
 
-    console.log(request.flash('submissionData'))
     return response.render('admin-form', {'submissionResponse': request.flash('submissionData')})
 })
 

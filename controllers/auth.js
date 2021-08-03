@@ -128,6 +128,26 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
             })
         }
 
+        if(request.body.customerCountry != 'egypt')
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: "it's not available in your country"
+            })
+        }
+
+        const checkCity = verify.checkEmptyInput(request.body.customerCity)
+        console.log(checkCity)
+        console.log(request.body.customerCity)
+        if(!checkCity.accepted)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: checkCity.message,
+                field: 'city'
+            })
+        }
+
         const checkPassword = verify.checkEmptyInput(request.body.customerPassword)
         if(!checkPassword.accepted)
         {
@@ -162,6 +182,8 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
             request.body.customerLastName,
             request.body.customerEmail,
             bcrypt.hashSync(request.body.customerPassword, config.bcryptRounds),
+            request.body.customerCountry,
+            request.body.customerCity,
             new Date()
         )
 
