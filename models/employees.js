@@ -11,18 +11,7 @@
     + Remove Employee From Work
 */ 
 
-
-
-const config  = require('../config/config')
-const { Pool } = require('pg')
-
-const pool = new Pool({
-    user: config.db.user,
-    host: config.db.host,
-    database: config.db.database,
-    password: config.db.password,
-    port: config.db.port,
-})
+const dbConnect = require('../config/db')
 
 class Employee{
 
@@ -30,9 +19,11 @@ class Employee{
 
         try{
             
+            const pool = await dbConnect()
             const query = 'INSERT INTO employees (FirstName, LastName, address, NationalID, password, CriminalRecord, AccountCreationDate) VALUES ($1, $2, $3, $4, $5, $6, $7)'
             const client = await pool.connect()
             const result = await client.query(query, [firstName, lastName, address, nationalID, password, criminalRecord, accountCreationDate])
+            pool.end()
             return true
         }
         catch(error){
@@ -46,9 +37,11 @@ class Employee{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'SELECT ID, FirstName, LastName, address, NationalID, CriminalRecord, active, StillWorking, AccountCreationDate FROM employees'
             const client = await pool.connect()
             const employeeData = await client.query(query)
+            pool.end()
             return employeeData.rows
         }
         catch(error){
@@ -61,9 +54,11 @@ class Employee{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'SELECT ID, FirstName, LastName, address, NationalID, CriminalRecord, active, StillWorking, AccountCreationDate FROM employees WHERE active = True'
             const client = await pool.connect()
             const employeesData = await client.query(query)
+            pool.end()
             return employeesData.rows
         }
         catch(error)
@@ -77,9 +72,11 @@ class Employee{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'SELECT ID, FirstName, LastName, address, NationalID, CriminalRecord, active, StillWorking, AccountCreationDate FROM employees WHERE active = False'
             const client = await pool.connect()
             const employeesData = await client.query(query)
+            pool.end()
             return employeesData.rows
         }
         catch(error)
@@ -93,9 +90,11 @@ class Employee{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'SELECT ID, FirstName, LastName, address, NationalID, CriminalRecord, active, StillWorking, AccountCreationDate FROM employees WHERE ID = $1'
             const client = await pool.connect()
             const employeeData = await client.query(query, [employeeID])
+            pool.end()
             return employeeData.rows
         }
         catch(error)
@@ -109,9 +108,11 @@ class Employee{
 
         try{
 
+            const pool = await dbConnect()
             const query = 'SELECT * FROM employees WHERE NationalID = $1'
             const client = await pool.connect()
             const employeeData = await client.query(query, [nationalID])
+            pool.end()
             return employeeData.rows
         }
         catch(error)
@@ -125,9 +126,11 @@ class Employee{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'UPDATE employees SET FirstName = $1, LastName = $2, address = $3, NationalID = $4, CriminalRecord = $5 WHERE ID = $6'
             const client = await pool.connect()
             const result = await client.query(query, [firstName, lastName, address, nationalID, criminalRecord, employeeID])
+            pool.end()
             return true
         }
         catch(error)
@@ -140,9 +143,11 @@ class Employee{
     async deleteEmployeeByID(employeeID)
     {
         try{
+            const pool = await dbConnect()
             const query = 'DELETE FROM employees WHERE ID = $1'
             const client = await pool.connect()
             const result = await client.query(query, [employeeID])
+            pool.end()
             return true
         }
         catch(error)
@@ -156,9 +161,11 @@ class Employee{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'UPDATE  employees SET StillWorking = FALSE WHERE ID = $1'
             const client = await pool.connect()
             const result = await client.query(query, [employeeID])
+            pool.end()
             return true
         }
         catch(error)
@@ -172,9 +179,11 @@ class Employee{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'UPDATE  employees SET StillWorking = TRUE WHERE ID = $1'
             const client = await pool.connect()
             const result = await client.query(query, [employeeID])
+            pool.end()
             return true
         }
         catch(error)
@@ -187,9 +196,11 @@ class Employee{
     async setEmployeeActive(employeeID)
     {
         try{
+            const pool = await dbConnect()
             const query = 'UPDATE employees SET active = True WHERE ID = $1'
             const client = await pool.connect()
             const result = await client.query(query, [employeeID])
+            pool.end()
             return true
         }
         catch(error)
@@ -202,9 +213,11 @@ class Employee{
     async setEmployeeNotActive(employeeID)
     {
         try{
+            const pool = await dbConnect()
             const query = 'UPDATE employees SET active = False WHERE ID = $1'
             const client = await pool.connect()
             const result = await client.query(query, [employeeID])
+            pool.end()
             return true
         }
         catch(error)

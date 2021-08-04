@@ -18,18 +18,7 @@
  */
 
 
-const config = require('../config/config')
-const { Pool } = require('pg')
-
-const pool = new Pool({
-    user: config.db.user,
-    host: config.db.host,
-    database: config.db.database,
-    password: config.db.password,
-    port: config.db.port,
-
-})
-
+const dbConnect = require('../config/db')
 
 class Phone{
 
@@ -38,9 +27,11 @@ class Phone{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'INSERT INTO phones(PhoneNumber, CustomerID) VALUES($1, $2)'
             const client = await pool.connect()
             const result = await client.query(query, [phoneNumber, customerID])
+            pool.end()
             return true
         }
         catch(error)
@@ -54,9 +45,11 @@ class Phone{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'INSERT INTO phones(PhoneNumber, EmployeeID) VALUES($1, $2)'
             const client = await pool.connect()
             const result = await client.query(query, [phoneNumber, employeeID])
+            pool.end()
             return true
         }
         catch(error)
@@ -70,9 +63,11 @@ class Phone{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'INSERT INTO phones(PhoneNumber, adminID) VALUES($1, $2)'
             const client = await pool.connect()
             const result = await client.query(query, [phoneNumber, adminID])
+            pool.end()
             return true
         }
         catch(error)
@@ -86,9 +81,11 @@ class Phone{
     {
         try{
             
+            const pool = await dbConnect()
             const query = 'UPDATE phones SET PhoneNumber = $1 WHERE CustomerID = $2 AND PhoneNumber = $3'
             const client = await pool.connect()
             const result = await client.query(query, [newPhoneNumber, customerID, oldPhoneNumber])
+            pool.end()
             return true
         }
         catch(error)
@@ -101,9 +98,11 @@ class Phone{
     {
         try{
             
+            const pool = await dbConnect()
             const query = 'UPDATE phones SET PhoneNumber = $1 WHERE EmployeeID = $2 AND PhoneNumber = $3'
             const client = await pool.connect()
             const result = await client.query(query, [newPhoneNumber, employeeID, oldPhoneNumber])
+            pool.end()
             return true
         }
         catch(error)
@@ -116,9 +115,11 @@ class Phone{
     {
         try{
             
+            const pool = await dbConnect()
             const query = 'UPDATE phones SET PhoneNumber = $1 WHERE AdminID = $2 AND PhoneNumber = $3'
             const client = await pool.connect()
             const result = await client.query(query, [newPhoneNumber, adminID, oldPhoneNumber])
+            pool.end()
             return true
         }
         catch(error)
@@ -132,9 +133,11 @@ class Phone{
     {
         try{
             
+            const pool = await dbConnect()
             const query = 'SELECT ID, PhoneNumber FROM phones WHERE CustomerID = $1'
             const client = await pool.connect()
             const customerData = await client.query(query, [customerID])
+            pool.end()
             return customerData.rows
         }
         catch(error)
@@ -147,9 +150,11 @@ class Phone{
     {
         try{
             
+            const pool = await dbConnect()
             const query = 'SELECT ID, PhoneNumber FROM phones WHERE EmployeeID = $1'
             const client = await pool.connect()
             const employeeData = await client.query(query, [employeeID])
+            pool.end()
             return employeeData.rows
         }
         catch(error)
@@ -161,10 +166,12 @@ class Phone{
     async getAdminPhoneNumber(adminID)
     {
         try{
-            
+
+            const pool = await dbConnect()    
             const query = 'SELECT ID, PhoneNumber FROM phones WHERE AdminID = $1'
             const client = await pool.connect()
             const adminData = await client.query(query, [adminID])
+            pool.end()
             return adminData.rows
         }
         catch(error)
@@ -178,9 +185,11 @@ class Phone{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'DELETE FROM phones WHERE CustomerID = $1 AND PhoneNumber = $2'
             const client = await pool.connect()
             const result = await client.query(query, [customerID, phoneNumber])
+            pool.end()
             return true
         }
         catch(error)
@@ -193,9 +202,11 @@ class Phone{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'DELETE FROM phones WHERE EmployeeID = $1 AND PhoneNumber = $2'
             const client = await pool.connect()
             const result = await client.query(query, [employeeID, phoneNumber])
+            pool.end()
             return true
         }
         catch(error)
@@ -208,9 +219,11 @@ class Phone{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'DELETE FROM phones WHERE AdminID = $1 AND PhoneNumber = $2'
             const client = await pool.connect()
             const result = await client.query(query, [adminID, phoneNumber])
+            pool.end()
             return true
         }
         catch(error)
@@ -224,10 +237,12 @@ class Phone{
     {
         try{
 
+            const pool = await dbConnect()
             const query = `SELECT ID, FirstName, LastName, email, AccountCreationDate
                            FROM customers WHERE ID = (SELECT CustomerID FROM phones WHERE PhoneNumber = $1)`
             const client = await pool.connect()
             const customerData = await client.query(query, [phoneNumber])
+            pool.end()
             return customerData.rows
         }
         catch(error)
@@ -240,10 +255,12 @@ class Phone{
     {
         try{
 
+            const pool = await dbConnect()
             const query = `SELECT ID, FirstName, LastName, password, NationalID, AccountCreationDate
                            FROM employees WHERE ID = (SELECT EmployeeID FROM phones WHERE PhoneNumber = $1)`
             const client = await pool.connect()
             const employeeData = await client.query(query, [phoneNumber])
+            pool.end()
             return employeeData.rows
         }
         catch(error)
@@ -256,10 +273,12 @@ class Phone{
     {
         try{
 
+            const pool = await dbConnect()
             const query = `SELECT ID, FirstName, LastName, email
                            FROM admins WHERE ID = (SELECT AdminID FROM phones WHERE PhoneNumber = $1)`
             const client = await pool.connect()
             const adminData = await client.query(query, [phoneNumber])
+            pool.end()
             return adminData.rows
         }
         catch(error)
@@ -273,9 +292,11 @@ class Phone{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'SELECT * FROM phones WHERE PhoneNumber = $1'
             const client = await pool.connect()
             const result = await client.query(query, [phoneNumber])
+            pool.end()
             return result.rows
         }
         catch(error)

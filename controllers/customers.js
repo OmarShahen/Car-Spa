@@ -69,7 +69,7 @@ customerRoute.get('/customers/:id', customerVerifyToken, async (request, respons
             })
         }
 
-        const customerResult = await customersDB.getCustomerDataWithPhoneByID(request.customerID)
+        const customerResult = await customerDB.getCustomerDataWithPhoneByID(request.customerID)
 
         return response.status(200).send({
             accepted: true,

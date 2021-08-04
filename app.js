@@ -53,3 +53,4 @@ app.get('/', (request, response)=>{
 
 
 app.listen(config.port, ()=>console.log('Server Is Running on Port', config.port))
+app.timeout = 1000

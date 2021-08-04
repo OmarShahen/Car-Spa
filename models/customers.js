@@ -11,16 +11,7 @@
 
 */                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
 
-const config = require('../config/config')
-const { Pool } = require('pg')
-
-const pool = new Pool({
-    user: config.db.user,
-    host: config.db.host,
-    database: config.db.database,
-    password: config.db.password,
-    port: config.db.port,
-})
+const dbConnect = require('../config/db')
 
 
 
@@ -29,9 +20,11 @@ class Customer{
     async addCustomer(firstName, lastName, email, password, country, city, accountCreationDate){
 
         try{
+            const pool = await dbConnect()
             const query = 'INSERT INTO customers (FirstName, LastName, email, password, country, city, accountCreationDate) VALUES ($1, $2, $3, $4, $5, $6, $7)'
             const client = await pool.connect()
             const result = await client.query(query, [firstName, lastName, email, password, country, city, accountCreationDate])
+            pool.end()
             return true
         }
         catch(error){
@@ -44,9 +37,11 @@ class Customer{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'SELECT ID, FirstName, LastName, email, country, city, accountCreationDate FROM customers'
             const client = await pool.connect()
             const customersData = await client.query(query)
+            pool.end()
             return customersData.rows
         }
         catch(error){
@@ -59,12 +54,14 @@ class Customer{
     {
         try{
 
+            const pool = await dbConnect()
             const query = `SELECT customers.FirstName, customers.LastName, customers.email, customers.AccountCreationDate,
                             customers.country, customers.city, phones.PhoneNumber FROM customers INNER JOIN phones
                             ON phones.CustomerID = customers.ID
                             WHERE customerID = $1`
             const client = await pool.connect()
             const customersData = await client.query(query, [customerID])
+            pool.end()
             return customersData.rows
         }
         catch(error)
@@ -76,9 +73,11 @@ class Customer{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'SELECT ID, FirstName, LastName, email, password, country, city, accountCreationDate FROM customers WHERE ID = $1'
             const client = await pool.connect()
             const customerData = await client.query(query, [customerId])
+            pool.end()
             return customerData.rows
         }
         catch(error)
@@ -92,9 +91,11 @@ class Customer{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'SELECT ID, FirstName, LastName, email, password, country, city, accountCreationDate FROM customers WHERE email = $1'
             const client = await pool.connect()
             const customerData = await client.query(query, [customerEmail])
+            pool.end()
             return customerData.rows
         }
         catch(error)
@@ -108,9 +109,11 @@ class Customer{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'SELECT ID, FirstName, LastName, email, country, city, accountCreationDate FROM customers WHERE email = $1 AND password = $2'
             const client = await pool.connect()
             const customerData = await client.query(query, [customerEmail, customerPassword])
+            pool.end()
             return customerData
         }
         catch(error)
@@ -124,9 +127,11 @@ class Customer{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'UPDATE customers SET email = $1 WHERE ID = $2'
             const client = await pool.connect()
             const result = await client.query(query, [email, customerID])
+            pool.end()
             return true
         }
         catch(error)
@@ -140,9 +145,11 @@ class Customer{
     {
         try{
 
+            const pool = await dbConnect()
             const query = 'UPDATE customers SET FirstName = $1, LastName = $2, email = $3 WHERE email = $4'
             const client = await pool.connect()
             const result = await client.query(query, [firstName, lastName, email, customerEmail])
+            pool.end()
             return true
         }
         catch(error)
@@ -155,9 +162,11 @@ class Customer{
     async deleteCustomersByID(customerID)
     {
         try{
+            const pool = await dbConnect()
             const query = 'DELETE FROM customers WHERE ID = $1'
             const client = await pool.connect()
             const result = await client.query(query, [customerID])
+            pool.end()
             return true
         }
         catch(error)
@@ -169,9 +178,11 @@ class Customer{
     async deleteCustomersByEmail(customerEmail)
     {
         try{
+            const pool = await dbConnect()
             const query = 'DELETE FROM customers WHERE email = $1'
             const client = await pool.connect()
             const result = await client.query(query, [customerEmail])
+            pool.end()
             return true, result
         }
         catch(error)
