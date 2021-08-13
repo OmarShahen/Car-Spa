@@ -7,14 +7,6 @@ module.exports = {
         database: 'carspa',
         password: 'reda77',
         port: 5432,
-       /* username: 'doadmin',
-        password: 'r4b1alncgj3qvx9i',
-        host: 'db-postgresql-nyc3-88756-do-user-9140176-0.b.db.ondigitalocean.com',
-        port: 25060,
-        database: 'car-spa',
-        sslmode: 'require',
-        ssl: true*/
-        
     },
     port: 5000,
     customerSecretKey: 'obgpoirhgi0h3-wojvo3jgb=034jv=-0o43nb-0gng',
@@ -23,5 +15,9 @@ module.exports = {
     bcryptRounds: 8,
     mailAccount: 'autocarspa77@gmail.com',
     mailAccountPassword: 'Nashar77',
-    employeesFiles: '../'
+    employeesFiles: '../',
+    twilio:{
+        accountsid: 'AC85f4e1417efbe3aeaa90f3f8a066dd0a',
+        authToken: 'add73916c99ed9e7ff1b41343ad1be26'
+    }
 }

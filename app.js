@@ -34,6 +34,9 @@ app.use('/api', customers)
 const admins = require('./controllers/admins')
 app.use('/api', admins)
 
+const orders = require('./controllers/orders')
+app.use('/api', orders)
+
 app.get('/', (request, response)=>{
     console.log(request.headers.host)
     return response.send('Welcome Sir')

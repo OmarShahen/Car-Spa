@@ -6,6 +6,7 @@ const customerDB = require('../models/customers')
 const employeeDB = require('../models/employees')
 const adminDB = require('../models/admins')
 const phoneDB = require('../models/phones')
+const verficationCodesDB = require('../models/verification-codes')
 const verify = require('./verify-input')
 const config = require('../config/config')
 const bcrypt = require('bcrypt')
@@ -15,6 +16,7 @@ const fileValidation = require('../middleware/verify-files')
 const verifyInput = require('./verify-input')
 const { checkPhoneNumber } = require('./verify-input')
 const { response } = require('express')
+const client = require('twilio')(config.twilio.accountsid, config.twilio.authToken)
 
 
 const userEmailExist = async (userEmail)=>{
@@ -43,6 +45,21 @@ const userEmailExist = async (userEmail)=>{
     }
 }
 
+const getRandomInt = (min=10000, max=100000)=>{
+    min = Math.ceil(min)
+    max = Math.floor(max)
+    return Math.floor(Math.random() * (max - min) + min)
+}
+
+const formatPhoneNumber = (phoneNumber)=>{
+
+    let EGNumber = '+20'
+    for(let i=1;i<phoneNumber.length;i++)
+    {
+        EGNumber += phoneNumber[i]
+    }
+    return EGNumber
+}
 
 authRouter.post('/customers/sign-up', async (request, response)=>{
 
@@ -251,6 +268,80 @@ authRouter.post('/customers/login', async (request, response)=>{
     catch(error)
     {
         console.log(error.message)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
+
+authRouter.post('/customers/check-email', async (request, response)=>{
+    try{
+
+        const emailExist = await userEmailExist(request.body.customerEmail)
+        if(emailExist)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: 'this email is already taken'
+            })
+        }
+
+        return response.status(200).send({
+            accepted: true
+        })
+
+    }
+    catch(error)
+    {
+        console.log(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
+authRouter.post('/send-phone-number-verification', async (request, response)=>{
+    try{
+
+        const verifyPhoneNumber = await verify.checkPhoneNumber(request.body.phoneNumber)
+        if(!verifyPhoneNumber.accepted)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: verifyPhoneNumber.message
+            })
+        }
+
+        const checkPhoneNumber = await phoneDB.checkPhoneNumberExist(request.body.phoneNumber)
+        if(checkPhoneNumber.length != 0)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: 'this phone number is already taken'
+            })
+        }
+
+        const verificationCode = getRandomInt()
+        const createVC = await verficationCodesDB.createVerificationCode(request.body.phoneNumber, verificationCode)
+        const sendSMS = await client.messages.create({
+            to: formatPhoneNumber(request.body.phoneNumber),
+            from: 'car-spa',
+            body: `Your verfication code for car-spa account is ${verificationCode}`
+        })
+
+        console.log(sendSMS)
+
+        return response.status(200).send({
+            accepted: true,
+            message: 'an SMS is sent to the provided phone number'
+        })
+    }   
+    catch(error)
+    {
+        console.log(error)
         return response.status(500).send({
             accepted: false,
             message: 'internal server error'
