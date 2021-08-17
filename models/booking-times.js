@@ -11,7 +11,7 @@ class BookingTime{
         try{
 
             const pool = await dbConnect()
-            const query = 'SELECT * FROM BookingTimes WHERE available = TRUE'
+            const query = 'SELECT * FROM BookingTimes WHERE available = TRUE ORDER BY BookTime ASC'
             const client = await pool.connect()
             const allAvailableTimes = await client.query(query)
             pool.end()
@@ -59,8 +59,6 @@ class BookingTime{
             return false
         }
     }
-
-
     async work24HourMode()
     {
         try{
@@ -71,6 +69,24 @@ class BookingTime{
             const isDataUpdated = await client.query(query)
             pool.end()
             return true
+        }
+        catch(error)
+        {
+            console.log(error)
+            return false
+        }
+    }
+
+    async getAvailableTimesFromHour(hour)
+    {
+        try{
+
+            const pool = await dbConnect()
+            const query = 'SELECT * FROM BookingTimes WHERE BookTime > $1 AND available = TRUE ORDER BY BookTime ASC'
+            const client = await pool.connect()
+            const availableTimes = await client.query(query, [hour])
+            pool.end()
+            return availableTimes.rows
         }
         catch(error)
         {

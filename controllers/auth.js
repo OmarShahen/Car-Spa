@@ -531,7 +531,7 @@ authRouter.post('/employees/sign-up', adminVerifyToken, fileValidation, async (r
 
     try{
 
-        const adminData = await adminDB.getAdminByID(request.userID)
+        const adminData = await adminDB.getAdminByID(request.adminID)
         if(adminData.length == 0)
         {
             return response.status(401).send({

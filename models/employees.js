@@ -228,6 +228,24 @@ class Employee{
     }
 
 
+    async getNumberOfEmployees()
+    {
+        try{
+
+            const pool = await dbConnect()
+            const query = 'SELECT COUNT(ID) FROM employees'
+            const client = await pool.connect()
+            const noOfEmployees = await client.query(query)
+            pool.end()
+            return noOfEmployees.rows
+        }
+        catch(error)
+        {
+            console.log(error)
+            return false
+        }
+    }
+
 }
 
 module.exports = new Employee()
