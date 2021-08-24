@@ -94,6 +94,24 @@ class BookingTime{
             return false
         }
     }
+
+    async getTimeIDByTime(bookTime)
+    {
+        try{
+
+            const pool = await dbConnect()
+            const query = 'SELECT * FROM BookingTimes WHERE BookTime = $1'
+            const client = await pool.connect()
+            const bookTimeData = await client.query(query, [bookTime])
+            pool.end()
+            return bookTimeData.rows
+        }
+        catch(error)
+        {
+            console.log(error)
+            return false
+        }
+    } 
 }
 
 

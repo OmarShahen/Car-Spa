@@ -246,6 +246,24 @@ class Employee{
         }
     }
 
+    async getMissingEmployee(ss, employeesID)
+    {
+        try{
+
+            const pool = await dbConnect()
+            const query = 'SELECT * FROM employees WHERE ID NOT IN (' + ss + ') AND active = TRUE'
+            const client = await pool.connect()
+            const missingEmployee = await client.query(query, employeesID)
+            pool.end()
+            return missingEmployee.rows
+        }
+        catch(error)
+        {
+            console.log(error)
+            return false
+        }
+    }
+
 }
 
 module.exports = new Employee()
