@@ -71,7 +71,7 @@ const employeeOrderChooser = async (orderDate)=>{
     }
 }
 
-orderRoute.post('/orders/check-day/:day', customerVerifyToken, async (request, response)=>{
+orderRoute.get('/orders/check-day/:day', customerVerifyToken, async (request, response)=>{
 
     try{
 
@@ -344,8 +344,23 @@ orderRoute.get('/orders/book-now/available-times', customerVerifyToken, async (r
 
     try{
 
-        const correctDate = new Date().getHours() + ':00:00'
+        const currentMomentDate = new Date()
+        const correctDate = currentMomentDate.getHours() + ':00:00'
         const availableTimes = await bookingTimeDB.getAvailableTimesFromHour(correctDate)
+        const availableTimesChecked = []
+        // If 8:30 don't display 9:00 
+        if(currentMomentDate.getMinutes() >= 30)
+        {
+            for(let i=1;i<availableTimes.length;i++)
+            {
+                availableTimesChecked.push(availableTimes[i])
+            }
+
+            return response.status(200).send({
+                accepted: true,
+                availableTimes: availableTimesChecked
+            })
+        }
         return response.status(200).send({
             accepted: true,
             availableTimes: availableTimes
