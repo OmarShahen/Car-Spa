@@ -251,7 +251,7 @@ class Employee{
         try{
 
             const pool = await dbConnect()
-            const query = 'SELECT * FROM employees WHERE ID NOT IN (' + ss + ') AND active = TRUE'
+            const query = 'SELECT * FROM employees WHERE ID NOT IN (' + ss + ')'
             const client = await pool.connect()
             const missingEmployee = await client.query(query, employeesID)
             pool.end()
