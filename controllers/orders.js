@@ -7,6 +7,7 @@ const bookingTimeDB = require('../models/booking-times')
 const employeeDB = require('../models/employees')
 const orderDB = require('../models/orders')
 const { param } = require('./admins')
+const moment = require('moment')
 
 
 
@@ -44,6 +45,38 @@ const addSS = (lst)=>{
     return ss.slice(0, ss.length-1)
 }
 
+const withinDeadLine = (creationDate, expirationDays=30, inputDate)=>{
+    /*
+        creationDate & inputDate is Date() instance
+        expirationDays is int type
+    */
+
+    const creationDateTime = creationDate.getTime()
+    const expirationTime = new Date(moment(creationDate).add({days: expirationDays})).getTime()
+
+    if(creationDateTime > inputDate.getTime())
+    {
+        return {
+            accepted: false,
+            message: 'This date is already passed'
+        }
+    }
+
+    if(expirationTime < inputDate.getTime())
+    {
+        return {
+            accepted: false,
+            message: 'This date is too far'
+        }
+    }
+    
+    return {
+        accepted: true,
+        message: 'valid date'
+    }
+
+}
+
 const employeeOrderChooser = async (orderDate)=>{
 
     try{
@@ -75,6 +108,14 @@ orderRoute.get('/orders/check-day/:day', customerVerifyToken, async (request, re
 
     try{
 
+        console.log(request.params.day)
+        console.log(new Date())
+        const isWithInDeadLine = withinDeadLine(new Date(), 30, new Date(request.params.day))
+        if(!isWithInDeadLine.accepted)
+        {
+            return response.status(406).send(isWithInDeadLine)
+        }
+
         const checkDay = await reservedDayDB.getDay(new Date(request.params.day.split('-').join('/')))
         if(checkDay.length != 0)
         {
@@ -94,6 +135,7 @@ orderRoute.get('/orders/check-day/:day', customerVerifyToken, async (request, re
     {
         console.log(error)
         return response.status(500).send({
+            accepted: false,
             message: 'internal server error'
         })
     }

@@ -111,9 +111,9 @@ class Order{
     {
         try{
 
-            const orderData = [customerID, employeeID, orderDate, bookingTimeID, serviceID, serviceQuantity, active, rating, done]
+            const orderData = [customerID, employeeID, orderDate, bookingTimeID, serviceID, active, rating, done]
             const pool = await dbConnect()
-            const query = 'INSERT INTO orders(CustomerID, EmployeeID, OrderDate, BookingTimeID, ServiceID, ServiceQuantity, active, rating, done) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)'
+            const query = 'INSERT INTO orders(CustomerID, EmployeeID, OrderDate, BookingTimeID, ServiceID, active, rating, done) VALUES($1, $2, $3, $4, $5, $6, $7, $8)'
             const client = await pool.connect()
             const insertData = await client.query(query, orderData)
             pool.end()
