@@ -69,7 +69,7 @@ class Customer{
             return error
         }
     }
-    async getCustmerByID(customerId)
+    async getCustomerByID(customerId)
     {
         try{
 

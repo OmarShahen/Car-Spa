@@ -1,4 +1,6 @@
 const app = require('express')()
+const http = require('http').Server(app)
+const io = require('socket.io')(http)
 const express = require('express')
 const morgan = require('morgan')
 const bodyParser = require('body-parser')
@@ -7,6 +9,8 @@ const path = require('path')
 const config = require('./config/config')
 const flash = require('req-flash')
 const session = require('express-session')
+
+
 
 
 
@@ -37,23 +41,16 @@ app.use('/api', admins)
 const orders = require('./controllers/orders')
 app.use('/api', orders)
 
+// Socket Part
+require('./socket-controller/orders')(io)
+
 app.get('/', (request, response)=>{
     console.log(request.headers.host)
-    return response.send('Welcome Sir')
+    return response.sendFile(path.join(__dirname + '/customer.html'))
 })
 
 
 
 
 
-
-
-app.get('/', (request, response)=>{
-    return response.status(200).send('Working Successfully')
-})
-
-
-
-
-app.listen(config.port, ()=>console.log('Server Is Running on Port', config.port))
-app.timeout = 1000
+http.listen(config.port, ()=>console.log('Server Is Running on Port', config.port))

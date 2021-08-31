@@ -380,8 +380,6 @@ orderRoute.post('/orders/book-later/book-order/:bookDate/:bookTime', customerVer
 
 
 
-
-
 orderRoute.get('/orders/book-now/available-times', customerVerifyToken, async (request, response)=>{
 
     try{
@@ -408,44 +406,6 @@ orderRoute.get('/orders/book-now/available-times', customerVerifyToken, async (r
             availableTimes: availableTimes
         })
 
-    }
-    catch(error)
-    {
-        console.log(error)
-        return response.status(500).send({
-            accepted: false,
-            message: 'internal server error'
-        })
-    }
-})
-
-
-orderRoute.post('/orders/book-now/assign-employee/:bookTime', async (request, response)=>{
-    
-    try{
-
-        const nowDate = new Date()
-        const formalDate = nowDate.getFullYear() + '-' + (nowDate.getMonth() + 1) + '-' + nowDate.getDate()
-
-        const countEmployees = await employeeDB.getNumberOfEmployees()
-        const noOfEmployees = countEmployees[0].count
-        
-        const ordersOnThisPeriod = await orderDB.getOrderByDateAndTime(formalDate, request.params.bookTime)  
-        if(ordersOnThisPeriod.length >= noOfEmployees)
-        {
-            return response.status(406).send({
-                accepted: false,
-                message: 'all drivers are booked on this time'
-            })
-        }
-
-        // Apply Criteria Algorithm
-        
-
-
-
-
-        return response.status(200).send('Done')
     }
     catch(error)
     {

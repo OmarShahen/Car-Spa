@@ -2,6 +2,7 @@
 
 
 const dbConnect = require('../config/db')
+const employees = require('./employees')
 
 
 class Order{
@@ -79,6 +80,25 @@ class Order{
             const employeesAverage = await client.query(query, employeesIDs)
             pool.end()
             return employeesAverage.rows
+
+        }
+        catch(error)
+        {
+            console.log(error)
+            return false
+        }
+    }
+
+    async getNoOfOrdersForThoseEmployeesByDate(ss, employeesIDs, orderDate, orderDateSS)
+    {
+        try{
+
+            const pool = await dbConnect()
+            const query = 'SELECT COUNT(ID), EmployeeID FROM orders WHERE EmployeeID IN (' + ss + ') AND OrderDate = ' + orderDateSS + ' GROUP BY EmployeeID'
+            const client = await pool.connect()
+            const employeeData = await client.query(query, [...employeesIDs, orderDate])
+            pool.end()
+            return employeeData.rows
 
         }
         catch(error)
