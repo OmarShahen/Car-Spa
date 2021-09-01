@@ -6,23 +6,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script src="/socket.io/socket.io.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 <body>
+
+    <div class="container">
+        <div style="text-align: center;margin-top: 5rem;">
+            <form id="book-now-form">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="customer-token" placeholder="Customer Token">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="book-date" placeholder="Book Date">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="book-time" placeholder="Book Time">
+                </div>
+                <div>
+                    <input type="submit" value="submit" class="btn btn-primary">
+                </div>
+            </form>
+        </div>
+    </div>
     
 </body>
 
 <script>
-    const socket = io('/book-now/book-order')
-    socket.emit('book-now', {
-        accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjdXN0b21lcklEIjoiMzciLCJpYXQiOjE2Mjk4MTIzNzIsImV4cCI6MTYzMjQwNDM3Mn0.xAc3NGHFiBd_QkG923tI1G54RIkwxro9USxnYYys4UE',
-        bookDate: '2021-09-7',
-        bookTime: '9:00:00',
-        serviceID: 1
+
+    const bookNowForm = document.querySelector('#book-now-form')
+    bookNowForm.addEventListener('submit', (e)=>{
+        e.preventDefault()
+        console.log(bookNowForm['customer-token'].value)
+        console.log(bookNowForm['book-date'].value)
+        console.log(bookNowForm['book-time'].value)
+
+        const socket = io('/book-now/book-order')
+        socket.emit('book-now', {
+            accessToken: bookNowForm['customer-token'].value,
+            bookDate: bookNowForm['book-date'].value,
+            bookTime: bookNowForm['book-time'].value,
+            serviceID: 1
+        })
+
+        socket.on('book-now', (data)=>{
+            console.log(data)
+        })
     })
 
-    socket.on('book-now', (data)=>{
-        console.log(data)
-    })
 
 </script>
 </html>
