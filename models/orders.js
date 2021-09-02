@@ -127,13 +127,13 @@ class Order{
         }
     }
 
-    async addOrder(customerID, employeeID, orderDate, bookingTimeID, serviceID, serviceQuantity=1, active=false, rating=0, done=true)
+    async addOrder(customerID, employeeID, orderDate, bookingTimeID, serviceID, orderCreationDate, serviceQuantity=1, active=false, rating=0, done=false)
     {
         try{
 
-            const orderData = [customerID, employeeID, orderDate, bookingTimeID, serviceID, active, rating, done]
+            const orderData = [customerID, employeeID, orderDate, bookingTimeID, serviceID, orderCreationDate, active, rating, done]
             const pool = await dbConnect()
-            const query = 'INSERT INTO orders(CustomerID, EmployeeID, OrderDate, BookingTimeID, ServiceID, active, rating, done) VALUES($1, $2, $3, $4, $5, $6, $7, $8)'
+            const query = 'INSERT INTO orders(CustomerID, EmployeeID, OrderDate, BookingTimeID, ServiceID, OrderCreationDate, active, rating, done) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)'
             const client = await pool.connect()
             const insertData = await client.query(query, orderData)
             pool.end()
@@ -155,7 +155,7 @@ class Order{
             const query = `
                 SELECT 
                 employees.FirstName, employees.LastName, phones.PhoneNumber, orders.OrderDate,
-                bookingTimes.BookTime, services.name, services.price, services.description
+                bookingTimes.BookTime, services.name, services.price, services.description, orders.id, orders.OrderCreationDate
                 FROM orders
                 INNER JOIN employees ON employees.ID = orders.EmployeeID
                 INNER JOIN bookingTimes ON bookingTimes.ID = orders.BookingTimeID
@@ -168,6 +168,75 @@ class Order{
             const orderData = await client.query(query, [customerID, employeeID, orderDate, bookingTimeID])
             pool.end()
             return orderData.rows
+        }
+        catch(error)
+        {
+            console.log(error)
+            return false
+        }
+    }
+
+    async getCustomerPastOrders(customerID, todayDate)
+    {
+        try{
+
+            const pool = await dbConnect()
+            const query = `
+                SELECT * 
+                FROM orders 
+                WHERE CustomerID = $1 AND OrderDate < $2
+            `
+            const client = await pool.connect()
+            const customerOrders = await client.query(query, [customerID, todayDate])
+            pool.end()
+            return customerOrders.rows
+        }
+        catch(error)
+        {
+            console.log(error)
+            return false
+        }
+    }
+
+    async getCustomerUpcomingOrders(customerID, todayDate)
+    {
+        try{
+
+            const pool = await dbConnect()
+            const query = `
+                SELECT * 
+                FROM orders 
+                WHERE CustomerID = $1
+                AND OrderDate > $2
+                AND cancelled = FALSE
+            `
+            const client = await pool.connect()
+            const customerOrders = await client.query(query, [customerID, todayDate])
+            pool.end()
+            return customerOrders.rows
+        }
+        catch(error)
+        {
+            console.log(error)
+            return false
+        }
+    }
+
+    async getCustomerCurrentOrders(customerID, todayDate)
+    {
+        try{
+
+            const pool = await dbConnect()
+            const query = `
+                SELECT * 
+                FROM orders 
+                WHERE CustomerID = $1
+                AND OrderDate = $2
+            `
+            const client = await pool.connect()
+            const customerOrders = await client.query(query, [customerID, todayDate])
+            pool.end()
+            return customerOrders.rows
         }
         catch(error)
         {

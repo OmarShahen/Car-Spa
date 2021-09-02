@@ -4,6 +4,7 @@ const { customerVerifyToken } = require('../middleware/authority')
 const customerDB = require('../models/customers')
 const phoneDB = require('../models/phones')
 const adminDB = require('../models/admins')
+const orderDB = require('../models/orders')
 const { updateMail } = require('../mails/mailController')
 const verify = require('../controllers/verify-input')
 
@@ -172,6 +173,67 @@ customerRoute.put('/customers/:id', customerVerifyToken, async (request, respons
         })
     }
 
+})
+
+customerRoute.get('/customers/orders/past-orders', customerVerifyToken, async (request, response, next)=>{
+
+    try{
+
+        const customerPastOrdres = await orderDB.getCustomerPastOrders(request.customerID, request.body.todayDate)
+        return response.status(200).send({
+            accepted: true,
+            orders: customerPastOrdres
+        })
+
+    }
+    catch(error)
+    {
+        console.log(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
+customerRoute.get('/customers/orders/upcoming-orders', customerVerifyToken, async (request, response)=>{
+
+    try{
+
+        const customerUpcomingOrders = await orderDB.getCustomerUpcomingOrders(request.customerID, request.body.todayDate)
+        return response.status(200).send({
+            accepted: true,
+            orders: customerUpcomingOrders
+        })
+    }
+    catch(error)
+    {
+        console.log(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
+customerRoute.get('/customers/orders/current-orders', customerVerifyToken, async (request, response)=>{
+
+    try{
+
+        const currentOrders = await orderDB.getCustomerCurrentOrders(request.customerID, request.body.todayDate)
+        return response.status(200).send({
+            accepted: true,
+            orders: currentOrders
+        })
+    }
+    catch(error)
+    {
+        console.log(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
 })
 
 

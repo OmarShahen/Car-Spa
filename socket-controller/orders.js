@@ -279,7 +279,8 @@ module.exports = (io)=>{
                     missingEmployee[0].id,
                     orderData.bookDate,
                     bookTime[0].id,
-                    orderData.serviceID
+                    orderData.serviceID,
+                    new Date()
                 )
 
                 if(assignOrder)
@@ -327,7 +328,8 @@ module.exports = (io)=>{
                         employeeRating[0].employeeid,
                         orderData.bookDate,
                         bookTime[0].id,
-                        orderData.serviceID
+                        orderData.serviceID,
+                        new Date()
                     )
 
                     if(assignOrder)
@@ -370,7 +372,8 @@ module.exports = (io)=>{
                         averageOrders[0].employeeid,
                         orderData.bookDate,
                         bookTime[0].id,
-                        orderData.serviceID
+                        orderData.serviceID,
+                        new Date()
                     )
 
                     if(assignOrder)
@@ -421,7 +424,8 @@ module.exports = (io)=>{
                         employeesRating[0].employeeid,
                         orderData.bookDate,
                         bookTime[0].id,
-                        orderData.serviceID
+                        orderData.serviceID,
+                        new Date()
                     )
 
                     if(assignOrder)
@@ -464,7 +468,8 @@ module.exports = (io)=>{
                         lowestEmployee[0].employeeid,
                         orderData.bookDate,
                         bookTime[0].id,
-                        orderData.serviceID
+                        orderData.serviceID,
+                        new Date()
                     )
 
                     if(assignOrder)
@@ -494,7 +499,8 @@ module.exports = (io)=>{
                         employeesAverage[0].employeeid,
                         orderData.bookDate,
                         bookTime[0].id,
-                        orderData.serviceID
+                        orderData.serviceID,
+                        new Date()
                     )
 
                     if(assignOrder)

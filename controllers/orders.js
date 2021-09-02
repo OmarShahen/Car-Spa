@@ -193,7 +193,8 @@ orderRoute.post('/orders/book-later/book-order/:bookDate/:bookTime', customerVer
                 employeeAssign[0].id,
                 request.params.bookDate,
                 bookingTime[0].id,
-                request.body.orderServiceID
+                request.body.orderServiceID,
+                new Date()
             )
 
             // If order registered successfully
@@ -229,7 +230,8 @@ orderRoute.post('/orders/book-later/book-order/:bookDate/:bookTime', customerVer
                     lowestEmployee[0].employeeid,
                     request.params.bookDate,
                     bookingTime[0].id,
-                    request.body.orderServiceID
+                    request.body.orderServiceID,
+                    new Date()
                 )
 
                 if(assignOrder)
@@ -262,7 +264,8 @@ orderRoute.post('/orders/book-later/book-order/:bookDate/:bookTime', customerVer
                 employeesRating[0].employeeid,
                 request.params.bookDate,
                 bookingTime[0].id,
-                request.body.orderServiceID
+                request.body.orderServiceID,
+                new Date()
             )
 
             if(assignOrder)
@@ -307,7 +310,8 @@ orderRoute.post('/orders/book-later/book-order/:bookDate/:bookTime', customerVer
                 lowestEmployeeesOrders[0].employeeid,
                 request.params.bookDate,
                 bookingTime[0].id,
-                request.body.orderServiceID
+                request.body.orderServiceID,
+                new Date()
             )
 
             if(assignOrder)
@@ -338,7 +342,8 @@ orderRoute.post('/orders/book-later/book-order/:bookDate/:bookTime', customerVer
             employeesRating[0].employeeid,
             request.params.bookDate,
             bookingTime[0].id,
-            request.body.orderServiceID
+            request.body.orderServiceID,
+            new Date()
         )
 
         if(assignOrder)
