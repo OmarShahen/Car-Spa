@@ -40,7 +40,7 @@
     </div>
     
 </body>
-
+<!--
 <script>
 
     const bookNowForm = document.querySelector('#book-now-form')
@@ -64,5 +64,11 @@
     })
 
 
+</script>-->
+
+
+<script>
+    const socketIO = io()
+    socketIO.on('test', (data)=>console.log(data))
 </script>
 </html>

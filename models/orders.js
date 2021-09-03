@@ -25,6 +25,61 @@ class Order{
         }
     }
 
+    async getOrdersByDate(orderDate)
+    {
+        try{
+
+            const pool = await dbConnect()
+            const query = `
+                SELECT 
+                customers.FirstName AS CustomerFirstName, customers.LastName AS CustomerLastName,
+                employees.FirstName AS EmployeeFirstName, employees.LastName AS EmployeeLastName, orders.OrderDate,
+                bookingTimes.BookTime, services.name, services.price, services.description,
+                orders.id, orders.OrderCreationDate, orders.done, orders.rating
+                FROM orders
+                INNER JOIN customers ON customers.ID = orders.CustomerID
+                INNER JOIN employees ON employees.ID = orders.EmployeeID
+                INNER JOIN bookingTimes ON bookingTimes.ID = orders.BookingTimeID
+                INNER JOIN services ON services.ID = orders.ServiceID
+                WHERE orders.OrderDate = $1
+            `
+            const client = await pool.connect()
+            const ordersData = await client.query(query, [orderDate])
+            pool.end()
+            return ordersData.rows
+        }
+        catch(error)
+        {
+            console.log(error)
+            return false
+        }
+    }
+
+    async getEarningsOfTheDay(orderDate)
+    {
+        try{
+
+            const pool = await dbConnect()
+            const query = `
+                SELECT
+                orders.ServiceID, SUM(services.price)
+                FROM orders
+                INNER JOIN services ON orders.ServiceID = services.ID
+                WHERE OrderDate = $1
+                GROUP BY orders.ServiceID
+                `
+            const client = await pool.connect()
+            const earnings = await client.query(query, [orderDate])
+            pool.end()
+            return earnings.rows
+        }
+        catch(error)
+        {
+            console.log(error)
+            return false
+        }
+    }
+
     async getNoOfOrdersForEachEmployeeByDate(orderDate)
     {
         try{

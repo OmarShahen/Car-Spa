@@ -1,12 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-</head>
-<body>
-    <h1>Hey Admin</h1>
-</body>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Dashboard</title>
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="/admin-dashboard.css">
+    </head>
+        <body>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-2 side-nav-bar">
+                        <h3>
+                            CAR-SPA
+                        </h3>
+                        <div class="side-bar-links">
+                            <ul>
+                                <li class="active-tab">
+                                    <i class="fa fa-dashboard" style="font-size: 1.5rem;"></i>
+                                    Dashboard
+                                </li>
+                                <li>
+                                    <i class="fa fa-users" style="font-size: 1.5rem;"></i>
+                                    Employees
+                                </li>
+                                <li>
+                                    <i class="fa fa-user" style="font-size: 1.5rem;"></i>
+                                    Customers
+                                </li>
+                                <li>
+                                    <i class="fa fa-shopping-cart" style="font-size:1.5rem;"></i>
+                                    Orders
+                                </li>
+                                <li>
+                                    <i class="fa fa-gift" style="font-size:1.5rem;"></i>
+                                    Offers
+                                </li>
+                                <li>
+                                    <i class="fa fa-bell" style="font-size:1rem;"></i>
+                                    Notifcations
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-9 main">
+                        <div class="top-nav">
+                            <h4>
+                                Dashboard
+                            </h4>
+                            <div class="user-info">
+                                    <strong>
+                                        Omar Reda
+                                    </strong><br>
+                                    <span>
+                                        Super Admin
+                                    </span>
+                            </div>
+                        </div>
+
+                        <div class="row stat">
+                            <div class="col-xs-12 col-md-4">
+                                <div class="category-stats">
+                                    <i class="fa fa-user-circle-o" style="font-size: 4rem;color: #25AEFF"></i>
+                                    <strong id="noOfCustomers">
+                                        0
+                                    </strong><br>
+                                    <span>
+                                        Customers
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-4">
+                                <div class="category-stats">
+                                    <i class='fa fa-shopping-cart' style='font-size:36px;color: #25AEFF'></i>
+                                    <strong id="noOfOrders">
+                                        0
+                                    </strong><br>
+                                    <span>
+                                        Orders (Today)
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-4">
+                                <div class="category-stats">
+                                    <i class='fa fa-dollar' style='font-size:4rem;color: #25AEFF'></i>
+                                    <strong id="todaysIncome">
+                                        0
+                                    </strong><br>
+                                    <span>
+                                        Income of today
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row recent-orders">
+                            <div class="col-xs-12 col-md-12">
+                                <strong>
+                                    Recent Orders
+                                </strong>
+                                <hr>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                Customer
+                                            </th>
+                                            <th>
+                                                Employee
+                                            </th>
+                                            <th>
+                                                Done
+                                            </th>
+                                            <th>
+                                                Rating
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <script>
+                const xhttp = new XMLHttpRequest()
+                xhttp.onload = ()=>{
+
+                    const serverResponse = JSON.parse(xhttp.responseText)
+                    document.querySelector('#noOfCustomers').innerHTML = serverResponse['noOfCustomers']
+                    document.querySelector('#noOfOrders').innerHTML = serverResponse['orders'].length
+                    document.querySelector('#todaysIncome').innerHTML = serverResponse['income']
+                    const orders = serverResponse['orders']
+                    console.log(orders)
+                    for(let i=0;i<orders.length;i++)
+                    {
+                        if(orders[i].done)
+                        {
+                            orders[i].done = 'Yes'
+                        }
+                        else{
+                            orders[i].done = 'NO'
+                        }
+                        document.querySelector('tbody').innerHTML += `
+                            <tr>
+                                <td>
+                                    ${orders[i].customerfirstname + ' ' + orders[i].customerlastname}
+                                </td>
+                                <td>
+                                    ${orders[i].employeefirstname + ' ' + orders[i].employeelastname}
+                                </td>
+                                <td>
+                                    ${orders[i].done}
+                                </td>
+                                <td>
+                                    ${orders[i].rating}
+                                </td>
+                            </tr>
+                        `
+                    }
+                }
+                xhttp.open('GET', '/api/admins/admin-dashboard')
+                xhttp.send()
+            </script>
+        </body>
 </html>

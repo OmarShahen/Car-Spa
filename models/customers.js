@@ -50,6 +50,25 @@ class Customer{
         }
     }
 
+    async getNoOfCustomers()
+    {
+        try{
+
+            const pool = await dbConnect()
+            const query = 'SELECT COUNT(ID) FROM customers'
+            const client = await pool.connect()
+            const noOfCustomers = await client.query(query)
+            pool.end()
+            return noOfCustomers.rows
+        }
+        catch(error)
+        {
+            console.log(error)
+            return false
+
+        }
+    }
+
     async getCustomerDataWithPhoneByID(customerID)
     {
         try{
