@@ -185,6 +185,7 @@ class Order{
                 SELECT * 
                 FROM orders 
                 WHERE CustomerID = $1 AND OrderDate < $2
+                ORDER BY OrderDate DESC
             `
             const client = await pool.connect()
             const customerOrders = await client.query(query, [customerID, todayDate])
@@ -209,6 +210,7 @@ class Order{
                 WHERE CustomerID = $1
                 AND OrderDate > $2
                 AND cancelled = FALSE
+                ORDER BY OrderDate ASC
             `
             const client = await pool.connect()
             const customerOrders = await client.query(query, [customerID, todayDate])
@@ -232,6 +234,8 @@ class Order{
                 FROM orders 
                 WHERE CustomerID = $1
                 AND OrderDate = $2
+                AND done = FALSE
+                ORDER BY OrderDate ASC
             `
             const client = await pool.connect()
             const customerOrders = await client.query(query, [customerID, todayDate])

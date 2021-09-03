@@ -19,5 +19,10 @@ module.exports = {
     twilio:{
         accountsid: 'AC85f4e1417efbe3aeaa90f3f8a066dd0a',
         authToken: 'add73916c99ed9e7ff1b41343ad1be26'
+    },
+
+    smsAPI:{
+        apiKey: '5gPRNBgjZBVoPiPtikSgbejd3',
+        originator: 'CAR-SPA'
     }
 }

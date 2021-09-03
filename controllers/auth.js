@@ -6,7 +6,7 @@ const customerDB = require('../models/customers')
 const employeeDB = require('../models/employees')
 const adminDB = require('../models/admins')
 const phoneDB = require('../models/phones')
-const verficationCodesDB = require('../models/verification-codes')
+const verificationCodeDB = require('../models/verification-codes')
 const verify = require('./verify-input')
 const config = require('../config/config')
 const bcrypt = require('bcrypt')
@@ -16,8 +16,8 @@ const fileValidation = require('../middleware/verify-files')
 const verifyInput = require('./verify-input')
 const { checkPhoneNumber } = require('./verify-input')
 const { response } = require('express')
-const client = require('twilio')(config.twilio.accountsid, config.twilio.authToken)
-
+const smsVerifiy = require('../sms/verfication-sms')
+const verificationCodes = require('../models/verification-codes')
 
 const userEmailExist = async (userEmail)=>{
 
@@ -45,7 +45,7 @@ const userEmailExist = async (userEmail)=>{
     }
 }
 
-const getRandomInt = (min=10000, max=100000)=>{
+const getRandomInt = (min=1000, max=10000)=>{
     min = Math.ceil(min)
     max = Math.floor(max)
     return Math.floor(Math.random() * (max - min) + min)
@@ -670,7 +670,6 @@ authRouter.post('/employees/sign-up', adminVerifyToken, fileValidation, async (r
 
 })
 
-
 authRouter.post('/employees/login', async (request, response)=>{
     try{
 
@@ -701,6 +700,73 @@ authRouter.post('/employees/login', async (request, response)=>{
 
 
 
+    }
+    catch(error)
+    {
+        console.log(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
+
+authRouter.post('/customers/phone-number/verification-code', async (request, response)=>{
+
+    try{
+
+        const verificationCode = getRandomInt()
+        const addVerificationCode = await verificationCodeDB.createVerificationCode(
+            request.body.customerPhoneNumber,
+            verificationCode
+        )
+
+        const isSMSSent = smsVerifiy(request.body.customerPhoneNumber, verificationCode)
+
+        return response.status(200).send({
+            accepted: true,
+            message: 'Message sent successfully'
+        })
+
+    }
+    catch(error)
+    {
+        console.log(error)
+        return response.status(500).send({
+            acccepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
+
+authRouter.get('/customers/phone-number/verifiy', async (request, response)=>{
+
+    try{
+
+        const checkCode = await verificationCodeDB.getVerificationCode(
+            request.body.customerPhoneNumber,
+            request.body.verificationCode
+        )
+
+        if(!checkCode.length == 1)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: 'Invalid verification code'
+            })
+        }
+
+        const deleteCode = await verificationCodeDB.deleteVerificationCodes(
+            request.body.customerPhoneNumber,
+            request.body.verificationCode
+            )
+
+        return response.status(200).send({
+            accepted: true,
+            message: 'Valid number'
+        })
     }
     catch(error)
     {
