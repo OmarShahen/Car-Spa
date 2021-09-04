@@ -741,7 +741,7 @@ authRouter.post('/customers/phone-number/verification-code', async (request, res
 })
 
 
-authRouter.get('/customers/phone-number/verifiy', async (request, response)=>{
+authRouter.post('/customers/phone-number/verifiy', async (request, response)=>{
 
     try{
 
