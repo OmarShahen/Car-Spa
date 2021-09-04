@@ -20,6 +20,7 @@ body{
     left: 0;
 }
 
+
 .main{
     margin-left: 23rem;
 }
@@ -56,6 +57,10 @@ i{
     padding: 1rem;
     padding: 2rem 2rem;
     
+}
+
+.side-bar-links ul li a:hover{
+    text-decoration: none;
 }
 
 .side-bar-links ul li:hover{

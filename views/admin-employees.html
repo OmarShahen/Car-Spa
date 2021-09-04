@@ -13,7 +13,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet"/>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-        <link rel="stylesheet" href="/admin-dashboard.css">
+        <link rel="stylesheet" href="../static/admin-dashboard.css">
     </head>
         <body>
             <div class="container-fluid">
@@ -56,10 +56,11 @@
                     <div class="col-md-9 main">
                         <div class="top-nav">
                             <h4>
-                                Dashboard
+                                Employees
                             </h4>
                             <div class="user-info">
                                     <strong id="admin-name">
+                                        Omar Reda
                                     </strong><br>
                                     <span>
                                         Super Admin
@@ -136,52 +137,5 @@
                 </div>
             </div>
 
-
-
-
-            <script>
-                const xhttp = new XMLHttpRequest()
-                xhttp.onload = ()=>{
-
-                    const serverResponse = JSON.parse(xhttp.responseText)
-                    console.log(serverResponse)
-                    document.querySelector('#admin-name').innerHTML = serverResponse['adminData'].firstname + ' ' +serverResponse['adminData'].lastname
-                    document.querySelector('#noOfCustomers').innerHTML = serverResponse['noOfCustomers']
-                    document.querySelector('#noOfOrders').innerHTML = serverResponse['orders'].length
-                    document.querySelector('#todaysIncome').innerHTML = serverResponse['income']
-                    const orders = serverResponse['orders']
-                    for(let i=0;i<orders.length;i++)
-                    {
-                        if(orders[i].done)
-                        {
-                            orders[i].done = 'Yes'
-                        }
-                        else{
-                            orders[i].done = 'NO'
-                        }
-                        document.querySelector('tbody').innerHTML += `
-                            <tr>
-                                <td>
-                                    ${orders[i].customerfirstname + ' ' + orders[i].customerlastname}
-                                </td>
-                                <td>
-                                    ${orders[i].employeefirstname + ' ' + orders[i].employeelastname}
-                                </td>
-                                <td>
-                                    ${orders[i].done}
-                                </td>
-                                <td>
-                                    ${orders[i].rating}
-                                </td>
-                            </tr>
-                        `
-                    }
-                }
-
-                const todayDate = new Date()
-                const properDate = todayDate.getFullYear().toString() + '-' + (todayDate.getMonth()+1).toString() + '-' + todayDate.getDate().toString()
-                xhttp.open('GET', '/api/admins/admin-dashboard/' + properDate)
-                xhttp.send()
-            </script>
         </body>
 </html>

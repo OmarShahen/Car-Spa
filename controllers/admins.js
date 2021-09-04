@@ -11,6 +11,8 @@ const moment = require('moment')
 const jwt = require('jsonwebtoken')
 const { adminVerifyToken } = require('../middleware/authority')
 const { response } = require('express')
+const verifiySession = require('../middleware/session-auth')
+const verifiyAdmin = require('../middleware/session-auth')
 
 
 
@@ -24,6 +26,11 @@ const formatHost = (host)=>{
     else{
         return 'https://' + host + '/api/admins/forgot-password-form'
     }
+}
+
+const properDate = (dateObj)=>{
+
+    return dateObj.getFullYear().toString() + '-' + (dateObj.getMonth()+1).toString() + '-' + dateObj.getDate().toString()
 }
 
 
@@ -78,7 +85,8 @@ adminRoute.post('/admins/login-form/submit', async (request, response)=>{
             return response.redirect('/api/admins/login-form')
         }
 
-        return response.render('admin-dashboard')
+        request.session.adminID = adminData[0].id
+        return response.redirect('/api/admins/admin-dashboard')
 
     }
     catch(error)
@@ -176,10 +184,11 @@ adminRoute.post('/admins/forgot-password-form/submit', async (request, response)
     }
 })
 
-
+// Admin Dashboard
 adminRoute.get('/admins/admin-dashboard/:todayDate', async (request, response)=>{
     try{
 
+        const adminData = await adminDB.getAdminByID(request.session.adminID)
         const noOfCustomers = await customerDB.getNoOfCustomers()
         const getIncome = await orderDB.getEarningsOfTheDay(request.params.todayDate)
         const todaysIncome = calculateDayIncome(getIncome)
@@ -188,7 +197,8 @@ adminRoute.get('/admins/admin-dashboard/:todayDate', async (request, response)=>
         return response.status(200).send({
             noOfCustomers: Number(noOfCustomers[0].count),
             income: todaysIncome,
-            orders: todaysOrders
+            orders: todaysOrders,
+            adminData: adminData[0]
         })
 
     }
@@ -198,9 +208,30 @@ adminRoute.get('/admins/admin-dashboard/:todayDate', async (request, response)=>
     }
 })
 
+adminRoute.get('/admins/admin-dashboard', verifiySession, (request, response)=>{
+    try{
 
-adminRoute.get('/test-admin-dashboard', (request, response)=>{
-    return response.render('admin-dashboard')
+        return response.render('admin-dashboard')
+    }
+    catch(error)
+    {
+        console.log(error)
+        return response.status(500)
+    }
+})
+
+
+// Admin Employees
+adminRoute.get('/admins/employees', verifiySession, (request, response)=>{
+
+    try{
+
+        
+    }
+    catch(error)
+    {
+        return response.status(500)
+    }
 })
 
 

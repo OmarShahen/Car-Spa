@@ -1,6 +1,6 @@
 
 const orderRoute = require('express').Router()
-const { request } = require('express')
+const { request, response } = require('express')
 const { customerVerifyToken } = require('../middleware/authority')
 const reservedDayDB = require('../models/reserved-days')
 const bookingTimeDB = require('../models/booking-times')
@@ -379,6 +379,36 @@ orderRoute.post('/orders/book-later/book-order/:bookDate/:bookTime', customerVer
         return response.status(500).send({
             accepted: false,
             message: 'internal server error'
+        })
+    }
+})
+
+orderRoute.post('/orders/book-order/available/:bookDate/:bookTime', customerVerifyToken, async (request, response)=>{
+    
+    try{
+
+        const noOfEmployees = await employeeDB.getNumberOfEmployees()
+        const orders = await orderDB.getOrderByDateAndTime(request.params.bookDate, request.params.bookTime)
+        
+        if(Number(noOfEmployees[0].count) == orders.length)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: 'all drivers are booked at this time'
+            })
+        }
+
+        return response.status(200).send({
+            accepted: true,
+            message: 'this time is available'
+        })
+    }
+    catch(error)
+    {
+        console.log(error)
+        return response.status(500).send({
+            accepted: false,
+            message:'internal server error'
         })
     }
 })
