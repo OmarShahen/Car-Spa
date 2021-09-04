@@ -175,7 +175,10 @@
                         `
                     }
                 }
-                xhttp.open('GET', '/api/admins/admin-dashboard')
+
+                const todayDate = new Date()
+                const properDate = todayDate.getFullYear().toString() + '-' + (todayDate.getMonth()+1).toString() + '-' + todayDate.getDate().toString()
+                xhttp.open('GET', '/api/admins/admin-dashboard/' + properDate)
                 xhttp.send()
             </script>
         </body>

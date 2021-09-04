@@ -177,13 +177,13 @@ adminRoute.post('/admins/forgot-password-form/submit', async (request, response)
 })
 
 
-adminRoute.get('/admins/admin-dashboard', async (request, response)=>{
+adminRoute.get('/admins/admin-dashboard/:todayDate', async (request, response)=>{
     try{
 
         const noOfCustomers = await customerDB.getNoOfCustomers()
-        const getIncome = await orderDB.getEarningsOfTheDay('2021-08-28')
+        const getIncome = await orderDB.getEarningsOfTheDay(request.params.todayDate)
         const todaysIncome = calculateDayIncome(getIncome)
-        const todaysOrders = await orderDB.getOrdersByDate('2021-08-28')
+        const todaysOrders = await orderDB.getOrdersByDate(request.params.todayDate)
 
         return response.status(200).send({
             noOfCustomers: Number(noOfCustomers[0].count),
