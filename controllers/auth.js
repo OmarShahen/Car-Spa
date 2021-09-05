@@ -286,6 +286,17 @@ authRouter.post('/customers/check-email', async (request, response)=>{
                 message: 'invalid input'
             })
         }
+
+        const checkEmail = verify.checkEmail(request.body.customerEmail)
+        if(!checkEmail.accepted)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: checkEmail.message,
+                field: 'email'
+            })
+        }
+        
         const emailExist = await userEmailExist(request.body.customerEmail)
         if(emailExist)
         {
