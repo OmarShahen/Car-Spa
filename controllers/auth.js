@@ -279,6 +279,13 @@ authRouter.post('/customers/login', async (request, response)=>{
 authRouter.post('/customers/check-email', async (request, response)=>{
     try{
 
+        if(!request.body.customerEmail)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: 'invalid input'
+            })
+        }
         const emailExist = await userEmailExist(request.body.customerEmail)
         if(emailExist)
         {
@@ -289,7 +296,8 @@ authRouter.post('/customers/check-email', async (request, response)=>{
         }
 
         return response.status(200).send({
-            accepted: true
+            accepted: true,
+            message: 'valid email'
         })
 
     }

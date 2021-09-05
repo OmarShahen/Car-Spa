@@ -47,6 +47,7 @@ ul{
     font-weight: bold;
 }
 
+
 i{
     padding-right: 1rem;
     font-size: 3rem;
@@ -56,11 +57,7 @@ i{
     width: 100%;
     padding: 1rem;
     padding: 2rem 2rem;
-    
-}
-
-.side-bar-links ul li a:hover{
-    text-decoration: none;
+    color: #fff;
 }
 
 .side-bar-links ul li:hover{
@@ -70,11 +67,20 @@ i{
     border-bottom-left-radius: 20px;
 }
 
+.side-bar-links ul li span{
+    padding-bottom: 2rem;
+}
+
+
 .active-tab{
     background-color: #fff;
     color: #25AEFF;
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
+}
+
+.active-tab span, .active-tab i{
+    color: #25AEFF;
 }
 
 .top-nav{
@@ -133,4 +139,29 @@ i{
 .recent-orders{
     margin-bottom: 1rem;
     border-radius: 5px;
+}
+
+
+.card{
+    background-color: #fff;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    padding-right: 2rem;
+    padding-left: 2rem;
+    border-radius: 5px;
+}
+
+.card-img-top{
+    width: 100%;
+}
+
+.see-profile-btn a{
+    background-color: #25AEFF;
+    border:none;
+}
+
+@media only screen and (max-width: 1000px){
+    .card-img-top{
+        display: none;
+    }
 }
