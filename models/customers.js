@@ -50,6 +50,32 @@ class Customer{
         }
     }
 
+    async getCustomersData()
+    {
+        try{
+
+            const pool = await dbConnect()
+            const query = `
+                SELECT 
+                Customers.ID, Customers.FirstName, Customers.LastName, Customers.email,
+                Customers.country, Customers.City, customers.accountCreationDate
+                phones.PhoneNumber
+                FROM customers 
+                INNER JOIN phones ON phones.CustomerID = customers.ID
+            `
+            const client = await pool.connect()
+            const customerData = await client.query(query)
+            pool.end()
+            return customersData.rows
+        }
+        catch(error)
+        {
+            console.log(error)
+            return false
+        }
+    }
+
+
     async getNoOfCustomers()
     {
         try{

@@ -237,8 +237,17 @@ class Order{
 
             const pool = await dbConnect()
             const query = `
-                SELECT * 
+                SELECT 
+                customers.FirstName AS CustomerFirstName, customers.LastName AS CustomerLastName,
+                employees.FirstName AS EmployeeFirstName, employees.LastName AS EmployeeLastName,
+                orders.OrderDate, bookingTimes.BookTime,
+                services.name, orders.done, orders.rating,
+                orders.orderCreationDate, orders.cancelled
                 FROM orders 
+                INNER JOIN customers ON customers.ID = orders.CustomerID
+                INNER JOIN employees ON employees.ID = orders.EmployeeID
+                INNER JOIN BookingTimes ON BookingTimes.ID = orders.BookingTimeID
+                INNER JOIN services ON services.ID = orders.ServiceID
                 WHERE CustomerID = $1 AND OrderDate < $2
                 ORDER BY OrderDate DESC
             `
@@ -260,8 +269,17 @@ class Order{
 
             const pool = await dbConnect()
             const query = `
-                SELECT * 
+                SELECT
+                customers.FirstName AS CustomerFirstName, customers.LastName AS CustomerLastName,
+                employees.FirstName AS EmployeeFirstName, employees.LastName AS EmployeeLastName,
+                orders.OrderDate, bookingTimes.BookTime,
+                services.name, orders.done, orders.rating,
+                orders.orderCreationDate, orders.cancelled
                 FROM orders 
+                INNER JOIN customers ON customers.ID = orders.CustomerID
+                INNER JOIN employees ON employees.ID = orders.EmployeeID
+                INNER JOIN BookingTimes ON BookingTimes.ID = orders.BookingTimeID
+                INNER JOIN services ON services.ID = orders.ServiceID
                 WHERE CustomerID = $1
                 AND OrderDate > $2
                 AND cancelled = FALSE
@@ -285,11 +303,19 @@ class Order{
 
             const pool = await dbConnect()
             const query = `
-                SELECT * 
+                SELECT 
+                customers.FirstName AS CustomerFirstName, customers.LastName AS CustomerLastName,
+                employees.FirstName AS EmployeeFirstName, employees.LastName AS EmployeeLastName,
+                orders.OrderDate, bookingTimes.BookTime,
+                services.name, orders.done, orders.rating,
+                orders.orderCreationDate, orders.cancelled
                 FROM orders 
+                INNER JOIN customers ON customers.ID = orders.CustomerID
+                INNER JOIN employees ON employees.ID = orders.EmployeeID
+                INNER JOIN BookingTimes ON BookingTimes.ID = orders.BookingTimeID
+                INNER JOIN services ON services.ID = orders.ServiceID
                 WHERE CustomerID = $1
                 AND OrderDate = $2
-                AND done = FALSE
                 ORDER BY OrderDate ASC
             `
             const client = await pool.connect()
