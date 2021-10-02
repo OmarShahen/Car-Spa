@@ -9,7 +9,8 @@
   </a>
 </p>
 
-> Car wash booking app
+> This app allows you to choose your type of service and best time to book a wash to your car while you don't need to go there,
+the app sends you a car to wash it without any effort from you
 
 ### 🏠 [Homepage](https://github.com/OmarShahen/Car-Spa#readme)
 
@@ -30,7 +31,7 @@ npm run test
 👤 **Omar Reda**
 
 * Github: [@OmarShahen](https://github.com/OmarShahen)
-* LinkedIn: [@Omar Shahen](https://linkedin.com/in/Omar Shahen)
+* LinkedIn: [@Omar Shahen](www.linkedin.com/in/omar-shahen-0b1ba4180)
 
 ## 🤝 Contributing
 
