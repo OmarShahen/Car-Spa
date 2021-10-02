@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Dashboard</title>
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+        <!--<link rel="stylesheet" href="../static/admin-dashboard.css">-->
+        <link rel="stylesheet" href="/admin-dashboard.css">
+    </head>
+        <body>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-2 side-nav-bar">
+                        <h3>
+                            CAR-SPA
+                        </h3>
+                        <div class="side-bar-links">
+                            <ul>
+                                <li>
+                                    <i class="fa fa-dashboard" style="font-size: 1.5rem;"></i>
+                                   <a href="/api/admins/admin-dashboard">
+                                        <span>
+                                            Dashboard
+                                        </span>
+                                    </a>
+                                </li>
+                                <li class="active-tab">
+                                    <i class="fa fa-users" style="font-size: 1.5rem;"></i>
+                                    <a href="/api/admins/employees/view">
+                                        <span>Employees</span>
+                                    </a>    
+                                </li>
+                                <li>
+                                    <i class="fa fa-user" style="font-size: 1.5rem;"></i>
+                                    <a href="#">
+                                        <span>
+                                            Customers
+                                        </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <i class="fa fa-shopping-cart" style="font-size:1.5rem;"></i>
+                                    <a href="#">
+                                        <span>
+                                            Orders
+                                        </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <i class="fa fa-gift" style="font-size:1.5rem;"></i>
+                                    <a href="#">
+                                        <span>
+                                            Offers
+                                        </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <i class="fa fa-bell" style="font-size:1rem;"></i>
+                                    <a href="#">
+                                        <span>
+                                            Notifcations
+                                        </span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-9 main">
+                        <div class="top-nav">
+                            <h4>
+                                Employees
+                            </h4>
+                            <div class="user-info">
+                                    <strong id="admin-name">
+                                        Omar Reda
+                                    </strong><br>
+                                    <span>
+                                        Super Admin
+                                    </span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <a href="#" class="btn btn-primary add-employee">
+                                <i class="fa fa-plus" style="font-size:1.5rem;color: #fff;"></i>
+                                Employee
+                            </a>
+                        </div>
+
+                        <div class="row stat">
+                            <div class="col-xs-12 col-md-6">
+                                <div class="category-stats">
+                                    <i class="fa fa-wifi" style="font-size:4rem;color:#25AEFF"></i>
+
+
+                                    <strong id="active-employees-number">
+                                        
+                                    </strong><br>
+                                    <span>
+                                        Active Employees
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-6">
+                                <div class="category-stats">
+                                    <i class="fa fa-users" style="font-size: 4rem;color: #25AEFF"></i>
+                                    <strong id="employees-number">
+                                        
+                                    </strong><br>
+                                    <span>
+                                        Employees
+                                    </span>
+                                </div>
+                            </div>
+                            
+
+                        </div>
+                        <div class="row show-employees">
+                    
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+
+                const xhttp = new XMLHttpRequest()
+                xhttp.onload = ()=>{
+
+                    const employees = JSON.parse(xhttp.responseText)
+                    document.querySelector('#active-employees-number').innerHTML = employees['activeEmployeesNo']
+                    document.querySelector('#employees-number').innerHTML = employees['allEmployeesNo']
+
+                    for(let i=0;i<employees['allEmployees'].length;i++)
+                    {
+                        document.querySelector('.show-employees').innerHTML += `
+                            <div class="col-xs-12 col-md-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h4 class="card-title">
+                                            <div style="float: right;">
+                                                <strong id="employee-active" style="color: #25AEFF;">
+                                                    Active
+                                                </strong>
+                                            </div>
+                                            <strong>
+                                                ${employees['allEmployees'][i]['firstname']} ${employees['allEmployees'][i]['lastname']}
+                                            </strong>
+                                        </h4>
+                                        <strong>
+                                            ${employees['allEmployees'][i]['phonenumber']}
+                                        </strong>
+                                        <div class="see-profile-btn" style="text-align: right;">
+                                            <strong>
+                                                <a href="/api/admins/employees/view-data/${employees['allEmployees'][i]['id']}" class="btn btn-primary">See Profile</a>
+                                            </strong>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                        `
+                        if(!employees['allEmployees'][i]['active'])
+                        {
+                            document.querySelector('#employee-active').style.display = 'none';
+                        }
+                    }
+
+                }
+
+                xhttp.open('GET', '/api/admins/employees')
+                xhttp.send()
+            </script>
+
+        </body>
+</html>

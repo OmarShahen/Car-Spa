@@ -1,0 +1,49 @@
+.employee-image-div{
+    display: inline;
+}
+.employee-name{
+    display: inline;
+    padding-left: 2rem;
+    font-size: 2rem;
+}
+
+.user-info-employee{
+    float: none;
+}
+.employee-info{
+    background-color: #fff;
+    margin-top: 2rem;
+    border-radius: 5px;
+}
+
+.employee-personal-info{
+    background-color: #fff;
+    padding: 1rem;
+}
+
+.employee-personal-info{
+    border-radius: 5px;
+    margin-bottom: 2rem;
+}
+
+.employee-personal-info-header{
+    background-color: #f2f2f2;
+}
+
+.employee-info-values p strong{
+    float: right;
+}
+
+.employee-recent-orders{
+    background-color: #fff;
+    margin-bottom: 1rem;
+}
+
+#employee-id{
+    float: right;
+
+}
+
+
+
+

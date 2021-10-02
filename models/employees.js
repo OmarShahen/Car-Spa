@@ -38,7 +38,14 @@ class Employee{
         try{
 
             const pool = await dbConnect()
-            const query = 'SELECT ID, FirstName, LastName, address, NationalID, CriminalRecord, active, StillWorking, AccountCreationDate FROM employees'
+            const query = `
+                SELECT
+                employees.ID, employees.FirstName, employees.LastName, employees.address, employees.NationalID,
+                employees.CriminalRecord, employees.active, employees.StillWorking, employees.AccountCreationDate,
+                phones.phoneNumber
+                FROM employees
+                INNER JOIN phones ON phones.EmployeeID = employees.ID   
+                `
             const client = await pool.connect()
             const employeeData = await client.query(query)
             pool.end()

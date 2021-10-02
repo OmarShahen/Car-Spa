@@ -124,6 +124,52 @@ class Order{
         }
     }
 
+    async getNoAndAvgOfOrdersForEmployee(employeeID){
+        try{
+
+            const pool = await dbConnect()
+            const query = 'SELECT COUNT(ID), AVG(rating) FROM orders WHERE EmployeeID = $1'
+            const client = await pool.connect()
+            const ordersData = await client.query(query, [employeeID])
+            pool.end()
+            return ordersData.rows
+        }
+        catch(error)
+        {
+            console.log(error)
+            return false
+        }
+    }
+
+    async getEmployeeDataAndOrders(employeeID){
+
+        try{
+
+            const pool = await dbConnect()
+            const query = `
+                SELECT
+                employees.FirstName, employees.LastName, phones.PhoneNumber, employees.NationalID,
+                employees.AccountCreationDate, orders.ID, bookingTimes.BookTime, orders.OrderDate,
+                orders.rating
+                FROM orders
+                INNER JOIN employees ON employees.ID = orders.EmployeeID
+                INNER JOIN phones ON phones.EmployeeID = orders.EmployeeID
+                INNER JOIN bookingTimes ON bookingTimes.ID = orders.BookingTimeID
+                WHERE orders.EmployeeID = $1
+                ORDER BY ID ASC
+            `
+            const client = await pool.connect()
+            const ordersData = await client.query(query, [employeeID])
+            pool.end()
+            return ordersData.rows
+        }
+        catch(error)
+        {
+            console.log(error)
+            return false
+        }
+    }
+
     // ss refers to the number of $n that will be queried 
     async getAvgerageRatingForEachEmployee(ss, employeesIDs)
     {

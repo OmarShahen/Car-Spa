@@ -1,0 +1,106 @@
+body{
+    font-family: 'Open Sans', sans-serif;
+}
+
+.navbar{
+    width: 100%;
+    padding-bottom: 2rem;
+    background-color: #41A7F2;
+    color: #fff;
+}
+.navbar h2{
+    padding-left: 4rem;
+}
+.container-fluid{
+    text-align: center;
+    padding-top: 4rem;
+}
+.container-fluid h3{
+    font-weight: bold;
+    font-size: 3rem;
+}
+
+#employee-form{
+    padding-top: 8rem;
+}
+
+
+input{
+    background-color: #fff;
+    border: none;
+    border-bottom: 1px solid #41A7F2;
+    padding-left: 2rem;
+    font-size: large;
+    margin-bottom: 5rem;
+    outline: none;
+    font-weight: bold;
+    color: #000;
+}
+
+input[type="submit"]{
+    background-color: #41A7F2;
+    color: #fff;
+    padding-left: 0;
+    width: 218px;
+    height: 50px;
+    margin-bottom: 2rem;
+}
+
+input::placeholder{
+    color: #000;
+}
+
+.confirm-password-error{
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    display: none;
+}
+
+@media only screen and (max-width: 600px){
+    .confirm-password-error{
+        width: 80%;
+    }
+}
+
+.phone-pass-div, .national-address-div{
+    display: none;
+}
+
+
+#right-arrow{
+    color: #41A7F2;
+    height: 100px;
+    width: 2rem;
+}
+
+.nav-btn{
+    background-color: #41A7F2;
+    color: #fff;
+    padding-left: 0;
+    width: 10rem;
+    height: 4rem;
+    margin-bottom: 2rem;
+    border: none;
+    font-weight: bolder;
+    border-radius: 20px;
+}
+
+.error{
+    display: none;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

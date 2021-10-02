@@ -798,9 +798,5 @@ authRouter.post('/customers/phone-number/verifiy', async (request, response)=>{
 })
 
 
-
-
-
-
 module.exports = authRouter
 

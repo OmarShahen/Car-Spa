@@ -43,10 +43,32 @@ app.use('/api', orders)
 
 // Socket Part
 require('./socket-controller/orders')(io)
+require('./socket-controller/notifications')(io)
 
 app.get('/', (request, response)=>{
     console.log(request.headers.host)
     return response.sendFile(path.join(__dirname + '/customer.html'))
+})
+
+app.get('/test-socket', (request, response)=>{
+    return response.sendFile(path.join(__dirname + '/test-page.html'))
+})
+
+app.get('/Nassef', (request, response)=>{
+    data = [
+        {
+            name: 'Nassef',
+            age: 21
+        }
+    ]
+
+    
+
+    return response.status(200).send({
+        data: data,
+        data32: request.body.firstname
+    })
+
 })
 
 

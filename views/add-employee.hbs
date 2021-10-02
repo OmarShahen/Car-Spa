@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin New Password</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="/add-employee.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet"/>
+
+</head>
+<body>
+    <div class="navbar">
+            <h2>
+                Car-Spa
+            </h2>
+    </div>
+    <div class="container-fluid">
+        <div>
+            
+            <h3>
+                Add New Member
+            </h3>
+            <strong>Please enter his data.</strong>
+
+            <form method="POST" id="employee-form" action="">
+                <div class="first-last-div">
+                    <div>
+                        <strong id="firstname-error" class="error">
+                            Invalid name
+                        </strong>
+                        <input type="name" id="firstName" placeholder="First Name" required>
+                    </div>
+                    <div>
+                        <strong id="lastname-error" class="error">
+                            Invalid name
+                        </strong>
+                        <input type="name" id="lastName" placeholder="Last Name" required>
+                    </div>
+                </div>
+                <div class="phone-pass-div">
+                    <div>
+                        <strong id="phoneNumber-error" class="error">
+                            Invalid phone Number
+                        </strong>
+                        <input type="name" id="phoneNumber" placeholder="Phone Number" required>
+                    </div>
+                    <div>
+                        <strong id="password-error" class="error"></strong>
+                        <input type="name" id="password" placeholder="Password" required>
+                    </div>
+                    <div>
+                        <strong id="confirmPassword-error" class="error">
+                            Must be typical to password
+                        </strong>
+                        <input type="name" id="confirmPassword" placeholder="Confirm Password" required>
+                    </div>
+                </div>
+
+                <div class="national-address-div">
+                    <div>
+                        <strong id="nationalID-error" class="error">
+                            Invalid nationalID
+                        </strong>
+                        <input type="name" id="nationalID" placeholder="National ID" required>
+                    </div>
+                    <div>
+                        <strong id="address-error" class="error">
+                        </strong>
+                        <input type="name" id="address" placeholder="Address" required>
+                    </div>
+                    <div>
+                        <input type="submit" value="Add Member">
+                    </div>
+                </div>
+                <div>
+                    <button class="nav-btn prev">
+                        Prev
+                    </button>
+                    <button class="nav-btn next">
+                        Next
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    <script src="/JS/validate.js"></script>
+
+    <script>
+        let formPages = 1
+        const navForm = ()=>{
+        if(formPages == 1)
+        {
+            document.querySelector('.first-last-div').style.display = 'block'
+            document.querySelector('.phone-pass-div').style.display = 'none'
+            document.querySelector('.national-address-div').style.display = 'none'
+            document.querySelector('.prev').style.visibility = 'hidden'
+            document.querySelector('.next').style.visibility = 'visible'
+        }
+        else if(formPages == 2)
+        {
+
+          document.querySelector('.first-last-div').style.display = 'none'
+          document.querySelector('.phone-pass-div').style.display = 'block'
+          document.querySelector('.national-address-div').style.display = 'none'  
+          document.querySelector('.prev').style.visibility = 'visible'
+          document.querySelector('.next').style.visibility = 'visible'
+        }
+        else if(formPages == 3)
+        {
+          document.querySelector('.first-last-div').style.display = 'none'
+          document.querySelector('.phone-pass-div').style.display = 'none'
+          document.querySelector('.national-address-div').style.display = 'block'  
+          document.querySelector('.prev').style.visibility = 'visible'  
+          document.querySelector('.next').style.visibility = 'hidden'
+        }
+
+        }
+
+        document.querySelector('.next').addEventListener('click', (e)=>{
+            e.preventDefault()
+
+            const form = document.querySelector('#employee-form')
+            console.log('Here')
+            console.log(formPages)
+            if(formPages == 1)
+            {
+                console.log(checkName(form['firstName'].value))
+                if(!checkName(form['firstName'].value))
+                {
+                    document.querySelector('#firstName-error').style.display = 'block'
+                    
+                }
+
+                if(!checkName(form['lastName'].value))
+                {
+                    document.querySelector('#lastName-error').style.display = 'block'
+                    
+                }
+
+                
+            }
+            if(formPages != 3)
+            {
+                formPages++
+                navForm()
+            }
+
+        })
+
+        document.querySelector('.prev').addEventListener('click', (e)=>{
+            e.preventDefault()
+            if(formPages != 1)
+            {
+                formPages--
+                navForm()
+            }
+
+        })
+    
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

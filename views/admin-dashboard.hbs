@@ -13,9 +13,43 @@
         <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet"/>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-        <link rel="stylesheet" href="/admin-dashboard.css">
+        <link rel="stylesheet" href="/admin-dashboard.css"/>
+        <!--<link rel="stylesheet" href="../static/admin-dashboard.css">-->
+
+
+    <style>
+        #loader {
+            border: 12px solid #25AEFF;
+            border-radius: 50%;
+            border-top: 12px solid #444444;
+            width: 200px;
+            height: 200px;
+            animation: spin 1s linear infinite;
+        }
+          
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+          
+        .center {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+        }
+    </style>
+
+
+
+
     </head>
         <body>
+            <div id="loader" class="center"></div>
+
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-2 side-nav-bar">
@@ -24,31 +58,51 @@
                         </h3>
                         <div class="side-bar-links">
                             <ul>
-                                <li>
+                                <li class="active-tab">
                                     <i class="fa fa-dashboard" style="font-size: 1.5rem;"></i>
-                                    <a href="/api/admins/admin-dashboard">
-                                        Dashboard
+                                   <a href="/api/admins/admin-dashboard">
+                                        <span>
+                                            Dashboard
+                                        </span>
                                     </a>
                                 </li>
-                                <li class="active-tab">
+                                <li>
                                     <i class="fa fa-users" style="font-size: 1.5rem;"></i>
-                                    Employees
+                                    <a href="/api/admins/employees/view">
+                                        <span>Employees</span>
+                                    </a>   
                                 </li>
                                 <li>
                                     <i class="fa fa-user" style="font-size: 1.5rem;"></i>
-                                    Customers
+                                    <a href="#">
+                                        <span>
+                                            Customers
+                                        </span>
+                                    </a>
                                 </li>
                                 <li>
                                     <i class="fa fa-shopping-cart" style="font-size:1.5rem;"></i>
-                                    Orders
+                                    <a href="#">
+                                        <span>
+                                            Orders
+                                        </span>
+                                    </a>
                                 </li>
                                 <li>
                                     <i class="fa fa-gift" style="font-size:1.5rem;"></i>
-                                    Offers
+                                    <a href="#">
+                                        <span>
+                                            Offers
+                                        </span>
+                                    </a>
                                 </li>
                                 <li>
                                     <i class="fa fa-bell" style="font-size:1rem;"></i>
-                                    Notifcations
+                                    <a href="#">
+                                        <span>
+                                            Notifcations
+                                        </span>
+                                    </a>
                                 </li>
                             </ul>
                         </div>
@@ -136,6 +190,20 @@
                 </div>
             </div>
 
+            <script>
+                document.onreadystatechange = function() {
+                    if (document.readyState !== "complete") {
+                        console.log('Here 1')
+                        document.querySelector("body").style.visibility = "hidden";
+                        console.log('Here 2')
+                        document.querySelector("#loader").style.visibility = "visible";
+                        console.log('Here 3')
+                    } else {
+                        document.querySelector("#loader").style.display = "none";
+                        document.querySelector("body").style.visibility = "visible";
+                    }
+                };
+            </script>
 
 
 
@@ -144,7 +212,6 @@
                 xhttp.onload = ()=>{
 
                     const serverResponse = JSON.parse(xhttp.responseText)
-                    console.log(serverResponse)
                     document.querySelector('#admin-name').innerHTML = serverResponse['adminData'].firstname + ' ' +serverResponse['adminData'].lastname
                     document.querySelector('#noOfCustomers').innerHTML = serverResponse['noOfCustomers']
                     document.querySelector('#noOfOrders').innerHTML = serverResponse['orders'].length

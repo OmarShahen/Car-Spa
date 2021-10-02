@@ -5,6 +5,7 @@ const config = require('../config/config')
 const adminDB = require('../models/admins')
 const customerDB = require('../models/customers')
 const orderDB = require('../models/orders')
+const employeeDB = require('../models/employees')
 const bcrypt = require('bcrypt')
 const { adminForgotPassword } = require('../mails/mailController')
 const moment = require('moment')
@@ -59,6 +60,7 @@ const calculateDayIncome = (servicesPays)=>{
 
 adminRoute.get('/admins/login-form', (request, response)=>{
 
+    console.log('Here')
     return response.render('admin-form', {'submissionResponse': request.flash('submissionData')})
 })
 
@@ -220,12 +222,12 @@ adminRoute.get('/admins/admin-dashboard', verifiySession, (request, response)=>{
     }
 })
 
-
 // Admin Employees
-adminRoute.get('/admins/employees', verifiySession, (request, response)=>{
+adminRoute.get('/admins/employees/view', verifiySession, (request, response)=>{
 
     try{
 
+        return response.render('admin-employees')
         
     }
     catch(error)
@@ -233,6 +235,105 @@ adminRoute.get('/admins/employees', verifiySession, (request, response)=>{
         return response.status(500)
     }
 })
+
+adminRoute.get('/admins/employees', async (request, response)=>{
+    try{
+
+        const activeEmployees = await employeeDB.getActiveEmployees()
+        const allEmployees = await employeeDB.getAllEmployees()
+        
+        return response.status(200).send({
+            activeEmployeesNo: activeEmployees.length,
+            activeEmployees: activeEmployees,
+            allEmployeesNo: allEmployees.length,
+            allEmployees: allEmployees
+        })
+    }
+    catch(error)
+    {
+        console.log(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+adminRoute.get('/admins/employees/view-data/:employeeID', (request, response)=>{
+    try{
+
+        return response.render('employee-data', {
+            employeeID: request.params.employeeID
+        })
+    }
+    catch(error)
+    {
+        console.log(error)
+        return response.status(500)
+    }
+})
+
+adminRoute.get('/admins/employees/:employeeID', async (request, response)=>{
+    try{
+
+        const employeeCountAndAvg = await orderDB.getNoAndAvgOfOrdersForEmployee(request.params.employeeID)
+        const employeesOrders = await orderDB.getEmployeeDataAndOrders(request.params.employeeID)
+        return response.status(200).send({
+            accepted: true,
+            noOfOrders: employeeCountAndAvg[0].count,
+            average: employeeCountAndAvg[0].avg,
+            ordersData: employeesOrders
+        })
+    }
+    catch(error)
+    {
+        console.log(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
+
+
+adminRoute.get('/admins/employees/add-employee/view', (request, response)=>{
+    try{
+
+        return response.render('add-employee')
+
+    }
+    catch(error)
+    {
+        console.log(error)
+        return response.status(500)
+    }
+})
+
+adminRoute.post('/admins/employees', async (request, response)=>{
+
+    try{
+
+        console.log(request.body)
+        return response.redirect('/api/admins/employees/add-employee/view')
+    }
+    catch(error)
+    {
+        console.log(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'inetrnal servere error'
+        })
+    }
+})
+
+
+
+
+
+
+
+
+
 
 
 

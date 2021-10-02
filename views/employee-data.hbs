@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Dashboard</title>
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        
+        <!--<link rel="stylesheet" href="../static/admin-dashboard.css">
+        <link rel = "stylesheet" href="../static/employee-data.css">-->
+
+        <link rel="stylesheet" href="/admin-dashboard.css">
+        <link rel="stylesheet" href="/employee-data.css">
+        
+    </head>
+        <body>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-2 side-nav-bar">
+                        <h3>
+                            CAR-SPA
+                        </h3>
+                        <div class="side-bar-links">
+                            <ul>
+                                <li>
+                                    <i class="fa fa-dashboard" style="font-size: 1.5rem;"></i>
+                                   <a href="/api/admins/admin-dashboard">
+                                        <span>
+                                            Dashboard
+                                        </span>
+                                    </a>
+                                </li>
+                                <li class="active-tab">
+                                    <i class="fa fa-users" style="font-size: 1.5rem;"></i>
+                                    <a href="/api/admins/employees/view">
+                                        <span>Employees</span>
+                                    </a>    
+                                </li>
+                                <li>
+                                    <i class="fa fa-user" style="font-size: 1.5rem;"></i>
+                                    <a href="#">
+                                        <span>
+                                            Customers
+                                        </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <i class="fa fa-shopping-cart" style="font-size:1.5rem;"></i>
+                                    <a href="#">
+                                        <span>
+                                            Orders
+                                        </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <i class="fa fa-gift" style="font-size:1.5rem;"></i>
+                                    <a href="#">
+                                        <span>
+                                            Offers
+                                        </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <i class="fa fa-bell" style="font-size:1rem;"></i>
+                                    <a href="#">
+                                        <span>
+                                            Notifcations
+                                        </span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-9 main">
+                        <div class="top-nav">
+                            <div class="user-info-employee">
+                                <div class="employee-name">
+                                    <strong id="admin-name">
+                                    </strong>
+                                    <strong id="employee-id">
+                                        {{employeeID}}
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>   
+                        <div>
+    
+                            <div class="col-md-12 employee-personal-info">
+                                <h3>
+                                    Orders Stats
+                                </h3>
+                                <hr>
+                                <div class="employee-info-values">
+                                    <p>
+                                        Number Of Orders:
+                                        <strong id="number-of-orders">
+                                        </strong>
+                                    </p>
+                                    <p>
+                                        Average Rating:
+                                        <strong id="orders-average">
+                                        </strong>
+                                    </p>
+                                </div>
+                            </div> 
+                            
+                            <div class="col-md-12 employee-personal-info">
+                                <h3>
+                                    Personal Info
+                                </h3>
+                                <hr>
+                                <div class="employee-info-values">
+                                    <p>
+                                        First Name:
+                                        <strong id="first-name">
+                                            
+                                        </strong>
+                                    </p>
+                                    <p>
+                                        Last Name:
+                                        <strong id="last-name">
+                                            
+                                        </strong>
+                                    </p>
+                                    <p>
+                                        Phone Number:
+                                        <strong id="phone-number">
+                                        </strong>
+                                    </p>
+                                    <p>
+                                        NationalID:
+                                        <strong id="national-id">
+                                        </strong>
+                                    </p>
+                                    <p>
+                                        Account Creation Date:
+                                        <strong id="account-creation-date">
+                                        </strong>
+                                    </p>
+                                </div>
+                            </div> 
+
+                            <div class="col-md-12 employee-recent-orders">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                Order ID
+                                            </th>
+                                            <th>    
+                                                Date
+                                            </th>
+                                            <th>
+                                                Time
+                                            </th>
+                                            <th>
+                                                Rating
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                     
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>   
+                    </div>
+                </div>
+            </div>
+
+
+
+            <script>
+                const xhttps = new XMLHttpRequest()
+                xhttps.onload = ()=>{
+
+                    employeeData = JSON.parse(xhttps.responseText)
+                    document.querySelector('#admin-name').innerHTML = employeeData['ordersData'][0]['firstname'] + ' ' + employeeData['ordersData'][0]['lastname']
+                    document.querySelector('#number-of-orders').innerHTML = employeeData['noOfOrders']
+                    document.querySelector('#orders-average').innerHTML = employeeData['average'].toFixed(3)
+                    document.querySelector('#first-name').innerHTML = employeeData['ordersData'][0]['firstname']
+                    document.querySelector('#last-name').innerHTML = employeeData['ordersData'][0]['lastname']
+                    document.querySelector('#phone-number').innerHTML = employeeData['ordersData'][0]['phonenumber']
+                    document.querySelector('#national-id').innerHTML = employeeData['ordersData'][0]['nationalid']
+                    let clearDate = new Date(employeeData['ordersData'][0]['accountcreationdate'])
+                    let formattedDate = clearDate.getDate().toString() + '/' + (clearDate.getMonth()+1).toString() + '/' + clearDate.getFullYear().toString()
+                    document.querySelector('#account-creation-date').innerHTML = formattedDate
+                
+                    for(let i=0;i<employeeData['ordersData'].length;i++)
+                    {
+                        let clearDate = new Date(employeeData['ordersData'][i]['orderdate'])
+                        let formattedDate = clearDate.getDate().toString() + '/' + (clearDate.getMonth()+1).toString() + '/' + clearDate.getFullYear().toString()
+                        console.log(formattedDate)
+                        document.querySelector('tbody').innerHTML += `
+                            <tr>
+                                <td>
+                                    ${employeeData['ordersData'][i]['id']}
+                                </td>
+                                <td>
+                                    ${formattedDate}
+                                </td>
+                                <td>
+                                    ${employeeData['ordersData'][i]['booktime']}
+                                </td>
+                                <td>
+                                    ${employeeData['ordersData'][i]['rating']}
+                                </td>
+                            </tr>
+                        `
+                    }
+
+                }
+                xhttps.open('GET', '/api/admins/employees/' + document.querySelector('#employee-id').innerHTML)
+                xhttps.send()
+            </script>
+
+        </body>
+</html>
