@@ -1,14 +1,11 @@
 
 
-
-
-
-
 module.exports = (io)=>{
 
     io.on('connection', socket=>{
 
         // Maintenance Notification
+
         socket.on('maintenance', (data)=>{
 
             io.emit('maintenance', {
