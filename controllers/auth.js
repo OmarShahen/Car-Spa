@@ -45,6 +45,7 @@ const userEmailExist = async (userEmail)=>{
     }
 }
 
+
 const getRandomInt = (min=1000, max=10000)=>{
     min = Math.ceil(min)
     max = Math.floor(max)
@@ -65,45 +66,26 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
 
     try{
 
-        const checkFirstName1 = await verify.checkEmptyInput(request.body.customerFirstName)
+        const checkFirstName1 = await verify.checkEmptyInput(request.body.customerName)
         if(!checkFirstName1.accepted)
         {
             return response.status(406).send({
                 accepted: false,
                 message: checkFirstName1.message,
-                field: 'first name'
+                field: 'user name'
             })
         }
 
-        const checkFirstName2 = await verify.checkName(request.body.customerFirstName)
+        const checkFirstName2 = await verify.checkName(request.body.customerName)
         if(!checkFirstName2.accepted)
         {
             return response.status(406).send({
                 accepted: false,
                 message: checkFirstName2.message,
-                field: 'first name'
+                field: 'user name'
             })
         }
-
-        const checkLastName1 = await verify.checkEmptyInput(request.body.customerLastName)
-        if(!checkLastName1.accepted)
-        {
-            return response.status(406).send({
-                accepted: false,
-                message: checkLastName1.message,
-                field: 'last name'
-            })
-        }
-
-        const checkLastName2 = await verify.checkName(request.body.customerLastName)
-        if(!checkLastName2.accepted)
-        {
-            return response.status(406).send({
-                accepted: false,
-                message: checkLastName2.message,
-                field: 'last name'
-            })
-        }   
+  
 
         const checkEmail = verify.checkEmail(request.body.customerEmail)
         if(!checkEmail.accepted)
@@ -135,7 +117,7 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
             })
         }
 
-        const phoneNumber = await phoneDB.checkPhoneNumberExist(request.body.customerPhoneNumber)
+        const phoneNumber = await customerDB.getCustomerByPhoneNumber(request.body.customerPhoneNumber)
         if(phoneNumber.length != 0)
         {
             return response.status(406).send({
@@ -145,25 +127,6 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
             })
         }
 
-        if(request.body.customerCountry != 'egypt')
-        {
-            return response.status(406).send({
-                accepted: false,
-                message: "it's not available in your country"
-            })
-        }
-
-        const checkCity = verify.checkEmptyInput(request.body.customerCity)
-        console.log(checkCity)
-        console.log(request.body.customerCity)
-        if(!checkCity.accepted)
-        {
-            return response.status(406).send({
-                accepted: false,
-                message: checkCity.message,
-                field: 'city'
-            })
-        }
 
         const checkPassword = verify.checkEmptyInput(request.body.customerPassword)
         if(!checkPassword.accepted)
@@ -195,18 +158,14 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
         }
 
         const createCustomer = await customerDB.addCustomer(
-            request.body.customerFirstName,
-            request.body.customerLastName,
+            request.body.customerName,
             request.body.customerEmail,
             bcrypt.hashSync(request.body.customerPassword, config.bcryptRounds),
-            request.body.customerCountry,
-            request.body.customerCity,
+            request.body.customerPhoneNumber,
             new Date()
         )
 
         const getCustomer = await customerDB.getCustomerByEmail(request.body.customerEmail)
-        const addCustomerPhone = await phoneDB.addCustomerPhoneNumberByID(request.body.customerPhoneNumber, getCustomer[0].id)
-        const sendMail = await sendWelcomeMail(request.body.customerEmail, request.body.customerFirstName)
 
         return response.status(200).send({
             accepted: true,
@@ -368,6 +327,41 @@ authRouter.post('/send-phone-number-verification', async (request, response)=>{
     }
 })
 
+
+authRouter.post('/check-phone-number', async (request, response) => {
+
+    try {
+
+        if(request.body.customerPhoneNumber.length != 11) {
+            
+            return response.status(406).send({
+                accepted: false,
+                message: '11 digit is required'
+            })
+        }
+
+        // Check in customers DB
+        const customerData = await customerDB.getCustomerByPhoneNumber(request.body.customerPhoneNumber)
+        if(customerData.length != 0) {
+            return response.status(406).send({
+                accepted: false,
+                message: 'this phone number is already taken'
+            })
+        }
+
+        return response.status(200).send({
+            accepted: true,
+            message: 'valid phone number'
+        })
+    }
+    catch(error) {
+        console.log(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
 
 authRouter.get('/verify-token', async (request, response)=>{
     try{
