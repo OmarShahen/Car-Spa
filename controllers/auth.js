@@ -157,11 +157,16 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
             })
         }
 
+        if(!request.body.customerGoogleID) {
+            request.body.customerGoogleID = null
+        }
+
         const createCustomer = await customerDB.addCustomer(
             request.body.customerName,
             request.body.customerEmail,
             bcrypt.hashSync(request.body.customerPassword, config.bcryptRounds),
             request.body.customerPhoneNumber,
+            request.body.customerGoogleID,
             new Date()
         )
 
@@ -172,6 +177,10 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
             message: 'created account successfully',
             id: getCustomer[0].id,
             token: customerJWT.sign({customerID: getCustomer[0].id}, config.customerSecretKey, {expiresIn: '30d'})
+        })
+
+        return response.status(200).send({
+            message: 'Done man'
         })
 
     }                    

@@ -17,13 +17,13 @@ const dbConnect = require('../config/db')
 
 class Customer{
 
-    async addCustomer(userName, email, password, phoneNumber, accountCreationDate){
+    async addCustomer(userName, email, password, phoneNumber, googleID, accountCreationDate){
 
         try{
             const pool = await dbConnect()
-            const query = 'INSERT INTO customers (userName, email, password, phoneNumber, accountCreationDate) VALUES ($1, $2, $3, $4, $5)'
+            const query = 'INSERT INTO customers (userName, email, password, phoneNumber, googleID, accountCreationDate) VALUES ($1, $2, $3, $4, $5, $6)'
             const client = await pool.connect()
-            const result = await client.query(query, [userName, email, password, phoneNumber, accountCreationDate])
+            const result = await client.query(query, [userName, email, password, phoneNumber, googleID, accountCreationDate])
             pool.end()
             return true
         }
