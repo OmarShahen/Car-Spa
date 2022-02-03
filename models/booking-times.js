@@ -111,7 +111,24 @@ class BookingTime{
             console.log(error)
             return false
         }
-    } 
+    }
+
+    async getAvailableTimeByTime(time) {
+
+        try {
+
+            const pool = await dbConnect()
+            const query = 'SELECT * FROM BookingTimes WHERE BookTime = $1'
+            const client = await pool.connect()
+            const bookTimeData = await client.query(query, [time])
+            pool.end()
+            return bookTimeData.rows
+
+        } catch(error) {
+            console.error(error)
+            return false
+        }
+    }
 }
 
 

@@ -236,14 +236,33 @@ customerRoute.get('/customers/orders/current-orders', customerVerifyToken, async
     }
 })
 
+customerRoute.get('/customers/previous-locations/:customerID', customerVerifyToken, async (request, response) => {
 
+    try {
+         
+        if(request.customerID != request.params.customerID) {
 
+            return response.status(406).send({
+                accepted: false,
+                message: 'unauthorized access to data'
+            })
+        }
 
+        const customerPrevLocations = await orderDB.getCustomerPreviuosLocations(request.params.customerID)
 
+        return response.status(200).send({
+            accepted: true,
+            previousLocations: customerPrevLocations
+        })
 
-
-
-
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
 
 
 module.exports = customerRoute

@@ -25,20 +25,32 @@
 
     </div>
     <script>
-        const socketIO = io('/book-now/book-order')
-        socketIO.on('maintenance', (data)=>{
-            document.querySelector('#body').innerHTML += `
-                                <p>${data.message}</p>
-            `
-            console.log('Here')
-        })
-    </script>
+        const socketIO = io('/beta/book-now')
 
-    <script>
-        const globalIO = io()
-        globalIO.on('offer', (data)=>{
+        socketIO.emit('book-now', {
+            accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjdXN0b21lcklEIjo2LCJpYXQiOjE2NDM3NDMwMTksImV4cCI6MTY0NjMzNTAxOX0.SGks8UPr_cWZ7tNRCWgUHTQiFeCkgYx4KsiSBbzCsjM',
+            serviceID: 3,
+            locationName: '53 Victor Amanoiel Square, Ezbet Saad, Sidi Gaber, Alexandria Governorate',
+            longitude: 29.94032,
+            latitude: 31.20676
+        })
+
+        socketIO.on('book-now', data => console.log(data))
+
+        socketIO.emit('cancel-order', {
+            accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjdXN0b21lcklEIjo1LCJpYXQiOjE2NDMyNjU4ODYsImV4cCI6MTY0NTg1Nzg4Nn0.9GSHv2FJoqP67nFBNIRs1Px1jund-_6gQA7ZG-tj_W0',
+            orderID: 155
+        })
+
+        socketIO.on('cancel-order', data => {
             console.log(data)
         })
+
+        socketIO.on('error', (data) => {
+            console.log(data)
+        })
+        
     </script>
+
 </body>
 </html>

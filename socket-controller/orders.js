@@ -6,6 +6,9 @@ const orderDB = require('../models/orders')
 const employeeDB = require('../models/employees')
 const bookingTimeDB = require('../models/booking-times')
 const employees = require('../models/employees')
+const cancelledOrderDB = require('../models/cancelled-orders')
+const serviceDB = require('../models/services')
+const { customerVerifyToken } = require('../middleware/authority')
 
 
 const isValidToken = async (token)=>{
@@ -221,25 +224,35 @@ module.exports = (io)=>{
     orderNSP.on('connection', (socket)=>{
 
         socket.on('book-now', async (orderData)=>{
-            try{
+            
+            try {
 
 
             if(!orderData.accessToken)
             {
-                return socket.emit('book-now', {
+                return socket.emit('error', {
                     accepted: false,
                     message: 'no token provided'
                 })
             }
             
             const customerToken = await isValidToken(orderData.accessToken)
+
+            console.log(customerToken)
+            
             if(!customerToken)
             {
-                return socket.emit('book-now', {
+                return socket.emit('error', {
                     accepted: false,
                     message: 'this token is invalid'
                 })
             }
+
+            const dateNow = new Date()
+            const orderDate = `${dateNow.getFullYear()}-${dateNow.getMonth()+1}-${dateNow.getDate()}`
+            const timeNow = `${dateNow.getHours()}:00:00`
+
+            const serviceData = await serviceDB.getServiceByID(orderData.serviceID)
 
             const customerData = await customerDB.getCustomerByID(customerToken.customerID)
             if(customerData.length == 0)
@@ -250,7 +263,7 @@ module.exports = (io)=>{
                 })
             }
 
-            const ordersAtThatTime = await orderDB.getOrderByDateAndTime(orderData.bookDate, orderData.bookTime)
+            const ordersAtThatTime = await orderDB.getOrderByDateAndTime(orderDate, timeNow)
             const noOfEmloyees = await employeeDB.getNumberOfEmployees()
 
             // If no employee available
@@ -273,14 +286,18 @@ module.exports = (io)=>{
                 }
 
                 const missingEmployee = await employeeDB.getMissingEmployee(addSS(employeesIDs), employeesIDs)
-                const bookTime = await bookingTimeDB.getTimeIDByTime(orderData.bookTime)
+                const bookTime = await bookingTimeDB.getTimeIDByTime(timeNow)
                 const assignOrder = await orderDB.addOrder(
                     customerToken.customerID,
                     missingEmployee[0].id,
-                    orderData.bookDate,
+                    orderDate,
                     bookTime[0].id,
                     orderData.serviceID,
-                    new Date()
+                    new Date(),
+                    request.body.locationName,
+                    request.body.longitude,
+                    request.body.latitude,
+                    serviceData[0].price
                 )
 
                 if(assignOrder)
@@ -288,7 +305,7 @@ module.exports = (io)=>{
                     const orderDetails = await orderDB.getOrderByMainData(
                         customerToken.customerID,
                         missingEmployee[0].id,
-                        orderData.bookDate,
+                        orderDate,
                         bookTime[0].id
                     )
 
@@ -303,14 +320,14 @@ module.exports = (io)=>{
             // If all employees are available
 
             /*
-                In orderDB.getNoOfOrdersForEachEmployeeByDate(orderData.bookDate)
+                In orderDB.getNoOfOrdersForEachEmployeeByDate(orderDate)
                 it returns only the employees with orders any other employee will
                 be undeifned which causes errors in the app
             */
             if(ordersAtThatTime.length == 0)
             {
                 console.log('If all employees are available')
-                const employeesOrders = await employeesOrdersByDate(orderData.bookDate)
+                const employeesOrders = await employeesOrdersByDate(orderDate)
 
                 // If all with equal orders
                 const lowestEmployees = getLeast(employeesOrders)
@@ -322,14 +339,18 @@ module.exports = (io)=>{
                         employeesIDs.push(lowestEmployees[i].employeeid)
                     }
                     const employeeRating = await orderDB.getAvgerageRatingForEachEmployee(addSS(employeesIDs), employeesIDs)
-                    const bookTime = await bookingTimeDB.getTimeIDByTime(orderData.bookTime)
+                    const bookTime = await bookingTimeDB.getTimeIDByTime(timeNow)
                     const assignOrder = await orderDB.addOrder(
                         customerToken.customerID,
                         employeeRating[0].employeeid,
-                        orderData.bookDate,
+                        orderDate,
                         bookTime[0].id,
                         orderData.serviceID,
-                        new Date()
+                        new Date(),
+                        request.body.locationName,
+                        request.body.longitude,
+                        request.body.latitude,
+                        serviceData[0].price
                     )
 
                     if(assignOrder)
@@ -337,7 +358,7 @@ module.exports = (io)=>{
                         const orderDetails = await orderDB.getOrderByMainData(
                             customerToken.customerID,
                             employeeRating[0].employeeid,
-                            orderData.bookDate,
+                            orderDate,
                             bookTime[0].id
                         )
 
@@ -366,14 +387,18 @@ module.exports = (io)=>{
                         missingEmployeesIDs.push(missingEmployees[i].id)
                     }
                     const averageOrders = await orderDB.getAvgerageRatingForEachEmployee(addSS(missingEmployeesIDs), missingEmployeesIDs)
-                    const bookTime = await bookingTimeDB.getTimeIDByTime(orderData.bookTime)                    
+                    const bookTime = await bookingTimeDB.getTimeIDByTime(timeNow)                    
                     const assignOrder = await orderDB.addOrder(
                         customerToken.customerID,
                         averageOrders[0].employeeid,
-                        orderData.bookDate,
+                        orderDate,
                         bookTime[0].id,
                         orderData.serviceID,
-                        new Date()
+                        new Date(),
+                        request.body.locationName,
+                        request.body.longitude,
+                        request.body.latitude,
+                        serviceData[0].price
                     )
 
                     if(assignOrder)
@@ -381,7 +406,7 @@ module.exports = (io)=>{
                         const orderDetails = await orderDB.getOrderByMainData(
                             customerToken.customerID,
                             averageOrders[0].employeeid,
-                            orderData.bookDate,
+                            orderDate,
                             bookTime[0].id
                         )
 
@@ -418,14 +443,18 @@ module.exports = (io)=>{
                     }
 
                     const employeesRating = await orderDB.getAvgerageRatingForEachEmployee(addSS(activeEmployeesIDs), activeEmployeesIDs)
-                    const bookTime = await bookingTimeDB.getTimeIDByTime(orderData.bookTime)                    
+                    const bookTime = await bookingTimeDB.getTimeIDByTime(timeNow)                    
                     const assignOrder = await orderDB.addOrder(
                         customerToken.customerID,
                         employeesRating[0].employeeid,
-                        orderData.bookDate,
+                        orderDate,
                         bookTime[0].id,
                         orderData.serviceID,
-                        new Date()
+                        new Date(),
+                        request.body.locationName,
+                        request.body.longitude,
+                        request.body.latitude,
+                        serviceData[0].price
                     )
 
                     if(assignOrder)
@@ -433,7 +462,7 @@ module.exports = (io)=>{
                         const orderDetails = await orderDB.getOrderByMainData(
                             customerToken.customerID,
                             employeesRating[0].employeeid,
-                            orderData.bookDate,
+                            orderDate,
                             bookTime[0].id
                         )
 
@@ -458,18 +487,22 @@ module.exports = (io)=>{
                 const employeesIDs = collectEmployeesIDsFromOrders(ordersAtThatTime)
                 const missingEmployees = await employeeDB.getMissingEmployee(addSS(employeesIDs), employeesIDs)
                 const missingEmployeesIDs = collectEmployeesIDs(missingEmployees)
-                const employeesOrdersCount = await thoseEmployeesOrdersByDate(missingEmployeesIDs, orderData.bookDate)
+                const employeesOrdersCount = await thoseEmployeesOrdersByDate(missingEmployeesIDs, orderDate)
                 const lowestEmployee = getLeast(employeesOrdersCount)
-                const bookTime = await bookingTimeDB.getTimeIDByTime(orderData.bookTime)
+                const bookTime = await bookingTimeDB.getTimeIDByTime(timeNow)
                 if(lowestEmployee.length == 1)
                 {
                     const assignOrder = await orderDB.addOrder(
                         customerToken.customerID,
                         lowestEmployee[0].employeeid,
-                        orderData.bookDate,
+                        orderDate,
                         bookTime[0].id,
                         orderData.serviceID,
-                        new Date()
+                        new Date(),
+                        request.body.locationName,
+                        request.body.longitude,
+                        request.body.latitude,
+                        serviceData[0].price
                     )
 
                     if(assignOrder)
@@ -477,7 +510,7 @@ module.exports = (io)=>{
                         const orderDetails = await orderDB.getOrderByMainData(
                             customerToken.customerID,
                             lowestEmployee[0].employeeid,
-                            orderData.bookDate,
+                            orderDate,
                             bookTime[0].id
                         )
 
@@ -493,14 +526,18 @@ module.exports = (io)=>{
                 {   
                     const employeesIDs = collectEmployeesIDsFromOrders(lowestEmployee)
                     const employeesAverage = await orderDB.getAvgerageRatingForEachEmployee(addSS(employeesIDs), employeesIDs)
-                    const bookTime = await bookingTimeDB.getTimeIDByTime(orderData.bookTime)
+                    const bookTime = await bookingTimeDB.getTimeIDByTime(timeNow)
                     const assignOrder = await orderDB.addOrder(
                         customerToken.customerID,
                         employeesAverage[0].employeeid,
-                        orderData.bookDate,
+                        orderDate,
                         bookTime[0].id,
                         orderData.serviceID,
-                        new Date()
+                        new Date(),
+                        request.body.locationName,
+                        request.body.longitude,
+                        request.body.latitude,
+                        serviceData[0].price
                     )
 
                     if(assignOrder)
@@ -508,7 +545,7 @@ module.exports = (io)=>{
                         const orderDetails = await orderDB.getOrderByMainData(
                             customerToken.customerID,
                             employeesAverage[0].employeeid,
-                            orderData.bookDate,
+                            orderDate,
                             bookTime[0].id
                         )
 
@@ -523,10 +560,9 @@ module.exports = (io)=>{
             }
             
 
-        }catch(error)
-        {
+        } catch(error) {
             console.log(error)
-            socket.emit('book-now', {
+            socket.emit('error', {
                 accepted: false,
                 message: 'internal server error'
             })
@@ -534,7 +570,70 @@ module.exports = (io)=>{
 
             })
 
+        
+        socket.on('cancel-order', async (cancelOrderData) => {
 
+            try {
+
+                if(!cancelOrderData.accessToken) {
+
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'no token provided'
+                    })
+                }
+
+                const customerToken = await isValidToken(cancelOrderData.accessToken)
+
+                if(!customerToken) {
+
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'invalid token'
+                    })
+                }
+
+                const orderData = await orderDB.getOrderByID(cancelOrderData.orderID)
+
+                if(orderData.length == 0) {
+
+                    return socket.emit('cancel-order', {
+                        accepted: false,
+                        message: 'invalid ID'
+                    })
+                }
+
+                const addCancelledOrder = await cancelledOrderDB.addCancelledOrder(
+                    orderData[0].customerid,
+                    orderData[0].employeeid,
+                    orderData[0].orderdate,
+                    orderData[0].bookingtimeid,
+                    orderData[0].serviceid,
+                    orderData[0].ordercreationdate,
+                    new Date(),
+                    orderData[0].locationname,
+                    orderData[0].longitude,
+                    orderData[0].latitude,
+                    orderData[0].price
+                )
+
+                const deleteOrder = await orderDB.deleteOrderByID(cancelOrderData.orderID)
+
+                return socket.emit('cancel-order', {
+                    accepted: true,
+                    message: 'order cancelled'
+                })
+
+            } catch(error) {
+                console.error(error)
+                socket.emit('error', {
+                    accepted: false,
+                    message: 'internal server error'
+                })
+            }
+        })
+
+            
 
 
         })

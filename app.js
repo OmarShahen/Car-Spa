@@ -41,8 +41,16 @@ app.use('/api', admins)
 const orders = require('./controllers/orders')
 app.use('/api', orders)
 
+const services = require('./controllers/services')
+app.use('/api', services)
+
+const packages = require('./controllers/packages')
+app.use('/api', packages)
+
+
 // Socket Part
 require('./socket-controller/orders')(io)
+require('./socket-controller/orders-beta')(io)
 require('./socket-controller/notifications')(io)
 
 app.get('/', (request, response)=>{
@@ -70,9 +78,5 @@ app.get('/Nassef', (request, response)=>{
     })
 
 })
-
-
-
-
 
 http.listen(config.port, ()=>console.log('Server Is Running on Port', config.port))

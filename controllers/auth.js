@@ -179,10 +179,6 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
             token: customerJWT.sign({customerID: getCustomer[0].id}, config.customerSecretKey, {expiresIn: '30d'})
         })
 
-        return response.status(200).send({
-            message: 'Done man'
-        })
-
     }                    
     catch(error)
     {

@@ -2,13 +2,19 @@
 const orderRoute = require('express').Router()
 const { request, response } = require('express')
 const { customerVerifyToken } = require('../middleware/authority')
+const { checkCustomerPackage } = require('../middleware/customer-package') 
 const reservedDayDB = require('../models/reserved-days')
 const bookingTimeDB = require('../models/booking-times')
 const employeeDB = require('../models/employees')
 const orderDB = require('../models/orders')
+const cancelledOrderDB = require('../models/cancelled-orders')
+const serviceDB = require('../models/services')
+const promocodeDB = require('../models/promocodes')
+const usedPromocodeDB = require('../models/promocodesUsed')
+const customerPackageDB = require('../models/customer-packages')
 const { param } = require('./admins')
 const moment = require('moment')
-
+const order = require('../book-order/order')
 
 
 const formateTime = (dateObj)=>{
@@ -18,9 +24,9 @@ const formateTime = (dateObj)=>{
 const formateDate = (dateObj)=>{
     return dateObj.getFullYear().toString() + '-' + (dateObj.getMonth()+1).toString() + '-' + dateObj.getDate().toString()
 }
-const getLowestNumber = (ordersCount)=>{
+const getLowestTotalOrders = (ordersCount)=>{
 
-    const lowest = []
+    let lowest = []
     lowest.push(ordersCount[0])
     let min = ordersCount[0].count
     for(let i=1;i<ordersCount.length;i++)
@@ -29,10 +35,32 @@ const getLowestNumber = (ordersCount)=>{
         {
             lowest.push(ordersCount[i])
         }
+
+        if(ordersCount[i].count < min) {
+
+            min = ordersCount[i].count
+            lowest = [ordersCount[i]]
+        }
     }
 
     return lowest
 }
+const getHighestRating = (ordersRating) => {
+
+    const highest = []
+    highest.push(ordersRating[0])
+    let max = ordersRating[0].avg
+    for(let i=1;i<ordersRating.length;i++) {
+
+        if(ordersRating[i].avg == max) {
+            highest.push(ordersRating[i])
+        }
+    }
+
+    return highest
+}
+
+
 const addSS = (lst)=>{
 
     let ss = ''
@@ -44,6 +72,111 @@ const addSS = (lst)=>{
 
     return ss.slice(0, ss.length-1)
 }
+
+const collectEmployeesIDsFromOrders = (orders)=>{
+    let IDs = []
+    for(let i=0;i<orders.length;i++)
+    {
+        IDs.push(orders[i].employeeid)
+    }
+    return IDs
+}
+
+const collectEmployeesIDs = (employees)=>{
+    let IDs = []
+    for(let i=0;i<employees.length;i++)
+    {
+        IDs.push(Number(employees[i].id))
+    }
+    return IDs
+}
+
+const collectEmployeesIDsFromAggregation = (employeesResult) => {
+
+    const IDs = []
+
+    for(let i=0;i<employeesResult.length;i++) {
+        IDs.push(employeesResult[i].employeeid)
+    }
+
+    return IDs
+}
+
+
+const searchMissingIDs = (employeesIDs, ordersEmployeesIDs) => {
+
+    const IDs = []
+
+    for(let i=0;i<employeesIDs.length;i++) {
+        let found = false
+        for(let j=0;j<ordersEmployeesIDs.length;j++) {
+            if(employeesIDs[i] == ordersEmployeesIDs[j]) {
+                found = true
+            }
+        }
+
+        if(!found)
+            IDs.push(employeesIDs[i])
+    }
+
+    return IDs
+}
+
+const getEmployeesData = (employees, targetIDs) => {
+
+    const targetEmployees = []
+
+    for(let i=0;i<employees.length;i++) {
+
+        for(let j=0;j<targetIDs.length;j++) {
+            
+            if(employees[i].id == targetIDs[j]) {
+                targetEmployees.push(employees[i])
+            }
+        }
+    }
+
+    return targetEmployees
+}
+
+const getNearestDate = (employees) => {
+
+    let nearestDate = employees[0].accountcreationdate
+
+    for(let i=1;i<employees.length;i++) {
+        if(employees[i].accountcreationdate.getTime() > nearestDate.getTime()) {
+            nearestDate = employees[i].accountcreationdate
+        }
+    }
+
+    return nearestDate
+}
+
+
+const fillMissingEmployeesTotalOrders = (employeesIDs, employeesResults) => {
+
+    const missingEmployees = searchMissingIDs(employeesIDs, collectEmployeesIDsFromAggregation(employeesResults))
+
+    for(let i=0;i<missingEmployees.length;i++) {
+
+        employeesResults.push({ count: '0', employeeid: missingEmployees[i] })
+    }
+
+    return employeesResults
+}
+
+const fillMissingEmployeesAverageRating = (employeesIDs, employeesResults) => {
+
+    const missingEmployees = searchMissingIDs(employeesIDs, collectEmployeesIDsFromAggregation(employeesResults))
+
+    for(let i=0;i<missingEmployees.length;i++) {
+
+        employeesResults.push({ avg: 0, employeeid: missingEmployees[i] })
+    }
+
+    return employeesResults
+}
+
 
 const withinDeadLine = (creationDate, expirationDays=30, inputDate)=>{
     /*
@@ -104,12 +237,10 @@ const employeeOrderChooser = async (orderDate)=>{
     }
 }
 
-orderRoute.get('/orders/check-day/:day', customerVerifyToken, async (request, response)=>{
+orderRoute.post('/orders/check-day/:day', customerVerifyToken, async (request, response)=>{
 
     try{
 
-        console.log(request.params.day)
-        console.log(new Date())
         const isWithInDeadLine = withinDeadLine(new Date(), 30, new Date(request.params.day))
         if(!isWithInDeadLine.accepted)
         {
@@ -301,6 +432,7 @@ orderRoute.post('/orders/book-later/book-order/:bookDate/:bookTime', customerVer
         }
 
         const employeesTotalOrders = await orderDB.getNoOfOrdersForEmployees(addSS(missingEmployeesIDs), missingEmployeesIDs)
+        console.log(employeesTotalOrders)
         const lowestEmployeeesOrders = getLowestNumber(employeesTotalOrders)
         const bookingTime = await bookingTimeDB.getTimeIDByTime(request.params.bookTime)
         if(lowestEmployeeesOrders.length == 1)
@@ -362,10 +494,6 @@ orderRoute.post('/orders/book-later/book-order/:bookDate/:bookTime', customerVer
         }
 
 
-
-
-
-
         return response.status(200).send({
             accepted: true,
             message: 'Done'
@@ -376,6 +504,187 @@ orderRoute.post('/orders/book-later/book-order/:bookDate/:bookTime', customerVer
     catch(error)
     {
         console.log(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
+ 
+orderRoute.post('/beta/orders/book-later/book-order', customerVerifyToken, checkCustomerPackage, async (request, response) => {
+
+    try {
+
+        // Get employees Available at that time
+
+        const orders = await orderDB.getOrderByDateAndTime(request.body.bookDate, request.body.bookTime)
+        const employees = await employeeDB.getWorkingEmployees()
+        const bookingTime = await bookingTimeDB.getTimeIDByTime(request.body.bookTime)
+
+        // Check if customer ordered before
+
+        const customerOrder = await orderDB.getCustomerUpcomingOrders(request.customerID)
+
+        if(customerOrder.length != 0) {
+
+            return response.status(306).send({
+                accepted: false,
+                message: 'you can\'t place more than 1 unfinished order'
+            })
+        }
+
+        // If there is no available employee
+
+        if(orders.length == employees.length) {
+            return response.status(306).send({
+                accepted: false,
+                message: 'no employee available at that time'
+            })
+        }
+
+        const ordersEmployeesIDs = collectEmployeesIDsFromOrders(orders)
+        const employeesIDs = collectEmployeesIDs(employees)
+
+        // If there is 1 employee available
+
+        if((employees.length - orders.length) == 1) {
+
+            console.log('In 1 employee available scope')
+
+            const missingEmployee = searchMissingIDs(employeesIDs, ordersEmployeesIDs)
+            console.log(missingEmployee)
+
+            const assignOrder = await orderDB.addOrder(
+                request.customerID,
+                missingEmployee[0],
+                request.body.bookDate,
+                bookingTime[0].id,
+                request.body.orderServiceID,
+                new Date(),
+                request.body.locationName,
+                request.body.longitude,
+                request.body.latitude,
+                request.body.servicePrice
+            )
+
+            if(assignOrder) {
+
+                const orderData = await orderDB.getOrderByMainData(
+                    request.customerID,
+                    missingEmployee[0],
+                    request.body.bookDate,
+                    bookingTime[0].id
+                )
+
+                return response.status(200).send({
+                    accepted: true,
+                    orderData: orderData[0]
+                })
+            }
+
+            
+        }
+
+        /**
+         * Tf there is more than 1 employee available
+         * the program will search for the lowest employee 
+         * order wise 
+         */
+        
+        const targetEmployeesIDs = searchMissingIDs(employeesIDs, ordersEmployeesIDs)
+        const targetEmployees = getEmployeesData(employees, targetEmployeesIDs)
+        const searchDate = getNearestDate(targetEmployees)
+
+        let employeesTotalOrders = await orderDB.getNoOfOrdersForThoseEmployeesFromDate(
+            targetEmployeesIDs,
+            addSS(targetEmployeesIDs),
+            `${searchDate.getFullYear()}-${searchDate.getMonth()+1}-${searchDate.getDate()}`,
+            '$' + (targetEmployeesIDs.length + 1)
+        )
+
+        employeesTotalOrders = fillMissingEmployeesTotalOrders(targetEmployeesIDs, employeesTotalOrders)
+        
+        const lowestTotalOrdersEmployees = getLowestTotalOrders(employeesTotalOrders)
+
+        if(lowestTotalOrdersEmployees.length == 1) {
+
+            console.log('In Total orders scope')
+
+            const assignOrder = await orderDB.addOrder(
+                request.customerID,
+                lowestTotalOrdersEmployees[0].employeeid,
+                request.body.bookDate,
+                bookingTime[0].id,
+                request.body.orderServiceID,
+                new Date(),
+                request.body.locationName,
+                request.body.longitude,
+                request.body.latitude,
+                request.body.servicePrice
+            )
+
+            if(assignOrder) {
+                
+                const orderData = await orderDB.getOrderByMainData(
+                    request.customerID,
+                    lowestTotalOrdersEmployees[0].employeeid,
+                    request.body.bookDate,
+                    bookingTime[0].id
+                )
+
+                return response.status(200).send({
+                    accepted: true,
+                    orderData: orderData[0]
+                })
+            }
+
+        }
+
+        /**
+         * If there is employees with the same number
+         * of lowest orders the program will search for
+         * the highest employee rate wise
+         */
+
+        const lowestTotalOrdersEmployeesIDs = collectEmployeesIDsFromAggregation(lowestTotalOrdersEmployees)
+        let employeesRating = await orderDB.getAvgerageRatingForEachEmployee(addSS(lowestTotalOrdersEmployeesIDs), lowestTotalOrdersEmployeesIDs)
+        employeesRating = fillMissingEmployeesAverageRating(lowestTotalOrdersEmployeesIDs, employeesRating)
+
+        const highestRatingEmployees = getHighestRating(employeesRating)
+
+        console.log('In average rating scope')
+
+        const assignOrder = await orderDB.addOrder(
+            request.customerID,
+            highestRatingEmployees[0].employeeid,
+            request.body.bookDate,
+            bookingTime[0].id,
+            request.body.orderServiceID,
+            new Date(),
+            request.body.locationName,
+            request.body.longitude,
+            request.body.latitude,
+            request.body.servicePrice
+        )
+
+        if(assignOrder) {
+
+            const orderData = await orderDB.getOrderByMainData(
+                request.customerID,
+                highestRatingEmployees[0].employeeid,
+                request.body.bookDate,
+                bookingTime[0].id
+            )
+
+            return response.status(200).send({
+                accepted: true,
+                orderData: orderData[0]
+            })
+        }
+
+    } catch(error) {
+        console.error(error)
         return response.status(500).send({
             accepted: false,
             message: 'internal server error'
@@ -412,39 +721,175 @@ orderRoute.post('/orders/book-order/available/:bookDate/:bookTime', customerVeri
         })
     }
 })
+orderRoute.get('/orders/book-now/available-times', customerVerifyToken, async (request, response) => {
 
+    try {
 
+        const timeNow = new Date()
+        const hour = `${timeNow.getHours()}:00:00`
+        const times = await bookingTimeDB.getAvailableTimesFromHour(hour)
 
-orderRoute.get('/orders/book-now/available-times', customerVerifyToken, async (request, response)=>{
-
-    try{
-
-        const currentMomentDate = new Date()
-        const correctDate = currentMomentDate.getHours() + ':00:00'
-        const availableTimes = await bookingTimeDB.getAvailableTimesFromHour(correctDate)
-        const availableTimesChecked = []
-        // If 8:30 don't display 9:00 
-        if(currentMomentDate.getMinutes() >= 30)
-        {
-            for(let i=1;i<availableTimes.length;i++)
-            {
-                availableTimesChecked.push(availableTimes[i])
-            }
-
-            return response.status(200).send({
-                accepted: true,
-                availableTimes: availableTimesChecked
-            })
-        }
         return response.status(200).send({
             accepted: true,
-            availableTimes: availableTimes
+            availableTimes: times
         })
 
+
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'inetrnal server error'
+        })
     }
-    catch(error)
-    {
-        console.log(error)
+
+})
+
+orderRoute.put('/orders/rating/:orderID/:rating', customerVerifyToken, async (request, response) => {
+
+    try {
+
+        const orderData = await orderDB.getOrderByID(request.params.orderID)
+        
+        if(orderData.length == 0) {
+
+            return response.status(404).send({
+                accepted: false,
+                message: 'this order does not exist'
+            })
+        }
+
+        if(request.customerID != orderData[0].customerid) {
+
+            return response.status(406).send({
+                accepted: false,
+                message: 'unauthorized access to this data'
+            })
+        }
+
+        const updateOrder = await orderDB.setOrderRating(request.params.orderID, request.params.rating)
+
+        if(!updateOrder) {
+
+            return response.status(406).send({
+                accepted: true,
+                message: 'order rated successfully'
+            })
+        }
+
+
+
+
+
+        return response.status(200).send('I am VIP')
+
+
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: true,
+            message: 'internal server error'
+        })
+    }
+
+})
+
+orderRoute.put('/orders/promocode/:promocodeName', customerVerifyToken, async (request, response) => {
+
+    try {
+
+        const customerPackage = await customerPackageDB.getCustomerPackage(request.customerID)
+
+        if(customerPackage.length != 0) {
+
+            return response.status(200).send({
+                accepted: false,
+                message: 'already registered in package, can\'t use promocodes'
+            })
+        }
+
+        const promocodeData = await promocodeDB.getPromocodeByName(request.params.promocodeName)
+
+        if(promocodeData.length == 0) {
+
+            return response.status(406).send({
+                accepted: false,
+                message: 'invalid promocode'
+            })
+        }
+
+        const promocodeUsedData = await usedPromocodeDB.getPromocodeUsed(request.params.promocodeName)
+
+        if(promocodeUsedData.length == 1) {
+
+            return response.status(406).send({
+                accepted: false,
+                message: 'already used promocode'
+            })
+        }
+
+        const orderData = await orderDB.getOrderPriceByCustomerID(request.customerID)
+        
+        const newPrice = orderData[0].price * (promocodeData[0].percentage / 100)
+
+        const assignPromocode = await usedPromocodeDB.addPromocodeUsed(promocodeData[0].name, request.customerID, orderData[0].id)
+
+        const updatePrice = await orderDB.setOrderPriceByCustomerID(newPrice, request.customerID)
+
+
+        return response.status(200).send({
+            accepted: true,
+            message: 'promocode used successfully'
+        })
+
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+
+})
+
+orderRoute.delete('/orders/:orderID', customerVerifyToken, async (request, response) => {
+
+    try {
+
+        const orderData = await orderDB.getOrderByID(request.params.orderID)
+
+        if(orderData.length == 0) {
+
+            return response.status(406).send({
+                accepted: false,
+                message: 'invalid ID'
+            })
+        }
+
+        const addCancelledOrder = await cancelledOrderDB.addCancelledOrder(
+            orderData[0].customerid,
+            orderData[0].employeeid,
+            orderData[0].orderdate,
+            orderData[0].bookingtimeid,
+            orderData[0].serviceid,
+            orderData[0].ordercreationdate,
+            new Date(),
+            orderData[0].locationname,
+            orderData[0].longitude,
+            orderData[0].latitude,
+            orderData[0].price
+        )
+
+        const deleteOrder = await orderDB.deleteOrderByID(request.params.orderID)
+
+        return response.status(200).send({
+            accepted: true,
+            message: 'order cancelled'
+        })
+
+
+    } catch(error) {
+        console.error(error)
         return response.status(500).send({
             accepted: false,
             message: 'internal server error'
@@ -452,9 +897,41 @@ orderRoute.get('/orders/book-now/available-times', customerVerifyToken, async (r
     }
 })
 
+orderRoute.get('/orders/cancelled/:customerID', customerVerifyToken, async (request, response) => {
 
+    try {
 
+        const cancelledOrders = await cancelledOrderDB.getCancelledOrdersByCustomerID(request.params.customerID)
 
+        return response.status(200).send({
+            accepted: true,
+            cancelledOrders: cancelledOrders
+        }) 
+
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+
+})
+
+orderRoute.post('/orders/test-package-middleware', customerVerifyToken, checkCustomerPackage, async (request, response) => {
+
+    try {
+
+        return response.status(200).send('Thank you next')
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+
+})
 
 
 module.exports = orderRoute

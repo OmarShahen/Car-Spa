@@ -15,14 +15,14 @@ const dbConnect = require('../config/db')
 
 class Employee{
 
-    async addEmployee(firstName, lastName, address, nationalID,password, criminalRecord,accountCreationDate){
+    async addEmployee(firstName, lastName, phoneNumber, address, nationalID,password, criminalRecord,accountCreationDate){
 
         try{
             
             const pool = await dbConnect()
-            const query = 'INSERT INTO employees (FirstName, LastName, address, NationalID, password, CriminalRecord, AccountCreationDate) VALUES ($1, $2, $3, $4, $5, $6, $7)'
+            const query = 'INSERT INTO employees (FirstName, LastName, PhoneNumber, address, NationalID, password, CriminalRecord, AccountCreationDate) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)'
             const client = await pool.connect()
-            const result = await client.query(query, [firstName, lastName, address, nationalID, password, criminalRecord, accountCreationDate])
+            const result = await client.query(query, [firstName, lastName, phoneNumber, address, nationalID, password, criminalRecord, accountCreationDate])
             pool.end()
             return true
         }
@@ -38,14 +38,7 @@ class Employee{
         try{
 
             const pool = await dbConnect()
-            const query = `
-                SELECT
-                employees.ID, employees.FirstName, employees.LastName, employees.address, employees.NationalID,
-                employees.CriminalRecord, employees.active, employees.StillWorking, employees.AccountCreationDate,
-                phones.phoneNumber
-                FROM employees
-                INNER JOIN phones ON phones.EmployeeID = employees.ID   
-                `
+            const query = 'SELECT * FROM employees'
             const client = await pool.connect()
             const employeeData = await client.query(query)
             pool.end()
@@ -57,12 +50,29 @@ class Employee{
         }
     }
 
+    async getWorkingEmployees() {
+
+        try {
+
+            const pool = await dbConnect()
+            const query = 'SELECT * FROM employees WHERE StillWorking = true'
+            const client = await pool.connect()
+            const employeesData = await client.query(query)
+            pool.end()
+            return employeesData.rows
+
+        } catch(error) {
+            console.error(error)
+            return false
+        }
+    }
+
     async getActiveEmployees()
     {
         try{
 
             const pool = await dbConnect()
-            const query = 'SELECT ID, FirstName, LastName, address, NationalID, CriminalRecord, active, StillWorking, AccountCreationDate FROM employees WHERE active = True'
+            const query = 'SELECT * FROM employees WHERE active = True AND StillWorking = True'
             const client = await pool.connect()
             const employeesData = await client.query(query)
             pool.end()
@@ -80,7 +90,7 @@ class Employee{
         try{
 
             const pool = await dbConnect()
-            const query = 'SELECT ID, FirstName, LastName, address, NationalID, CriminalRecord, active, StillWorking, AccountCreationDate FROM employees WHERE active = False'
+            const query = 'SELECT * FROM employees WHERE active = False'
             const client = await pool.connect()
             const employeesData = await client.query(query)
             pool.end()
@@ -98,7 +108,7 @@ class Employee{
         try{
 
             const pool = await dbConnect()
-            const query = 'SELECT ID, FirstName, LastName, address, NationalID, CriminalRecord, active, StillWorking, AccountCreationDate FROM employees WHERE ID = $1'
+            const query = 'SELECT * FROM employees WHERE ID = $1'
             const client = await pool.connect()
             const employeeData = await client.query(query, [employeeID])
             pool.end()
@@ -129,14 +139,14 @@ class Employee{
         }
     }
 
-    async setEmployeeDataByID(employeeID, firstName, lastName, address, nationalID, criminalRecord)
+    async setEmployeeDataByID(employeeID, firstName, lastName, phoneNumber, address, nationalID, criminalRecord)
     {
         try{
 
             const pool = await dbConnect()
-            const query = 'UPDATE employees SET FirstName = $1, LastName = $2, address = $3, NationalID = $4, CriminalRecord = $5 WHERE ID = $6'
+            const query = 'UPDATE employees SET FirstName = $1, LastName = $2, address = $3, NationalID = $4, CriminalRecord = $5, PhoneNumber = $6 WHERE ID = $7'
             const client = await pool.connect()
-            const result = await client.query(query, [firstName, lastName, address, nationalID, criminalRecord, employeeID])
+            const result = await client.query(query, [firstName, lastName, address, nationalID, criminalRecord, phoneNumber, employeeID])
             pool.end()
             return true
         }
