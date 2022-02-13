@@ -32,6 +32,9 @@ app.set('view engine', 'hbs')
 const auth = require('./controllers/auth')
 app.use('/api/auth', auth)
 
+const employees = require('./controllers/employees')
+app.use('/api', employees)
+
 const customers = require('./controllers/customers')
 app.use('/api', customers)
 
@@ -52,6 +55,8 @@ app.use('/api', packages)
 require('./socket-controller/orders')(io)
 require('./socket-controller/orders-beta')(io)
 require('./socket-controller/notifications')(io)
+require('./socket-controller/employees')(io)
+require('./socket-controller/customers')(io)
 
 app.get('/', (request, response)=>{
     console.log(request.headers.host)
@@ -60,6 +65,10 @@ app.get('/', (request, response)=>{
 
 app.get('/test-socket', (request, response)=>{
     return response.sendFile(path.join(__dirname + '/test-page.html'))
+})
+
+app.get('/employee-socket', (request, response) => {
+    return response.sendFile(path.join(__dirname + '/employee-socket.html'))
 })
 
 app.get('/Nassef', (request, response)=>{

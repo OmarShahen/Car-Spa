@@ -5,6 +5,7 @@ const customerDB = require('../models/customers')
 const phoneDB = require('../models/phones')
 const adminDB = require('../models/admins')
 const orderDB = require('../models/orders')
+const doneOrderDB = require('../models/done-orders')
 const { updateMail } = require('../mails/mailController')
 const verify = require('../controllers/verify-input')
 
@@ -179,7 +180,7 @@ customerRoute.get('/customers/orders/past-orders', customerVerifyToken, async (r
 
     try{
 
-        const customerPastOrdres = await orderDB.getCustomerPastOrders(request.customerID, request.body.todayDate)
+        const customerPastOrdres = await doneOrderDB.getDoneOrdersByCustomerID(request.customerID)
         return response.status(200).send({
             accepted: true,
             orders: customerPastOrdres
@@ -248,7 +249,7 @@ customerRoute.get('/customers/previous-locations/:customerID', customerVerifyTok
             })
         }
 
-        const customerPrevLocations = await orderDB.getCustomerPreviuosLocations(request.params.customerID)
+        const customerPrevLocations = await doneOrderDB.getCustomerPreviousLocations(request.params.customerID)
 
         return response.status(200).send({
             accepted: true,
@@ -263,6 +264,8 @@ customerRoute.get('/customers/previous-locations/:customerID', customerVerifyTok
         })
     }
 })
+
+
 
 
 module.exports = customerRoute

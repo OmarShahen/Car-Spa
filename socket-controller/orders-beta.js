@@ -4,12 +4,14 @@ const employeeDB = require('../models/employees')
 const orderDB = require('../models/orders')
 const customerDB = require('../models/customers')
 const bookingTimeDB = require('../models/booking-times')
+const doneOrderDB = require('../models/done-orders')
 const customerToken = require('jsonwebtoken')
+const employeeToken = require('jsonwebtoken')
 const { socketCheckCustomerPackage } = require('../middleware/customer-package')
 
 
 
-const isValidToken = async (token)=>{
+const isCustomerTokenValid = async (token)=>{
 
     let functionReturn = ''
     customerToken.verify(token, config.customerSecretKey, (error, decoded)=>{
@@ -22,6 +24,21 @@ const isValidToken = async (token)=>{
 
     return functionReturn
 }
+
+const isEmployeeTokenValid = async (token)=>{
+
+    let functionReturn = ''
+    employeeToken.verify(token, config.employeeSecretKey, (error, decoded)=>{
+        if(error)
+        {
+            functionReturn = false
+        }
+        functionReturn = decoded
+    })
+
+    return functionReturn
+}
+
 
 const searchMissingIDs = (employeesIDs, ordersEmployeesIDs) => {
 
@@ -326,7 +343,7 @@ const getHighestRating = (ordersRating) => {
 
 module.exports = (io) => {
 
-    const orderNSP = io.of('/beta/book-now')
+    const orderNSP = io.of('/orders')
 
     orderNSP.on('connection', socket => {
         
@@ -341,7 +358,7 @@ module.exports = (io) => {
                     })
                 }
 
-                const checkToken = await isValidToken(orderData.accessToken)
+                const checkToken = await isCustomerTokenValid(orderData.accessToken)
 
                 if(!checkToken) {
                     return socket.emit('error', {
@@ -354,7 +371,7 @@ module.exports = (io) => {
 
                 // Check if customer orderered before
 
-                const customerOrder = await orderDB.getCustomerUpcomingOrders(orderData.customerID)
+                /*const customerOrder = await orderDB.getCustomerUpcomingOrders(orderData.customerID)
 
                 if(customerOrder.length != 0) {
 
@@ -362,7 +379,7 @@ module.exports = (io) => {
                         accepted: false,
                         message: 'you can\'t place more than 1 unfinished order'
                     })
-                }
+                }*/
 
                 // Check if time is available 
 
@@ -409,8 +426,6 @@ module.exports = (io) => {
 
                 if((employees.length - orders.length) == 1) {
 
-                    console.log('In 1 employee available scope')
-
                     const missingEmployee = searchMissingIDs(employeesIDs, ordersEmployeesIDs)
 
                     const assignOrder = await orderDB.addOrder(
@@ -435,7 +450,12 @@ module.exports = (io) => {
                             bookingTime[0].id
                         )
 
-                        return socket.emit('book-now', {
+                        socket.emit('book-now', {
+                            accepted: true,
+                            orderData: assignedOrderData[0]
+                        })
+
+                        return socket.to(`${ missingEmployee[0] }`).emit('book-now', {
                             accepted: true,
                             orderData: assignedOrderData[0]
                         })
@@ -462,15 +482,9 @@ module.exports = (io) => {
 
                 employeesTotalOrders = fillMissingEmployeesTotalOrders(targetEmployeesIDs, employeesTotalOrders)
 
-                console.log(employeesTotalOrders)
                 const lowestTotalOrdersEmployees = getLowestTotalOrders(employeesTotalOrders)
 
-                console.log('separate')
-                console.log(lowestTotalOrdersEmployees)
-
                 if(lowestTotalOrdersEmployees.length == 1) {
-
-                    console.log('In Total orders scope')
 
                     const assignOrder = await orderDB.addOrder(
                         orderData.customerID,
@@ -494,7 +508,12 @@ module.exports = (io) => {
                             bookingTime[0].id
                         )
 
-                        return socket.emit('book-now', {
+                        socket.emit('book-now', {
+                            accepted: true,
+                            orderData: assignedOrderData[0]
+                        })
+
+                        return socket.to(`${ lowestTotalOrdersEmployees[0].employeeid }`).emit('book-now', {
                             accepted: true,
                             orderData: assignedOrderData[0]
                         })
@@ -510,12 +529,10 @@ module.exports = (io) => {
                  */
 
                 const lowestTotalOrdersEmployeesIDs = collectEmployeesIDsFromAggregation(lowestTotalOrdersEmployees)
-                let employeesRating = await orderDB.getAvgerageRatingForEachEmployee(addSS(lowestTotalOrdersEmployeesIDs), lowestTotalOrdersEmployeesIDs)
+                let employeesRating = await doneOrderDB.getAvgerageRatingForEachEmployee(addSS(lowestTotalOrdersEmployeesIDs), lowestTotalOrdersEmployeesIDs)
                 employeesRating = fillMissingEmployeesAverageRating(lowestTotalOrdersEmployeesIDs, employeesRating)
 
                 const highestRatingEmployees = getHighestRating(employeesRating)
-
-                console.log('In average rating scope')
 
                 const assignOrder = await orderDB.addOrder(
                     orderData.customerID,
@@ -539,7 +556,12 @@ module.exports = (io) => {
                         bookingTime[0].id
                     )
 
-                    return socket.emit('book-now', {
+                    socket.emit('book-now', {
+                        accepted: true,
+                        orderData: assignedOrderData[0]
+                    })
+
+                    return socket.to(`${ highestRatingEmployees[0].employeeid }`).emit('book-now', {
                         accepted: true,
                         orderData: assignedOrderData[0]
                     })
@@ -553,6 +575,183 @@ module.exports = (io) => {
                 })
             }
         })
+
+        socket.on('order-active', async orderData => {
+
+            const employeeDecodedToken = await isEmployeeTokenValid(orderData.accessToken)
+
+            if(!employeeDecodedToken) {
+
+                return socket.emit('error', {
+                    accepted: false,
+                    message: 'invalid access to data'
+                })
+            }
+
+            orderData.employeeID = employeeDecodedToken.employeeID
+
+            const updateOrder = await orderDB.setOrderToActive(orderData.orderID)
+            const orderDataFromDB = await orderDB.getOrderByID(orderData.orderID)
+
+            console.log(orderDataFromDB)
+
+            return socket.to(`${ orderDataFromDB[0].customerid }`).emit('order-active', {
+                message: 'our driver is on his way to you now'
+            })
+
+        })
+
+        socket.on('order-done', async requestData => {
+
+            try {
+
+                const employeeDecodedToken = await isEmployeeTokenValid(requestData.accessToken)
+
+                if(!employeeDecodedToken) {
+
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'invalid access to data'
+                    })
+                }
+
+                requestData.employeeID = employeeDecodedToken.employeeID
+
+                const orderData = await orderDB.getOrderByID(requestData.orderID)
+
+                if(orderData.length == 0) {
+
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'this order does not exist'
+                    })
+                }
+
+
+                const addDoneOrder = await doneOrderDB.addDoneOrder(
+                    orderData[0].customerid,
+                    orderData[0].employeeid,
+                    orderData[0].orderdate,
+                    orderData[0].bookingtimeid,
+                    orderData[0].serviceid,
+                    orderData[0].ordercreationdate,
+                    orderData[0].longitude,
+                    orderData[0].latitude,
+                    orderData[0].locationname,
+                    orderData[0].price
+                )
+
+                const deleteOrder = await orderDB.deleteOrderByID(requestData.orderID)
+
+                const doneOrderData = await doneOrderDB.getDoneOrderByCustomerIDandOrderCreationDate(orderData[0].customerid, orderData[0].orderdate)
+
+                return socket.to(`${ orderData[0].customerid }`).emit('order-rate', {
+                    accepted: true,
+                    message: 'please rate our order',
+                    orderData: doneOrderData[0]
+                })
+
+
+            } catch(error) {
+                console.error(error)
+                return socket.emit('error', {
+                    accepted: false,
+                    message: 'internal server error'
+                })
+            }
+        })
+
+        socket.on('order-late', async requestData => {
+
+            try {
+
+                const employeeDecodedToken = await isEmployeeTokenValid(requestData.accessToken)
+
+                if(!employeeDecodedToken) {
+
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'invalid access to data'
+                    })
+                }
+
+                requestData.employeeID = employeeDecodedToken.employeeID
+
+                return socket.to(`${ requestData.customerID }`).emit('order-late', {
+                    message: 'our employee might come late'
+                })
+
+            } catch(error) {
+                console.error(error)
+                return socket.emit('error', {
+                    accepted: false,
+                    message: 'internal server error'
+                })
+            }
+        })
+
+        socket.on('employee-order-cancel', async requestData => {
+
+            try {
+
+                const employeeDecodedToken = await isEmployeeTokenValid(requestData.accessToken)
+
+                if(!employeeDecodedToken) {
+
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'unauthorized access to this data'
+                    })
+                }
+
+                requestData.employeeID = employeeDecodedToken.employeeID
+
+                return socket.to(`${ requestData.customerID }`).emit('employee-order-cancel', {
+                    message: 'our driver won\'t be abl to come, please order another wash',
+                    orderID: requestData.orderID
+                })
+
+            } catch(error) {
+                console.error(error)
+                return socket.emit('error', {
+                    accepted: false,
+                    message: 'internal server error'
+                })
+            }
+        })
+
+        socket.on('customer-order-cancel', async requestData => {
+
+            try {
+
+                const checkToken = await isCustomerTokenValid(requestData.accessToken)
+
+                if(!checkToken) {
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'unauthorized access to this data'
+                    })
+                }
+
+                requestData.customerID = checkToken.customerID
+
+                return socket.to(`${ requestData.employeeID }`).emit('customer-order-cancel', {
+                    message: 'customer cancelled this order',
+                    orderID: requestData.orderID
+                })
+
+
+            } catch(error) {
+                console.error(error)
+                return socket.emit('error', {
+                    accepted: false,
+                    message: 'internal server error'
+                })
+            }
+        })
+
+
+
     })
 
 }

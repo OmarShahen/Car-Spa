@@ -269,14 +269,14 @@ class Order{
     }
 
 
-    async addOrder(customerID, employeeID, orderDate, bookingTimeID, serviceID, orderCreationDate, locationName, longitude, latitude, price, active=false, rating=0, done=false)
+    async addOrder(customerID, employeeID, orderDate, bookingTimeID, serviceID, orderCreationDate, locationName, longitude, latitude, price, active=false, rating=0)
     {
         try{
 
             const orderData = [
                 customerID, employeeID, orderDate, bookingTimeID,
                 serviceID, orderCreationDate, locationName, longitude,
-                latitude, price, active, rating, done
+                latitude, price, active, rating
             ]
 
             const pool = await dbConnect()
@@ -284,8 +284,8 @@ class Order{
                 INSERT INTO orders(
                     CustomerID, EmployeeID, OrderDate, BookingTimeID,
                     ServiceID, OrderCreationDate, LocationName,
-                    longitude, latitude, price, active, rating, done
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+                    longitude, latitude, price, active, rating
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
             `
             const client = await pool.connect()
             const insertData = await client.query(query, orderData)
@@ -516,6 +516,95 @@ class Order{
             console.error(error)
             return false
         }
+    }
+
+    async getEmployeeOrdersByDate(employeeID, ordersDate) {
+
+        try {
+
+            const pool = await dbConnect()
+            const query = `
+                SELECT
+                customers.username AS CustomerName, customers.PhoneNumber AS CustomerPhoneNumber, 
+                orders.OrderDate,bookingTimes.BookTime, services.name AS ServiceName,
+                orders.longitude, orders.latitude, orders.locationName, orders.price
+                FROM orders
+                INNER JOIN customers ON customers.ID = orders.CustomerID
+                INNER JOIN bookingTimes ON bookingTimes.ID = orders.BookingTimeID
+                INNER JOIN services  ON services.ID = orders.ServiceID
+                WHERE
+                EmployeeID = $1 AND OrderDate = $2
+                ORDER BY OrderDate DESC
+            `
+            const client = await pool.connect()
+            const employeeOrders = await client.query(query, [employeeID, ordersDate])
+            pool.end()
+
+            return employeeOrders.rows
+
+        } catch(error) {
+            console.error(error)
+            return false
+        }
+    }
+
+    async getEmployeeOrdersAfterDate(employeeID, ordersDate) {
+
+        try {
+
+            const pool = await dbConnect()
+            const query = `
+                SELECT
+                customers.username AS CustomerName, customers.PhoneNumber AS CustomerPhoneNumber, 
+                orders.OrderDate,bookingTimes.BookTime, services.name AS ServiceName,
+                orders.longitude, orders.latitude, orders.locationName, orders.price
+                FROM orders
+                INNER JOIN customers ON customers.ID = orders.CustomerID
+                INNER JOIN bookingTimes ON bookingTimes.ID = orders.BookingTimeID
+                INNER JOIN services  ON services.ID = orders.ServiceID
+                WHERE
+                EmployeeID = $1 AND OrderDate > $2
+                ORDER BY OrderDate DESC
+            `
+            const client = await pool.connect()
+            const employeeOrders = await client.query(query, [employeeID, ordersDate])
+            pool.end()
+
+            return employeeOrders.rows
+
+        } catch(error) {
+            console.error(error)
+            return false
+        }
+    }
+
+    async setOrderToActive(orderID) {
+
+        try {
+
+            const pool = await dbConnect()
+            const query = `UPDATE orders SET active = True WHERE ID = $1`
+            const client = await pool.connect()
+            const updateOrder = await client.query(query, [orderID])
+            pool.end()
+
+            return true 
+
+        } catch(error) {
+            console.error(error)
+            return false
+        }
+    }
+
+    async deleteOrderByID(orderID) {
+
+        const pool = await dbConnect()
+        const query = `DELETE FROM orders WHERE ID = $1`
+        const client = await pool.connect()
+        const orderDeleted = await client.query(query, [orderID])
+        pool.end()
+
+        return true
     }
 }
 

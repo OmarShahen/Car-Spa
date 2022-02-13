@@ -56,6 +56,17 @@ class CancelledOrder {
         }
     }
 
+    async getCancelledOrder(customerID, employeeID, orderCreationDate) {
+
+        const pool = await dbConnect()
+        const query = `SELECT * FROM cancelledOrders WHERE CustomerID = $1 AND EmployeeID = $2 AND OrderCreationDate = $3`
+        const client = await pool.connect()
+        const cancelledOrders = await client.query(query, [customerID, employeeID, orderCreationDate])
+        pool.end()
+
+        return cancelledOrders.rows
+    }
+
 }
 
 

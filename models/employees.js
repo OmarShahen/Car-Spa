@@ -103,6 +103,24 @@ class Employee{
         }
     }
 
+    async getEmployeeByPhoneNumber(phoneNumber) {
+
+        try {
+
+            const pool = await dbConnect()
+            const query = `SELECT * FROM employees WHERE PhoneNumber = $1`
+            const client = await pool.connect()
+            const employeeData = await client.query(query, [phoneNumber])
+            pool.end()
+
+            return employeeData.rows
+
+        } catch(error) {
+            console.error(error)
+            return false
+        }
+    }
+
     async getEmployeeByID(employeeID)
     {
         try{

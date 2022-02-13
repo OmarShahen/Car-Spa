@@ -38,6 +38,17 @@ class PromocodeUsed {
          }
     }
 
+    async deletePromocodeUsed(orderID) {
+
+        const pool = await dbConnect()
+        const query = `DELETE FROM promocodesUsed WHERE OrderID = $1`
+        const client = await pool.connect()
+        const deletePromo = await client.query(query, [orderID])
+        pool.end()
+
+        return true
+    }
+
 
 }
 

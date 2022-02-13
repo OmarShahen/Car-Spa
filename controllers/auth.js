@@ -191,7 +191,7 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
     
     })
     
-authRouter.post('/customers/login', async (request, response)=>{
+authRouter.get('/customers/login', async (request, response)=>{
     try{
 
         const checkEmail = verify.checkEmail(request.body.customerEmail)
@@ -688,10 +688,11 @@ authRouter.post('/employees/sign-up', adminVerifyToken, fileValidation, async (r
 
 })
 
-authRouter.post('/employees/login', async (request, response)=>{
+authRouter.get('/employees/login', async (request, response)=>{
     try{
 
-        const employeeData = await phoneDB.getEmployeeByPhone(request.body.employeePhoneNumber)
+        const employeeData = await employeeDB.getEmployeeByPhoneNumber(request.body.employeePhoneNumber)
+        
         if(employeeData.length == 0)
         {
             return response.status(406).send({
@@ -709,10 +710,18 @@ authRouter.post('/employees/login', async (request, response)=>{
             })
         }
 
+        const employeeInfo = {
+            firstname: employeeData[0].firstname,
+            lastname: employeeData[0].lastname,
+            address: employeeData[0].address,
+            nationalid: employeeData[0].nationalid,
+            phoneNumber: employeeData[0].phonenumber
+        }
+
         return response.status(200).send({
             accepted: true,
             message: 'login successfully',
-            id: employeeData[0].id,
+            employeeData: employeeInfo,
             token: employeeJWT.sign({employeeID: employeeData[0].id}, config.employeeSecretKey, {expiresIn: '30d'})
         })
 

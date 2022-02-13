@@ -25,10 +25,11 @@
 
     </div>
     <script>
-        const socketIO = io('/beta/book-now')
+        const socketIO = io('/orders')
+        const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjdXN0b21lcklEIjo1LCJpYXQiOjE2NDQ2Mzc5MzIsImV4cCI6MTY0NzIyOTkzMn0.HQ9tz7L7tB9MO5YB0lCN0zZOf7DkWUklCGjsNraI-ZM'
 
         socketIO.emit('book-now', {
-            accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjdXN0b21lcklEIjo2LCJpYXQiOjE2NDM3NDMwMTksImV4cCI6MTY0NjMzNTAxOX0.SGks8UPr_cWZ7tNRCWgUHTQiFeCkgYx4KsiSBbzCsjM',
+            accessToken: accessToken,
             serviceID: 3,
             locationName: '53 Victor Amanoiel Square, Ezbet Saad, Sidi Gaber, Alexandria Governorate',
             longitude: 29.94032,
@@ -37,14 +38,30 @@
 
         socketIO.on('book-now', data => console.log(data))
 
-        socketIO.emit('cancel-order', {
-            accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjdXN0b21lcklEIjo1LCJpYXQiOjE2NDMyNjU4ODYsImV4cCI6MTY0NTg1Nzg4Nn0.9GSHv2FJoqP67nFBNIRs1Px1jund-_6gQA7ZG-tj_W0',
-            orderID: 155
+
+        socketIO.emit('customer-login', {
+            accessToken: accessToken
         })
 
-        socketIO.on('cancel-order', data => {
-            console.log(data)
-        })
+        socketIO.on('order-active', data => console.log(data))
+
+        socketIO.on('order-late', data => console.log(data))
+
+        /*socketIO.emit('cancel-order', {
+            accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjdXN0b21lcklEIjo1LCJpYXQiOjE2NDMyNjU4ODYsImV4cCI6MTY0NTg1Nzg4Nn0.9GSHv2FJoqP67nFBNIRs1Px1jund-_6gQA7ZG-tj_W0',
+            orderID: 155
+        })*/
+
+        /*socketIO.emit('customer-order-cancel', {
+            accessToken: accessToken,
+            employeeID: 15,
+            orderID: 256
+        })*/
+
+        socketIO.on('order-rate', data => console.log(data))
+
+
+        socketIO.on('employee-order-cancel', data => console.log(data))
 
         socketIO.on('error', (data) => {
             console.log(data)

@@ -1,6 +1,5 @@
 
 const orderRoute = require('express').Router()
-const { request, response } = require('express')
 const { customerVerifyToken } = require('../middleware/authority')
 const { checkCustomerPackage } = require('../middleware/customer-package') 
 const reservedDayDB = require('../models/reserved-days')
@@ -8,6 +7,7 @@ const bookingTimeDB = require('../models/booking-times')
 const employeeDB = require('../models/employees')
 const orderDB = require('../models/orders')
 const cancelledOrderDB = require('../models/cancelled-orders')
+const doneOrderDB = require('../models/done-orders')
 const serviceDB = require('../models/services')
 const promocodeDB = require('../models/promocodes')
 const usedPromocodeDB = require('../models/promocodesUsed')
@@ -524,7 +524,7 @@ orderRoute.post('/beta/orders/book-later/book-order', customerVerifyToken, check
 
         // Check if customer ordered before
 
-        const customerOrder = await orderDB.getCustomerUpcomingOrders(request.customerID)
+        /*const customerOrder = await orderDB.getCustomerUpcomingOrders(request.customerID)
 
         if(customerOrder.length != 0) {
 
@@ -532,7 +532,7 @@ orderRoute.post('/beta/orders/book-later/book-order', customerVerifyToken, check
                 accepted: false,
                 message: 'you can\'t place more than 1 unfinished order'
             })
-        }
+        }*/
 
         // If there is no available employee
 
@@ -560,7 +560,7 @@ orderRoute.post('/beta/orders/book-later/book-order', customerVerifyToken, check
                 missingEmployee[0],
                 request.body.bookDate,
                 bookingTime[0].id,
-                request.body.orderServiceID,
+                request.body.serviceID,
                 new Date(),
                 request.body.locationName,
                 request.body.longitude,
@@ -596,7 +596,7 @@ orderRoute.post('/beta/orders/book-later/book-order', customerVerifyToken, check
         const targetEmployees = getEmployeesData(employees, targetEmployeesIDs)
         const searchDate = getNearestDate(targetEmployees)
 
-        let employeesTotalOrders = await orderDB.getNoOfOrdersForThoseEmployeesFromDate(
+        let employeesTotalOrders = await doneOrderDB.getNoOfOrdersForThoseEmployeesFromDate(
             targetEmployeesIDs,
             addSS(targetEmployeesIDs),
             `${searchDate.getFullYear()}-${searchDate.getMonth()+1}-${searchDate.getDate()}`,
@@ -616,7 +616,7 @@ orderRoute.post('/beta/orders/book-later/book-order', customerVerifyToken, check
                 lowestTotalOrdersEmployees[0].employeeid,
                 request.body.bookDate,
                 bookingTime[0].id,
-                request.body.orderServiceID,
+                request.body.serviceID,
                 new Date(),
                 request.body.locationName,
                 request.body.longitude,
@@ -648,7 +648,7 @@ orderRoute.post('/beta/orders/book-later/book-order', customerVerifyToken, check
          */
 
         const lowestTotalOrdersEmployeesIDs = collectEmployeesIDsFromAggregation(lowestTotalOrdersEmployees)
-        let employeesRating = await orderDB.getAvgerageRatingForEachEmployee(addSS(lowestTotalOrdersEmployeesIDs), lowestTotalOrdersEmployeesIDs)
+        let employeesRating = await doneOrderDB.getAvgerageRatingForEachEmployee(addSS(lowestTotalOrdersEmployeesIDs), lowestTotalOrdersEmployeesIDs)
         employeesRating = fillMissingEmployeesAverageRating(lowestTotalOrdersEmployeesIDs, employeesRating)
 
         const highestRatingEmployees = getHighestRating(employeesRating)
@@ -660,7 +660,7 @@ orderRoute.post('/beta/orders/book-later/book-order', customerVerifyToken, check
             highestRatingEmployees[0].employeeid,
             request.body.bookDate,
             bookingTime[0].id,
-            request.body.orderServiceID,
+            request.body.serviceID,
             new Date(),
             request.body.locationName,
             request.body.longitude,
@@ -829,6 +829,14 @@ orderRoute.put('/orders/promocode/:promocodeName', customerVerifyToken, async (r
         }
 
         const orderData = await orderDB.getOrderPriceByCustomerID(request.customerID)
+
+        if(orderData.length == 0) {
+
+            return response.status(306).send({
+                accepted: false,
+                message: 'no order registered to discount'
+            })
+        }
         
         const newPrice = orderData[0].price * (promocodeData[0].percentage / 100)
 
@@ -852,6 +860,47 @@ orderRoute.put('/orders/promocode/:promocodeName', customerVerifyToken, async (r
 
 })
 
+orderRoute.put('/orders/done/rate/:orderID/:rate', customerVerifyToken, async (request, response) => {
+
+    try {
+
+        const doneOrderData = await doneOrderDB.getDoneOrder(request.params.orderID)
+
+        console.log(doneOrderData)
+        
+        if(doneOrderData.length == 0) {
+
+            return response.status(306).send({
+                accepted: false,
+                message: 'this ID does not exist'
+            })
+        }
+
+        if(request.params.rate <= 0 || request.params.rate > 5) {
+
+            return response.status(306).send({
+                accepted: false,
+                message: 'rate value must be more than 0 and less than 5'
+            })
+        }
+
+        const rateOrder = await doneOrderDB.rateDoneOrder(request.params.orderID, request.params.rate)
+
+        return response.status(200).send({
+            accepted: true,
+            message: 'thanks for the rating'
+        })
+
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+
+})
+
 orderRoute.delete('/orders/:orderID', customerVerifyToken, async (request, response) => {
 
     try {
@@ -862,7 +911,7 @@ orderRoute.delete('/orders/:orderID', customerVerifyToken, async (request, respo
 
             return response.status(406).send({
                 accepted: false,
-                message: 'invalid ID'
+                message: 'invalid order ID'
             })
         }
 
@@ -879,12 +928,16 @@ orderRoute.delete('/orders/:orderID', customerVerifyToken, async (request, respo
             orderData[0].latitude,
             orderData[0].price
         )
+        
+        const deletePromocodeUsed = await usedPromocodeDB.deletePromocodeUsed(request.params.orderID)
 
         const deleteOrder = await orderDB.deleteOrderByID(request.params.orderID)
 
         return response.status(200).send({
             accepted: true,
-            message: 'order cancelled'
+            cancelledOrderID: request.params.orderID,
+            customerID: orderData[0].customerid,
+            employeeID: orderData[0].employeeid
         })
 
 
