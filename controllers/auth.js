@@ -240,7 +240,7 @@ authRouter.get('/customers/login', async (request, response)=>{
 })
 
 
-authRouter.post('/customers/check-email', async (request, response)=>{
+authRouter.get('/customers/check-email', async (request, response)=>{
     try{
 
         if(!request.body.customerEmail)
@@ -768,7 +768,7 @@ authRouter.post('/customers/phone-number/verification-code', async (request, res
 })
 
 
-authRouter.post('/customers/phone-number/verifiy', async (request, response)=>{
+authRouter.get('/customers/phone-number/verifiy', async (request, response)=>{
 
     try{
 
