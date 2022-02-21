@@ -777,7 +777,7 @@ authRouter.get('/customers/:phoneNumber/verifiy/:code', async (request, response
             request.params.code
         )
 
-        if(!checkCode.length == 1)
+        if(!checkCode.length == 0)
         {
             return response.status(406).send({
                 accepted: false,
