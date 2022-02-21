@@ -191,7 +191,7 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
     
     })
     
-authRouter.get('/customers/login', async (request, response)=>{
+authRouter.post('/customers/login', async (request, response)=>{
     try{
 
         const checkEmail = verify.checkEmail(request.body.customerEmail)
@@ -261,7 +261,7 @@ authRouter.get('/customers/check-email/:email', async (request, response)=>{
             })
         }
         
-        const emailExist = await userEmailExist(request.params.email)
+        const emailExist = await userEmailExist()
         if(emailExist)
         {
             return response.status(406).send({
@@ -768,13 +768,13 @@ authRouter.post('/customers/phone-number/verification-code', async (request, res
 })
 
 
-authRouter.get('/customers/phone-number/verifiy', async (request, response)=>{
+authRouter.get('/customers/:phoneNumber/verifiy/:code', async (request, response) => {
 
-    try{
+    try {
 
         const checkCode = await verificationCodeDB.getVerificationCode(
-            request.body.customerPhoneNumber,
-            request.body.verificationCode
+            request.params.phoneNumber,
+            request.params.code
         )
 
         if(!checkCode.length == 1)
@@ -786,8 +786,8 @@ authRouter.get('/customers/phone-number/verifiy', async (request, response)=>{
         }
 
         const deleteCode = await verificationCodeDB.deleteVerificationCodes(
-            request.body.customerPhoneNumber,
-            request.body.verificationCode
+            request.params.phoneNumber,
+            request.params.code
             )
 
         return response.status(200).send({
