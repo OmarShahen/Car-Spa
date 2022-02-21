@@ -743,6 +743,8 @@ authRouter.post('/customers/phone-number/verification-code', async (request, res
 
     try{
 
+        console.log(request.body)
+
         const verificationCode = getRandomInt()
         const addVerificationCode = await verificationCodeDB.createVerificationCode(
             request.body.customerPhoneNumber,
