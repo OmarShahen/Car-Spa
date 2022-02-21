@@ -240,10 +240,10 @@ authRouter.get('/customers/login', async (request, response)=>{
 })
 
 
-authRouter.get('/customers/check-email', async (request, response)=>{
+authRouter.get('/customers/check-email/:email', async (request, response)=>{
     try{
 
-        if(!request.body.customerEmail)
+        if(!request.params.email)
         {
             return response.status(406).send({
                 accepted: false,
@@ -251,7 +251,7 @@ authRouter.get('/customers/check-email', async (request, response)=>{
             })
         }
 
-        const checkEmail = verify.checkEmail(request.body.customerEmail)
+        const checkEmail = verify.checkEmail(request.params.email)
         if(!checkEmail.accepted)
         {
             return response.status(406).send({
@@ -261,7 +261,7 @@ authRouter.get('/customers/check-email', async (request, response)=>{
             })
         }
         
-        const emailExist = await userEmailExist(request.body.customerEmail)
+        const emailExist = await userEmailExist(request.params.email)
         if(emailExist)
         {
             return response.status(406).send({
