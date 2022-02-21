@@ -747,11 +747,11 @@ authRouter.post('/customers/phone-number/verification-code', async (request, res
 
         const verificationCode = getRandomInt()
         const addVerificationCode = await verificationCodeDB.createVerificationCode(
-            `+${request.body.customerPhoneNumber}`,
+            `+${request.body.customerPhoneNumber.trim()}`,
             verificationCode
         )
 
-        const isSMSSent = smsVerifiy(request.body.customerPhoneNumber, verificationCode)
+        //const isSMSSent = smsVerifiy(request.body.customerPhoneNumber, verificationCode)
 
         return response.status(200).send({
             accepted: true,
