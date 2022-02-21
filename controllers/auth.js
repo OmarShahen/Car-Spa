@@ -333,11 +333,11 @@ authRouter.post('/send-phone-number-verification', async (request, response)=>{
 })
 
 
-authRouter.post('/check-phone-number', async (request, response) => {
+authRouter.get('/check-phone-number/:phoneNumber', async (request, response) => {
 
     try {
 
-        if(request.body.customerPhoneNumber.length != 11) {
+        if(request.params.phoneNumber.length != 11) {
             
             return response.status(406).send({
                 accepted: false,
@@ -346,7 +346,7 @@ authRouter.post('/check-phone-number', async (request, response) => {
         }
 
         // Check in customers DB
-        const customerData = await customerDB.getCustomerByPhoneNumber(request.body.customerPhoneNumber)
+        const customerData = await customerDB.getCustomerByPhoneNumber(request.params.phoneNumber)
         if(customerData.length != 0) {
             return response.status(406).send({
                 accepted: false,
