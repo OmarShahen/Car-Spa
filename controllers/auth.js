@@ -777,7 +777,7 @@ authRouter.get('/customers/:phoneNumber/verifiy/:code', async (request, response
         console.log(request.body)
 
         const checkCode = await verificationCodeDB.getVerificationCode(
-            request.params.phoneNumber,
+            `+${request.params.phoneNumber.trim()}`,
             request.params.code
         )
 
