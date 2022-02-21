@@ -751,7 +751,7 @@ authRouter.post('/customers/phone-number/verification-code', async (request, res
             verificationCode
         )
 
-        //const isSMSSent = smsVerifiy(request.body.customerPhoneNumber, verificationCode)
+        const isSMSSent = smsVerifiy(request.body.customerPhoneNumber, verificationCode)
 
         return response.status(200).send({
             accepted: true,
