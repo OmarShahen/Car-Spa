@@ -19,7 +19,7 @@ const { response } = require('express')
 const smsVerifiy = require('../sms/verfication-sms')
 const verificationCodes = require('../models/verification-codes')
 
-const userEmailExist = async (userEmail)=>{
+const isUserEmailExist = async (userEmail)=>{
 
     try{
 
@@ -97,7 +97,7 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
             })
         }
 
-        const emailExist = await userEmailExist(request.body.customerEmail)
+        const emailExist = await isUserEmailExist(request.body.customerEmail)
         if(emailExist)
         {
             return response.status(406).send({
@@ -261,7 +261,7 @@ authRouter.get('/customers/check-email/:email', async (request, response)=>{
             })
         }
         
-        const emailExist = await userEmailExist()
+        const emailExist = await isUserEmailExist(request.params.email)
         if(emailExist)
         {
             return response.status(406).send({
@@ -424,7 +424,7 @@ authRouter.post('/admins/sign-up', async (request, response)=>{
             })
         }
 
-        const emailResult = await userEmailExist(request.body.adminEmail)
+        const emailResult = await isUserEmailExist(request.body.adminEmail)
         if(emailResult)
         {
             return response.status(406).send({
