@@ -790,7 +790,7 @@ authRouter.get('/customers/:phoneNumber/verifiy/:code', async (request, response
         }
 
         const deleteCode = await verificationCodeDB.deleteVerificationCodes(
-            request.params.phoneNumber,
+            `+${request.params.phoneNumber.trim()}`,
             request.params.code
             )
 
