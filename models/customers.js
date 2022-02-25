@@ -20,7 +20,7 @@ class Customer{
     async addCustomer(userName, email, password, phoneNumber, accountCreationDate){
 
         const pool = await dbConnect()
-        const query = 'INSERT INTO customers (userName, email, password, phoneNumber, accountCreationDate) VALUES ($1, $2, $3, $4, $5, $6)'
+        const query = 'INSERT INTO customers (userName, email, password, phoneNumber, accountCreationDate) VALUES ($1, $2, $3, $4, $5)'
         const client = await pool.connect()
         const result = await client.query(query, [userName, email, password, phoneNumber, accountCreationDate])
         pool.end()
