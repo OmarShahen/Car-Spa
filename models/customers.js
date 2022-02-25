@@ -37,6 +37,16 @@ class Customer{
         return result.rows
     }
 
+    async getCustomerByGoogleID(googleID) {
+
+        const pool = await dbConnect()
+        const query = `SELECT * FROM customers WHERE googleID = $1`
+        const client = await pool.connect()
+        const result = await client.query(query, [googleID])
+        pool.end()
+        return result.rows
+    }
+
 
     // getCustomersData() is replaced by getAllCustomers()
     async getAllCustomers()

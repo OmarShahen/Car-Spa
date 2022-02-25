@@ -290,6 +290,17 @@ authRouter.post('/customers/google/sign-up', async (request, response) => {
             })
         }
 
+        const customerID = await customerDB.getCustomerByGoogleID(request.body.googleID)
+        console.log(customerID)
+        if(customerID.length != 0) {
+            return response.status(406).send({
+                accepted: false,
+                message: 'invalid google ID'
+            })
+        }
+
+
+
         const createCustomer = await customerDB.addGoogleAuthCustomer(
             request.body.customerName,
             request.body.customerEmail,
