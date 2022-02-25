@@ -15,7 +15,7 @@ const { adminVerifyToken } = require('../middleware/authority')
 const fileValidation = require('../middleware/verify-files')
 const verifyInput = require('./verify-input')
 const { checkPhoneNumber } = require('./verify-input')
-const { response } = require('express')
+const { response, request } = require('express')
 const smsVerifiy = require('../sms/verfication-sms')
 const verificationCodes = require('../models/verification-codes')
 
@@ -157,16 +157,12 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
             })
         }
 
-        if(!request.body.customerGoogleID) {
-            request.body.customerGoogleID = null
-        }
 
         const createCustomer = await customerDB.addCustomer(
             request.body.customerName,
             request.body.customerEmail,
             bcrypt.hashSync(request.body.customerPassword, config.bcryptRounds),
             request.body.customerPhoneNumber,
-            request.body.customerGoogleID,
             new Date()
         )
 
@@ -175,7 +171,7 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
         return response.status(200).send({
             accepted: true,
             message: 'created account successfully',
-            id: getCustomer[0].id,
+            customer: getCustomer[0],
             token: customerJWT.sign({customerID: getCustomer[0].id}, config.customerSecretKey, {expiresIn: '30d'})
         })
 
@@ -239,6 +235,86 @@ authRouter.post('/customers/login', async (request, response)=>{
     }
 })
 
+authRouter.post('/customers/google/sign-up', async (request, response) => {
+
+    try {
+
+        if(!request.body.customerName) {
+            return response.status(406).send({
+                accepted: false,
+                message: 'user name is required'
+            })
+        }
+
+        const checkEmail = verify.checkEmail(request.body.customerEmail)
+        if(!checkEmail.accepted) {
+            return response.status(406).send({
+                accepted: true,
+                message: checkEmail.message
+            })
+        }
+
+        const emailExist = await isUserEmailExist(request.body.customerEmail)
+        if(emailExist)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: 'this email is already taken',
+            })
+        }
+
+        const checkPhone = await checkPhoneNumber(request.body.customerPhoneNumber)
+        if(!checkPhone.accepted)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: checkPhone.message,
+                field: 'phone number'
+            })
+        }
+
+        const phoneNumber = await customerDB.getCustomerByPhoneNumber(request.body.customerPhoneNumber)
+        if(phoneNumber.length != 0)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: 'this phone number is already taken',
+                field: 'phone number'
+            })
+        }
+
+        if(!request.body.googleID) {
+            return response.status(406).send({
+                accepted: false,
+                message: 'google ID is required'
+            })
+        }
+
+        const createCustomer = await customerDB.addGoogleAuthCustomer(
+            request.body.customerName,
+            request.body.customerEmail,
+            request.body.googleID,
+            request.body.customerPhoneNumber,
+            new Date()
+        )
+
+        const getCustomer = await customerDB.getCustomerByEmail(request.body.customerEmail)
+        
+        return response.status(200).send({
+            accepted: true,
+            message: 'account created successfully',
+            customer: getCustomer[0],
+            token: customerJWT.sign({ customerID: getCustomer[0].id }, config.customerSecretKey, { expiresIn: '30d' })
+        })
+
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
 
 authRouter.get('/customers/check-email/:email', async (request, response)=>{
     try{
