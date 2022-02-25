@@ -327,6 +327,32 @@ authRouter.post('/customers/google/sign-up', async (request, response) => {
     }
 })
 
+authRouter.get('/customers/google/login', async (request, response) => {
+
+    try {
+
+        const customer = await customerDB.getCustomerByGoogleID(request.body.googleID)
+        if(customer.length == 0)
+            return response.status(406).send({
+                accepted: false,
+                message: 'this account does not exist'
+            }) 
+        
+            return response.status(200).send({
+                accepted: true,
+                customer: customer[0],
+                token: customerJWT.sign({ customerID: customer[0].id }, config.customerSecretKey, { expiresIn: '30d' })
+            })
+
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
 authRouter.get('/customers/check-email/:email', async (request, response)=>{
     try{
 

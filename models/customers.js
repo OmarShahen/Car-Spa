@@ -37,6 +37,7 @@ class Customer{
         return result.rows
     }
 
+
     async getCustomerByGoogleID(googleID) {
 
         const pool = await dbConnect()
