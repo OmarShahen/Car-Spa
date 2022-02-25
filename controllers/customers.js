@@ -265,6 +265,76 @@ customerRoute.get('/customers/previous-locations/:customerID', customerVerifyTok
     }
 })
 
+/**
+ * This section of endpoints will be for testing purposes
+ */
+
+customerRoute.get('/tests/customers', async (request, response) => {
+
+    try {
+
+        const customers = await customerDB.getAllCustomers()
+        return response.status(200).send({
+            accepted: true,
+            customers: customers
+        })
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
+customerRoute.get('/tests/customers/:id', async (request, response) => {
+
+    try {
+
+        const customer = await customerDB.getCustomerByID(request.params.id)
+        
+        return response.status(200).send({
+            accepted: true,
+            customer: customer
+        })
+
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
+customerRoute.delete('/tests/customers/:id', async (request, response) => {
+
+    try {
+
+        console.log(request.params)
+        const customer = await customerDB.deleteCustomersByID(request.params.id)
+        
+        if(!customer) {
+            return response.status(406).send({
+                accepted: false,
+                message: `can't delete this account`
+            })
+        }
+
+        return response.status(200).send({
+            accepted: true,
+            messsage: 'account deleted successfully'
+        }) 
+
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
 
 
 

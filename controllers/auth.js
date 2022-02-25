@@ -17,7 +17,6 @@ const verifyInput = require('./verify-input')
 const { checkPhoneNumber } = require('./verify-input')
 const { response, request } = require('express')
 const smsVerifiy = require('../sms/verfication-sms')
-const verificationCodes = require('../models/verification-codes')
 
 const isUserEmailExist = async (userEmail)=>{
 
@@ -864,7 +863,7 @@ authRouter.post('/customers/phone-number/verification-code', async (request, res
             verificationCode
         )
 
-        const isSMSSent = smsVerifiy(request.body.customerPhoneNumber, verificationCode)
+       // const isSMSSent = smsVerifiy(request.body.customerPhoneNumber, verificationCode)
 
         return response.status(200).send({
             accepted: true,
@@ -915,6 +914,57 @@ authRouter.get('/customers/:phoneNumber/verifiy/:code', async (request, response
     catch(error)
     {
         console.log(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
+/**
+ * This section is for testing purposes
+ */
+
+authRouter.get('/tests/verification-codes', async (request, response) => {
+
+    try {
+
+        const codes = await verificationCodeDB.getVerificationCodes()
+
+        return response.status(200).send({
+            accepted: true,
+            codes: codes           
+        })
+
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
+authRouter.delete('/tests/verification-codes/:phoneNumber', async (request, response) => {
+
+    try {
+
+        const code = await verificationCodeDB.deleteVerificationCodes(request.params.phoneNumber)
+
+        if(!code) {
+            return response.status(306).send({
+                accepted: false,
+                message: `can't delete verification code`
+            })
+        }
+
+        return response.status(200).send({
+            accepted: true,
+            message: 'deleted successfully'
+        })
+        
+    } catch(error) {
+        console.error(error)
         return response.status(500).send({
             accepted: false,
             message: 'internal server error'

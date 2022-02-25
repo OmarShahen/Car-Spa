@@ -58,6 +58,17 @@ class VerificationCode{
         }
     }
 
+    async getVerificationCodes() {
+
+        const pool = await dbConnect()
+        const query = 'SELECT * FROM VerificationCodes'
+        const client = await pool.connect()
+        const data = await client.query(query)
+        pool.end()
+        
+        return data.rows
+    }
+
 
 }
 
