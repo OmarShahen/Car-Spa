@@ -15,22 +15,14 @@ const dbConnect = require('../config/db')
 
 class Employee{
 
-    async addEmployee(firstName, lastName, phoneNumber, address, nationalID,password, criminalRecord,accountCreationDate){
-
-        try{
+    async addEmployee(firstName, lastName, phoneNumber, address, nationalID, password, accountCreationDate){
             
-            const pool = await dbConnect()
-            const query = 'INSERT INTO employees (FirstName, LastName, PhoneNumber, address, NationalID, password, CriminalRecord, AccountCreationDate) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)'
-            const client = await pool.connect()
-            const result = await client.query(query, [firstName, lastName, phoneNumber, address, nationalID, password, criminalRecord, accountCreationDate])
-            pool.end()
-            return true
-        }
-        catch(error){
-            console.log(error)
-             return false
-        }
-
+        const pool = await dbConnect()
+        const query = 'INSERT INTO employees (FirstName, LastName, phoneNumber, address, NationalID, password, AccountCreationDate) VALUES ($1, $2, $3, $4, $5, $6, $7)'
+        const client = await pool.connect()
+        const result = await client.query(query, [firstName, lastName, phoneNumber, address, nationalID, password, accountCreationDate])
+        pool.end()
+        return true
     }
 
     async getAllEmployees()

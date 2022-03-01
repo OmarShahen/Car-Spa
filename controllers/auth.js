@@ -44,6 +44,20 @@ const isUserEmailExist = async (userEmail)=>{
     }
 }
 
+const isPhoneNumberExist = async (phoneNumber) => {
+
+    const customerPhone = await customerDB.getCustomerByPhoneNumber(phoneNumber)
+    if(customerPhone.length != 0) {
+        return false
+    }
+
+    const employeePhone = await employeeDB.getEmployeeByPhoneNumber(phoneNumber)
+    if(employeePhone.length != 0) {
+        return false
+    }
+
+    return true
+}
 
 const getRandomInt = (min=1000, max=10000)=>{
     min = Math.ceil(min)
@@ -657,21 +671,11 @@ authRouter.post('/admins/login', async (request, response)=>{
     }
 })
 
-authRouter.post('/employees/sign-up', adminVerifyToken, fileValidation, async (request, response, next)=>{
+authRouter.post('/employees', async (request, response, next)=>{
 
     try{
 
-        const adminData = await adminDB.getAdminByID(request.adminID)
-        if(adminData.length == 0)
-        {
-            return response.status(401).send({
-                accepted: false,
-                message: 'unauthorized user'
-            })
-        }
-
-
-        const checkFirstName = await verify.checkName(request.body.employeeFirstName)
+        const checkFirstName = await verify.checkName(request.body.firstName)
         if(!checkFirstName.accepted)
         {
             return response.status(406).send({
@@ -680,7 +684,7 @@ authRouter.post('/employees/sign-up', adminVerifyToken, fileValidation, async (r
             })
         }
 
-        const checkLastName = await verify.checkName(request.body.employeeLastName)
+        const checkLastName = await verify.checkName(request.body.lastName)
         if(!checkLastName.accepted)
         {
             return response.status(406).send({
@@ -689,7 +693,7 @@ authRouter.post('/employees/sign-up', adminVerifyToken, fileValidation, async (r
             })
         }
 
-        const checkAddress = verify.checkEmptyInput(request.body.employeeAddress)
+        const checkAddress = verify.checkEmptyInput(request.body.address)
         if(!checkAddress.accepted)
         {
             return response.status(406).send({
@@ -698,7 +702,7 @@ authRouter.post('/employees/sign-up', adminVerifyToken, fileValidation, async (r
             })
         }
 
-        const checkNationalID = verify.checkEmptyInput(request.body.employeeNationalID)
+        const checkNationalID = verify.checkEmptyInput(request.body.nationalID)
         if(!checkNationalID.accepted)
         {
             return response.status(406).send({
@@ -707,7 +711,7 @@ authRouter.post('/employees/sign-up', adminVerifyToken, fileValidation, async (r
             })
         }
 
-        const nationalIDExist = await employeeDB.getEmployeeByNationalID(request.body.employeeNationalID)
+        const nationalIDExist = await employeeDB.getEmployeeByNationalID(request.body.nationalID)
         if(nationalIDExist.length != 0)
         {
             return response.status(406).send({
@@ -716,7 +720,7 @@ authRouter.post('/employees/sign-up', adminVerifyToken, fileValidation, async (r
             })
         }
 
-        const checkPhoneNumber = await verify.checkPhoneNumber(request.body.employeePhoneNumber)
+        const checkPhoneNumber = await verify.checkPhoneNumber(request.body.phoneNumber)
         if(!checkPhoneNumber.accepted)
         {
             return response.status(406).send({
@@ -725,8 +729,8 @@ authRouter.post('/employees/sign-up', adminVerifyToken, fileValidation, async (r
             })
         }
 
-        const checkPhoneNumberExist = await phoneDB.checkPhoneNumberExist(request.body.employeePhoneNumber)
-        if(checkPhoneNumberExist.length != 0)
+        const checkPhoneNumberExist = await isPhoneNumberExist(request.body.phoneNumber)
+        if(!checkPhoneNumberExist)
         {   
             return response.status(406).send({
                 accepted: false,
@@ -735,7 +739,7 @@ authRouter.post('/employees/sign-up', adminVerifyToken, fileValidation, async (r
         } 
         
 
-        const checkPassword = verify.checkEmptyInput(request.body.employeePassword)
+        const checkPassword = verify.checkEmptyInput(request.body.password)
         if(!checkPassword.accepted)
         {
             return response.status(406).send({
@@ -744,7 +748,7 @@ authRouter.post('/employees/sign-up', adminVerifyToken, fileValidation, async (r
             })
         }
 
-        const checkConfirmPassword = verify.checkEmptyInput(request.body.employeeConfirmPassword)
+        const checkConfirmPassword = verify.checkEmptyInput(request.body.confirmPassword)
         if(!checkConfirmPassword.accepted)
         {
             return response.status(406).send({
@@ -752,8 +756,7 @@ authRouter.post('/employees/sign-up', adminVerifyToken, fileValidation, async (r
                 message: checkConfirmPassword.message
             })
         }
-
-        if(request.body.employeePassword != request.body.employeeConfirmPassword)
+        if(request.body.password != request.body.confirmPassword)
         {
             return response.status(406).send({
                 accepted: false,
@@ -761,30 +764,24 @@ authRouter.post('/employees/sign-up', adminVerifyToken, fileValidation, async (r
             })
         }
 
-        
-
-        const file = request.files.employeeCriminalRecord
-        const fileSavePath = './employees-files/' + request.body.employeeFirstName + '-' + request.body.employeeLastName + '.png'
-        const fileUploading = await file.mv(fileSavePath)
-
         const addEmployee = await employeeDB.addEmployee(
-            request.body.employeeFirstName,
-            request.body.employeeLastName,
-            request.body.employeeAddress,
-            request.body.employeeNationalID,
-            bcrypt.hashSync(request.body.employeePassword, config.bcryptRounds),
-            fileSavePath,
+            request.body.firstName,
+            request.body.lastName,
+            request.body.phoneNumber,
+            request.body.address,
+            request.body.nationalID,
+            bcrypt.hashSync(request.body.password, config.bcryptRounds),
             new Date()
         )
 
-        const employeeData = await employeeDB.getEmployeeByNationalID(request.body.employeeNationalID)
-        const addEmployeePhone = await phoneDB.addEmployeePhoneNumberByID(request.body.employeePhoneNumber, employeeData[0].id)
+        const employeeData = await employeeDB.getEmployeeByNationalID(request.body.nationalID)
+        const addEmployeePhone = await phoneDB.addEmployeePhoneNumberByID(request.body.phoneNumber, employeeData[0].id)
 
 
         return response.status(200).send({
             accepted: true,
             message: 'account created successfully',
-            id: employeeData[0].id,
+            employee: employeeData[0],
             token: employeeJWT.sign({employeeID: employeeData[0].id}, config.employeeSecretKey, {expiresIn: '30d'})
         })
         
