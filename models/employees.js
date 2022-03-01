@@ -133,20 +133,12 @@ class Employee{
 
     async getEmployeeByNationalID(nationalID){
 
-        try{
-
-            const pool = await dbConnect()
-            const query = 'SELECT * FROM employees WHERE NationalID = $1'
-            const client = await pool.connect()
-            const employeeData = await client.query(query, [nationalID])
-            pool.end()
-            return employeeData.rows
-        }
-        catch(error)
-        {   
-            console.log(error.message)
-            return false
-        }
+        const pool = await dbConnect()
+        const query = 'SELECT * FROM employees WHERE NationalID = $1'
+        const client = await pool.connect()
+        const employeeData = await client.query(query, [nationalID])
+        pool.end()
+        return employeeData.rows
     }
 
     async setEmployeeDataByID(employeeID, firstName, lastName, phoneNumber, address, nationalID, criminalRecord)

@@ -766,9 +766,7 @@ authRouter.post('/employees', async (request, response, next)=>{
         )
 
         const employeeData = await employeeDB.getEmployeeByNationalID(request.body.nationalID)
-        const addEmployeePhone = await phoneDB.addEmployeePhoneNumberByID(request.body.phoneNumber, employeeData[0].id)
-
-
+        console.log(employeeData[0])
         return response.status(200).send({
             accepted: true,
             message: 'account created successfully',
@@ -792,7 +790,6 @@ authRouter.get('/employees/login', async (request, response)=>{
     try{
 
         const employeeData = await employeeDB.getEmployeeByPhoneNumber(request.body.employeePhoneNumber)
-        console.log(employeeData)
         if(employeeData.length == 0)
         {
             return response.status(406).send({
@@ -810,21 +807,12 @@ authRouter.get('/employees/login', async (request, response)=>{
             })
         }
 
-        const employeeInfo = {
-            firstname: employeeData[0].firstname,
-            lastname: employeeData[0].lastname,
-            address: employeeData[0].address,
-            nationalid: employeeData[0].nationalid,
-            phoneNumber: employeeData[0].phonenumber
-        }
-
         return response.status(200).send({
             accepted: true,
             message: 'login successfully',
-            employeeData: employeeInfo,
+            employeeData: employeeData[0],
             token: employeeJWT.sign({employeeID: employeeData[0].id}, config.employeeSecretKey, {expiresIn: '30d'})
         })
-
 
 
     }
