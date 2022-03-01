@@ -804,7 +804,7 @@ authRouter.get('/employees/login', async (request, response)=>{
     try{
 
         const employeeData = await employeeDB.getEmployeeByPhoneNumber(request.body.employeePhoneNumber)
-        
+        console.log(employeeData)
         if(employeeData.length == 0)
         {
             return response.status(406).send({

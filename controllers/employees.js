@@ -69,6 +69,88 @@ employeeRouter.get('/employees/orders/done', employeeVerifyToken, async (request
     }
 })
 
+employeeRouter.get('/employees/orders/:id', employeeVerifyToken, async (request, response) => {
+
+    try {
+
+        if(!request.params.id) {
+            return response.status(306).send({
+                accepted: false,
+                message: 'order id required'
+            }) 
+        }
+
+        const orderData = await orderDB.getOrderDataByID(request.params.id)
+
+        if(orderData.length == 0) {
+            return response.status(200).send({
+                accepted: true,
+                order: []
+            })
+        }
+
+        if(orderData[0].employeeid != request.employeeID) {
+            return response.status(401).send({
+                accepted: false,
+                message: 'unauthorized access'
+            }) 
+        }
+
+        return response.status(200).send({
+            accepted: true,
+            order: orderData
+        })
+
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
+employeeRouter.get('/employees/done-orders/:id', employeeVerifyToken, async (request, response) => {
+
+    try {
+
+        if(!request.params.id) {
+            return response.status(306).send({
+                accepted: false,
+                message: 'order id required'
+            }) 
+        }
+
+        const orderData = await doneOrderDB.getDoneOrderData(request.params.id)
+
+        if(orderData.length == 0) {
+            return response.status(200).send({
+                accepted: true,
+                order: []
+            }) 
+        }
+
+        if(orderData[0].employeeid != request.employeeID) {
+            return response.status(401).send({
+                accepted: false,
+                message: 'unauthorized access'
+            }) 
+        }
+
+        return response.status(200).send({
+            accepted: true,
+            order: orderData
+        })
+
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
 
 
 module.exports = employeeRouter

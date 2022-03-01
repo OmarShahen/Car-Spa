@@ -55,6 +55,31 @@ class DoneOrder {
         return orderData.rows
     }
 
+    async getDoneOrderData(orderID) {
+
+        const pool = await dbConnect()
+        const query = `
+            SELECT
+            customers.ID AS CustomerID, customers.username AS CustomerName, customers.phoneNumber AS CustomerPhoneNumber,
+            employees.ID AS EmployeeID, employees.FirstName AS EmployeeFirstName, employees.LastName AS EmployeeLastName,
+            employees.phoneNumber AS EmployeePhoneNumber, DoneOrders.OrderDate,
+            BookingTimes.BookTime, services.Name AS ServiceName, services.description AS ServiceDescription,
+            DoneOrders.rating, DoneOrders.OrderCreationDate, DoneOrders.longitude,
+            DoneOrders.latitude, DoneOrders.LocationName, DoneOrders.price
+            FROM DoneOrders 
+            INNER JOIN customers ON customers.ID = DoneOrders.CustomerID
+            INNER JOIN employees ON employees.ID = DoneOrders.EmployeeID
+            INNER JOIN BookingTimes ON BookingTimes.ID = DoneOrders.BookingTimeID
+            INNER JOIN services ON services.ID = DoneOrders.ServiceID
+            WHERE
+            DoneOrders.ID = $1
+        `
+        const client = await pool.connect()
+        const ordersData = await client.query(query, [orderID])
+        pool.end()
+        return ordersData.rows
+    }
+
     async rateDoneOrder(orderID, rate) {
 
         const pool = await dbConnect()

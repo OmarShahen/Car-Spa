@@ -311,7 +311,6 @@ customerRoute.delete('/tests/customers/:id', async (request, response) => {
 
     try {
 
-        console.log(request.params)
         const customer = await customerDB.deleteCustomersByID(request.params.id)
         
         if(!customer) {

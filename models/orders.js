@@ -43,6 +43,31 @@ class Order{
         }
     }
 
+    async getOrderDataByID(orderID) {
+
+        const pool = await dbConnect()
+        const query = `
+            SELECT
+            customers.ID AS CustomerID, customers.username AS CustomerName, customers.phoneNumber AS CustomerPhoneNumber,
+            employees.ID AS EmployeeID, employees.FirstName AS EmployeeFirstName, employees.LastName AS EmployeeLastName,
+            employees.phoneNumber AS EmployeePhoneNumber, orders.OrderDate,
+            BookingTimes.BookTime, services.Name AS ServiceName, services.description AS ServiceDescription,
+            orders.active, orders.rating, orders.OrderCreationDate, orders.longitude,
+            orders.latitude, orders.LocationName, orders.price
+            FROM orders 
+            INNER JOIN customers ON customers.ID = orders.CustomerID
+            INNER JOIN employees ON employees.ID = orders.EmployeeID
+            INNER JOIN BookingTimes ON BookingTimes.ID = orders.BookingTimeID
+            INNER JOIN services ON services.ID = orders.ServiceID
+            WHERE
+            orders.ID = $1
+        `
+        const client = await pool.connect()
+        const ordersData = await client.query(query, [orderID])
+        pool.end()
+        return ordersData.rows
+    }
+
     async getOrdersByDate(orderDate)
     {
         try{
