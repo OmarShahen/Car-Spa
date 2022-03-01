@@ -675,23 +675,15 @@ authRouter.post('/employees', async (request, response, next)=>{
 
     try{
 
-        const checkFirstName = await verify.checkName(request.body.firstName)
-        if(!checkFirstName.accepted)
+        const checkUserName = await verify.checkName(request.body.userName)
+        if(!checkUserName.accepted)
         {
             return response.status(406).send({
                 accepted: false,
-                message: checkFirstName.message
+                message: checkUserName.message
             })
         }
 
-        const checkLastName = await verify.checkName(request.body.lastName)
-        if(!checkLastName.accepted)
-        {
-            return response.status(406).send({
-                accepted: false,
-                message: checkLastName.message
-            })
-        }
 
         const checkAddress = verify.checkEmptyInput(request.body.address)
         if(!checkAddress.accepted)
@@ -765,8 +757,7 @@ authRouter.post('/employees', async (request, response, next)=>{
         }
 
         const addEmployee = await employeeDB.addEmployee(
-            request.body.firstName,
-            request.body.lastName,
+            request.body.userName,
             request.body.phoneNumber,
             request.body.address,
             request.body.nationalID,
