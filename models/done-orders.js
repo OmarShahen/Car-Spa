@@ -61,7 +61,7 @@ class DoneOrder {
         const query = `
             SELECT
             customers.ID AS CustomerID, customers.username AS CustomerName, customers.phoneNumber AS CustomerPhoneNumber,
-            employees.ID AS EmployeeID, employees.FirstName AS EmployeeFirstName, employees.LastName AS EmployeeLastName,
+            employees.ID AS EmployeeID, employees.userName AS EmployeeUserName,
             employees.phoneNumber AS EmployeePhoneNumber, DoneOrders.OrderDate,
             BookingTimes.BookTime, services.Name AS ServiceName, services.description AS ServiceDescription,
             DoneOrders.rating, DoneOrders.OrderCreationDate, DoneOrders.longitude,

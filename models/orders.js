@@ -43,7 +43,7 @@ class Order{
         const query = `
             SELECT
             customers.ID AS CustomerID, customers.username AS CustomerName, customers.phoneNumber AS CustomerPhoneNumber,
-            employees.ID AS EmployeeID, employees.FirstName AS EmployeeFirstName, employees.LastName AS EmployeeLastName,
+            employees.ID AS EmployeeID, employees.userName AS EmployeeUserName,
             employees.phoneNumber AS EmployeePhoneNumber, orders.OrderDate,
             BookingTimes.BookTime, services.Name AS ServiceName, services.description AS ServiceDescription,
             orders.active, orders.rating, orders.OrderCreationDate, orders.longitude,
