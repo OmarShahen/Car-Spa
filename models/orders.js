@@ -10,20 +10,14 @@ class Order{
 
     async getOrderByDateAndTime(orderDate, orderTime)
     {
-        try{
 
-            const pool = await dbConnect()
-            const query = 'SELECT * FROM orders WHERE OrderDate = $1 AND BookingTimeID = (SELECT ID FROM BookingTimes WHERE BookTime = $2)'
-            const client = await pool.connect()
-            const ordersData = await client.query(query, [orderDate, orderTime])
-            pool.end()
-            return ordersData.rows
-        }
-        catch(error)
-        {
-            console.log(error)
-            return false
-        }
+
+        const pool = await dbConnect()
+        const query = 'SELECT * FROM orders WHERE OrderDate = $1 AND BookingTimeID = (SELECT ID FROM BookingTimes WHERE BookTime = $2)'
+        const client = await pool.connect()
+        const ordersData = await client.query(query, [orderDate, orderTime])
+        pool.end()
+        return ordersData.rows
     }
 
     async getOrderByID(orderID) {
@@ -190,30 +184,23 @@ class Order{
 
     async getEmployeeDataAndOrders(employeeID){
 
-        try{
+        const pool = await dbConnect()
+        const query = `
+            SELECT
+            employees.userName, employees.PhoneNumber, employees.NationalID,
+            employees.AccountCreationDate, orders.ID, bookingTimes.BookTime, orders.OrderDate,
+            orders.rating
+            FROM orders
+            INNER JOIN employees ON employees.ID = orders.EmployeeID
+            INNER JOIN bookingTimes ON bookingTimes.ID = orders.BookingTimeID
+            WHERE orders.EmployeeID = $1
+            ORDER BY ID ASC
+        `
+        const client = await pool.connect()
+        const ordersData = await client.query(query, [employeeID])
+        pool.end()
+        return ordersData.rows
 
-            const pool = await dbConnect()
-            const query = `
-                SELECT
-                employees.FirstName, employees.LastName, employees.PhoneNumber, employees.NationalID,
-                employees.AccountCreationDate, orders.ID, bookingTimes.BookTime, orders.OrderDate,
-                orders.rating
-                FROM orders
-                INNER JOIN employees ON employees.ID = orders.EmployeeID
-                INNER JOIN bookingTimes ON bookingTimes.ID = orders.BookingTimeID
-                WHERE orders.EmployeeID = $1
-                ORDER BY ID ASC
-            `
-            const client = await pool.connect()
-            const ordersData = await client.query(query, [employeeID])
-            pool.end()
-            return ordersData.rows
-        }
-        catch(error)
-        {
-            console.log(error)
-            return false
-        }
     }
 
     // ss refers to the number of $n that will be queried 
@@ -332,7 +319,7 @@ class Order{
             const pool = await dbConnect()
             const query = `
                 SELECT 
-                employees.FirstName AS EmployeeFirstName, employees.LastName AS EmployeeLastName, orders.OrderDate,
+                employees.userName AS EmployeeName,  orders.OrderDate,
                 bookingTimes.BookTime, services.name AS ServiceName, services.description AS ServiceDescription, orders.id, orders.OrderCreationDate,
                 orders.LocationName, orders.longitude, orders.latitude, orders.price
                 FROM orders
@@ -362,7 +349,7 @@ class Order{
             const query = `
                 SELECT 
                 customers.FirstName AS CustomerFirstName, customers.LastName AS CustomerLastName,
-                employees.FirstName AS EmployeeFirstName, employees.LastName AS EmployeeLastName,
+                employees.userName AS EmployeeUserName,
                 orders.OrderDate, bookingTimes.BookTime,
                 services.name, orders.done, orders.rating,
                 orders.orderCreationDate, orders.cancelled
@@ -394,7 +381,7 @@ class Order{
             const query = `
                 SELECT
                 customers.userName,
-                employees.FirstName AS EmployeeFirstName, employees.LastName AS EmployeeLastName,
+                employees.userName AS EmployeeUserName,
                 orders.OrderDate, bookingTimes.BookTime,
                 services.name, orders.rating,
                 orders.orderCreationDate, orders.locationName,
@@ -427,7 +414,7 @@ class Order{
             const query = `
                 SELECT 
                 customers.FirstName AS CustomerFirstName, customers.LastName AS CustomerLastName,
-                employees.FirstName AS EmployeeFirstName, employees.LastName AS EmployeeLastName,
+                employees.userName AS EmployeeUserName,
                 orders.OrderDate, bookingTimes.BookTime,
                 services.name, orders.done, orders.rating,
                 orders.orderCreationDate, orders.cancelled

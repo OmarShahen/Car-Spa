@@ -22,9 +22,9 @@ const checkCustomerPackage = async (request, response, next) => {
                 console.log('Check if order creation date passed customer package expiration date')
 
                 const expirePackage = await customerPackageDB.expireCustomerPackage(customerPackage[0].id)
-                const serviceData = await serviceDB.getServiceByID(request.body.orderServiceID)
+                const serviceData = await serviceDB.getServiceByID(request.body.serviceID)
                 request.body.servicePrice = serviceData[0].price
-                request.body.orderServiceID = serviceData[0].id
+                request.body.serviceID = serviceData[0].id
 
                 return next()
                 
@@ -37,7 +37,7 @@ const checkCustomerPackage = async (request, response, next) => {
             if(orderDate.getTime() >= customerPackage[0].expirationdate.getTime()) {
 
                 console.log('Check if order booking time is after customer package expiration date')
-                const serviceData = await serviceDB.getServiceByID(request.body.orderServiceID)
+                const serviceData = await serviceDB.getServiceByID(request.body.serviceID)
                 request.body.servicePrice = serviceData[0].price
                 request.body.orderServiceID = serviceData[0].id
 
@@ -59,9 +59,9 @@ const checkCustomerPackage = async (request, response, next) => {
                 console.log('Check if customer used all packages number of available washes')
 
                 const expirePackage = await customerPackageDB.expireCustomerPackage(customerPackage[0].id)
-                const serviceData = await serviceDB.getServiceByID(request.body.orderServiceID)
+                const serviceData = await serviceDB.getServiceByID(request.body.serviceID)
                 request.body.servicePrice = serviceData[0].price
-                request.body.orderServiceID = serviceData[0].id
+                request.body.serviceID = serviceData[0].id
 
                 return next()
 
@@ -77,9 +77,9 @@ const checkCustomerPackage = async (request, response, next) => {
         } else {
 
             console.log('nothing happened')
-            const serviceData = await serviceDB.getServiceByID(request.body.orderServiceID)
+            const serviceData = await serviceDB.getServiceByID(request.body.serviceID)
             request.body.servicePrice = serviceData[0].price
-            request.body.orderServiceID = serviceData[0].id
+            request.body.serviceID = serviceData[0].id
 
             return next()
         }

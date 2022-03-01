@@ -203,6 +203,7 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
 authRouter.post('/customers/login', async (request, response)=>{
     try{
 
+        console.log(request.body)
         const checkEmail = verify.checkEmail(request.body.customerEmail)
         if(!checkEmail)
         {
@@ -221,7 +222,8 @@ authRouter.post('/customers/login', async (request, response)=>{
             })
         }
 
-
+        console.log('Here')
+        console.log(customerData)
         if(!bcrypt.compareSync(request.body.customerPassword, customerData[0].password))
         {
             return response.status(406).send({
@@ -229,6 +231,7 @@ authRouter.post('/customers/login', async (request, response)=>{
                 message: 'bad credentials'
             })
         }
+        console.log('After here')
 
         return response.status(200).send({
             accepted: true,
