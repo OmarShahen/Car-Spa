@@ -14,7 +14,7 @@ class DoneOrder {
         `
         const client = await pool.connect()
         const addDoneOrderData = await client.query(query, [customerID, employeeID, orderDate, bookingTimeID, serviceID, rating, orderCreationDate, longitude, latitude, locationName, price])
-        pool.end()
+        client.release()
 
         return true
     }
@@ -38,10 +38,9 @@ class DoneOrder {
         `
         const client = await pool.connect()
         const customerDoneOrders = await client.query(query, [customerID])
-        pool.end()
+        client.release()
 
         return customerDoneOrders.rows
-
     }
 
     async getDoneOrder(orderID) {
@@ -50,7 +49,7 @@ class DoneOrder {
         const query = `SELECT * FROM doneOrders WHERE ID = $1`
         const client = await pool.connect()
         const orderData = await client.query(query, [orderID])
-        pool.end()
+        client.release()
 
         return orderData.rows
     }
@@ -76,7 +75,8 @@ class DoneOrder {
         `
         const client = await pool.connect()
         const ordersData = await client.query(query, [orderID])
-        pool.end()
+        client.release()
+
         return ordersData.rows
     }
 
@@ -86,7 +86,7 @@ class DoneOrder {
         const query = `UPDATE doneOrders SET rating = $1 WHERE ID = $2`
         const client = await pool.connect()
         const orerRate = await client.query(query, [rate, orderID])
-        pool.end()
+        client.release()
 
         return true
     }
@@ -97,7 +97,7 @@ class DoneOrder {
         const query = `SELECT * FROM doneOrders WHERE CustomerID = $1 AND OrderDate = $2`
         const client = await pool.connect()
         const doneOrderData = await client.query(query, [customerID, orderDate])
-        pool.end()
+        client.release()
 
         return doneOrderData.rows
     }
@@ -121,10 +121,9 @@ class DoneOrder {
         `
         const client = await pool.connect()
         const employeeOrders = await client.query(query, [employeeID])
-        pool.end()
+        client.release()
 
         return employeeOrders.rows
-
     }
 
     async getCustomerPreviousLocations(customerID) {
@@ -133,10 +132,9 @@ class DoneOrder {
         const query = `SELECT LocationName, longitude, latitude FROM doneOrders WHERE CustomerID = $1`
         const client = await pool.connect()
         const customerLocations = await client.query(query, [customerID])
-        pool.end()
+        client.release()
 
         return customerLocations.rows
-
     }
 
     async getAvgerageRatingForEachEmployee(ss, employeesIDs) {
@@ -145,7 +143,7 @@ class DoneOrder {
         const query = 'SELECT AVG(rating), employeeID FROM doneOrders WHERE EmployeeID IN (' + ss + ') AND OrderDate > (SELECT MIN(AccountCreationDate) FROM employees) GROUP BY employeeID ORDER BY AVG DESC'
         const client = await pool.connect()
         const employeesAverage = await client.query(query, employeesIDs)
-        pool.end()
+        client.release()
 
         return employeesAverage.rows
     }
@@ -157,7 +155,7 @@ class DoneOrder {
         const query = 'SELECT COUNT(ID), EmployeeID FROM doneOrders WHERE EmployeeID IN (' + ss + ') AND OrderDate >= ' + orderDateSS + ' GROUP BY EmployeeID'
         const client = await pool.connect()
         const employeeData = await client.query(query, [...employeesIDs, orderDate])
-        pool.end()
+        client.release()
 
         return employeeData.rows
     }
@@ -168,7 +166,7 @@ class DoneOrder {
         const query = `SELECT * FROM doneOrders WHERE CustomerID = $1 AND OrderDate >= $2 AND OrderDate < $3`
         const client = await pool.connect()
         const customerPackages = await client.query(query, [customerID, fromDate, toDate])
-        pool.end()
+        client.release()
 
         return customerPackages.rows
     }

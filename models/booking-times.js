@@ -8,126 +8,78 @@ class BookingTime{
 
     async getAvailableTimes()
     {
-        try{
+        const pool = await dbConnect()
+        const query = 'SELECT * FROM BookingTimes WHERE available = TRUE ORDER BY BookTime ASC'
+        const client = await pool.connect()
+        const allAvailableTimes = await client.query(query)
+        client.release()
 
-            const pool = await dbConnect()
-            const query = 'SELECT * FROM BookingTimes WHERE available = TRUE ORDER BY BookTime ASC'
-            const client = await pool.connect()
-            const allAvailableTimes = await client.query(query)
-            pool.end()
-            return allAvailableTimes.rows
-        }
-        catch(error)
-        {
-            console.log(error)
-            return false
-        }
+        return allAvailableTimes.rows
     }
 
     async getAllBookingTimes()
     {
-        try{
+        const pool = await dbConnect()
+        const query = 'SELECT * FROM BookingTimes'
+        const client = await pool.connect()
+        const allTimes = await client.query(query)
+        client.release()
 
-            const pool = await dbConnect()
-            const query = 'SELECT * FROM BookingTimes'
-            const client = await pool.connect()
-            const allTimes = await client.query(query)
-            pool.end()
-            return allTimes.rows
-        }
-        catch(error)
-        {
-            console.log(error)
-            return false
-        }
+        return allTimes.rows
     }
 
     async work12HourMode()
     {
-        try{
+        const pool = await dbConnect()
+        const query = 'UPDATE BookingTimes SET available = FALSE WHERE ID >= 15'
+        const client = await pool.connect()
+        const isDataUpdated = await client.query(query)
+        client.release()
 
-            const pool = await dbConnect()
-            const query = 'UPDATE BookingTimes SET available = FALSE WHERE ID >= 15'
-            const client = await pool.connect()
-            const isDataUpdated = await client.query(query)
-            pool.end()
-            return true
-        }
-        catch(error)
-        {
-            console.log(error)
-            return false
-        }
+        return true
     }
     async work24HourMode()
     {
-        try{
+        const pool  = await dbConnect()
+        const query = 'UPDATE BookingTimes SET available = TRUE WHERE ID >= 15'
+        const client = await pool.connect()
+        const isDataUpdated = await client.query(query)
+        client.release()
 
-            const pool  = await dbConnect()
-            const query = 'UPDATE BookingTimes SET available = TRUE WHERE ID >= 15'
-            const client = await pool.connect()
-            const isDataUpdated = await client.query(query)
-            pool.end()
-            return true
-        }
-        catch(error)
-        {
-            console.log(error)
-            return false
-        }
+        return true
     }
 
     async getAvailableTimesFromHour(hour)
     {
-        try{
+        const pool = await dbConnect()
+        const query = 'SELECT * FROM BookingTimes WHERE BookTime > $1 AND available = TRUE ORDER BY BookTime ASC'
+        const client = await pool.connect()
+        const availableTimes = await client.query(query, [hour])
+        client.release()
 
-            const pool = await dbConnect()
-            const query = 'SELECT * FROM BookingTimes WHERE BookTime > $1 AND available = TRUE ORDER BY BookTime ASC'
-            const client = await pool.connect()
-            const availableTimes = await client.query(query, [hour])
-            pool.end()
-            return availableTimes.rows
-        }
-        catch(error)
-        {
-            console.log(error)
-            return false
-        }
+        return availableTimes.rows
     }
 
     async getTimeIDByTime(bookTime)
     {
-        try{
+        const pool = await dbConnect()
+        const query = 'SELECT * FROM BookingTimes WHERE BookTime = $1'
+        const client = await pool.connect()
+        const bookTimeData = await client.query(query, [bookTime])
+        client.release()
 
-            const pool = await dbConnect()
-            const query = 'SELECT * FROM BookingTimes WHERE BookTime = $1'
-            const client = await pool.connect()
-            const bookTimeData = await client.query(query, [bookTime])
-            pool.end()
-            return bookTimeData.rows
-        }
-        catch(error)
-        {
-            console.log(error)
-            return false
-        }
+        return bookTimeData.rows
     }
 
     async getAvailableTimeByTime(time) {
 
-        try {
+        const pool = await dbConnect()
+        const query = 'SELECT * FROM BookingTimes WHERE BookTime = $1'
+        const client = await pool.connect()
+        const bookTimeData = await client.query(query, [time])
+        client.release()
 
-            const pool = await dbConnect()
-            const query = 'SELECT * FROM BookingTimes WHERE BookTime = $1'
-            const client = await pool.connect()
-            const bookTimeData = await client.query(query, [time])
-            pool.end()
-            return bookTimeData.rows
-
-        } catch(error) {
-            console.error(error)
-            return false
-        }
+        return bookTimeData.rows
     }
 }
 

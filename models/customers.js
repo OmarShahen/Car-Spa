@@ -23,7 +23,8 @@ class Customer{
         const query = 'INSERT INTO customers (userName, email, password, phoneNumber, accountCreationDate) VALUES ($1, $2, $3, $4, $5)'
         const client = await pool.connect()
         const result = await client.query(query, [userName, email, password, phoneNumber, accountCreationDate])
-        pool.end()
+        client.release()
+
         return true
     }
 
@@ -33,7 +34,8 @@ class Customer{
         const query = `INSERT INTO customers(userName, email, googleID, phoneNumber, accountCreationDate) VALUES($1, $2, $3, $4, $5)`
         const client = await pool.connect()
         const result = await client.query(query, [userName, email, googleID, phoneNumber, accountCreationDate])
-        pool.end()
+        client.release()
+
         return result.rows
     }
 
@@ -44,7 +46,8 @@ class Customer{
         const query = `SELECT * FROM customers WHERE googleID = $1`
         const client = await pool.connect()
         const result = await client.query(query, [googleID])
-        pool.end()
+        client.release()
+
         return result.rows
     }
 
@@ -52,196 +55,129 @@ class Customer{
     // getCustomersData() is replaced by getAllCustomers()
     async getAllCustomers()
     {
-        try{
+        const pool = await dbConnect()
+        const query = 'SELECT ID, userName, email, phoneNumber, accountCreationDate FROM customers'
+        const client = await pool.connect()
+        const customersData = await client.query(query)
+        client.release()
 
-            const pool = await dbConnect()
-            const query = 'SELECT ID, userName, email, phoneNumber, accountCreationDate FROM customers'
-            const client = await pool.connect()
-            const customersData = await client.query(query)
-            pool.end()
-            return customersData.rows
-        }
-        catch(error){
-            console.log(error.message)
-            return false
-        }
+        return customersData.rows
     }
 
 
     async getNoOfCustomers()
     {
-        try{
 
-            const pool = await dbConnect()
-            const query = 'SELECT COUNT(ID) FROM customers'
-            const client = await pool.connect()
-            const noOfCustomers = await client.query(query)
-            pool.end()
-            return noOfCustomers.rows
-        }
-        catch(error)
-        {
-            console.log(error)
-            return false
+        const pool = await dbConnect()
+        const query = 'SELECT COUNT(ID) FROM customers'
+        const client = await pool.connect()
+        const noOfCustomers = await client.query(query)
+        client.release()
 
-        }
+        return noOfCustomers.rows
     }
 
     async getCustomerDataWithPhoneByID(customerID)
     {
-        try{
 
-            const pool = await dbConnect()
-            const query = `SELECT ID, UserName, email, password, PhoneNumber, AccountCreationDate
-                           FROM customers WHERE ID = $1`
-            const client = await pool.connect()
-            const customersData = await client.query(query, [customerID])
-            pool.end()
-            return customersData.rows
-        }
-        catch(error)
-        {
-            return error
-        }
+        const pool = await dbConnect()
+        const query = `SELECT ID, UserName, email, password, PhoneNumber, AccountCreationDate
+                        FROM customers WHERE ID = $1`
+        const client = await pool.connect()
+        const customersData = await client.query(query, [customerID])
+        client.release()
+
+        return customersData.rows
     }
-    async getCustomerByID(customerId)
-    {
-        try{
 
-            const pool = await dbConnect()
-            const query = 'SELECT ID, userName, email, password, phoneNumber, accountCreationDate FROM customers WHERE ID = $1'
-            const client = await pool.connect()
-            const customerData = await client.query(query, [customerId])
-            pool.end()
-            return customerData.rows
-        }
-        catch(error)
-        {
-            console.log(error.message)
-            return false
-        }
+    async getCustomerByID(customerId) {
+
+        const pool = await dbConnect()
+        const query = 'SELECT ID, userName, email, password, phoneNumber, accountCreationDate FROM customers WHERE ID = $1'
+        const client = await pool.connect()
+        const customerData = await client.query(query, [customerId])
+        client.release()
+
+        return customerData.rows
     }
 
     async getCustomerByEmail(customerEmail)
     {
-        try{
+        const pool = await dbConnect()
+        const query = 'SELECT ID, userName, email, password, phoneNumber, accountCreationDate FROM customers WHERE email = $1'
+        const client = await pool.connect()
+        const customerData = await client.query(query, [customerEmail])
+        client.release()
 
-            const pool = await dbConnect()
-            const query = 'SELECT ID, userName, email, password, phoneNumber, accountCreationDate FROM customers WHERE email = $1'
-            const client = await pool.connect()
-            const customerData = await client.query(query, [customerEmail])
-            pool.end()
-            return customerData.rows
-        }
-        catch(error)
-        {
-            console.log(error)
-            return false
-        }
+        return customerData.rows
     }
 
     async getCustomerByEmailAndPassword(customerEmail, customerPassword)
     {
-        try{
 
-            const pool = await dbConnect()
-            const query = 'SELECT ID, userName, email, phoneNumber, accountCreationDate FROM customers WHERE email = $1 AND password = $2'
-            const client = await pool.connect()
-            const customerData = await client.query(query, [customerEmail, customerPassword])
-            pool.end()
-            return customerData
-        }
-        catch(error)
-        {
-            console.log(error.message)
-            return false
-        }
+        const pool = await dbConnect()
+        const query = 'SELECT ID, userName, email, phoneNumber, accountCreationDate FROM customers WHERE email = $1 AND password = $2'
+        const client = await pool.connect()
+        const customerData = await client.query(query, [customerEmail, customerPassword])
+        client.release()
+
+        return customerData.rows
     }
 
     async setCustomersDataByID(customerID, email)
     {
-        try{
+        const pool = await dbConnect()
+        const query = 'UPDATE customers SET email = $1 WHERE ID = $2'
+        const client = await pool.connect()
+        const result = await client.query(query, [email, customerID])
+        client.release()
 
-            const pool = await dbConnect()
-            const query = 'UPDATE customers SET email = $1 WHERE ID = $2'
-            const client = await pool.connect()
-            const result = await client.query(query, [email, customerID])
-            pool.end()
-            return true
-        }
-        catch(error)
-        {
-            console.log(error.message)
-            return false
-        }
+        return true
     }
 
     async setCustomersDataByEmail(customerEmail, userName, email)
     {
-        try{
 
-            const pool = await dbConnect()
-            const query = 'UPDATE customers SET userName= $1 email = $2 WHERE email = $3'
-            const client = await pool.connect()
-            const result = await client.query(query, [userName, email, customerEmail])
-            pool.end()
-            return true
-        }
-        catch(error)
-        {
-            console.log(error.message)
-            return false
-        }
+        const pool = await dbConnect()
+        const query = 'UPDATE customers SET userName= $1 email = $2 WHERE email = $3'
+        const client = await pool.connect()
+        const result = await client.query(query, [userName, email, customerEmail])
+        client.release()
+
+        return true
     }
 
     async getCustomerByPhoneNumber(phoneNumber) 
     {
-        try {
+        const pool = await dbConnect()
+        const query = `SELECT * FROM customers WHERE PhoneNumber = $1`
+        const client = await pool.connect()
+        const customerData = await client.query(query, [phoneNumber])
+        client.release()
 
-            const pool = await dbConnect()
-            const query = `SELECT * FROM customers WHERE PhoneNumber = $1`
-            const client = await pool.connect()
-            const customerData = await client.query(query, [phoneNumber])
-            pool.end()
-            return customerData.rows
-        }
-        catch(error) {
-            console.log(error)
-            return false            
-        }
+        return customerData.rows
     }
 
     async deleteCustomersByID(customerID)
     {
-        try{
-            const pool = await dbConnect()
-            const query = 'DELETE FROM customers WHERE ID = $1'
-            const client = await pool.connect()
-            const result = await client.query(query, [customerID])
-            pool.end()
-            return true
-        }
-        catch(error)
-        {
-            console.log(error.message)
-            return false
-        }
+        const pool = await dbConnect()
+        const query = 'DELETE FROM customers WHERE ID = $1'
+        const client = await pool.connect()
+        const result = await client.query(query, [customerID])
+        client.release()
+
+        return true
     }
+
     async deleteCustomersByEmail(customerEmail)
     {
-        try{
-            const pool = await dbConnect()
-            const query = 'DELETE FROM customers WHERE email = $1'
-            const client = await pool.connect()
-            const result = await client.query(query, [customerEmail])
-            pool.end()
-            return true, result
-        }
-        catch(error)
-        {
-            console.log(error.message)
-            return false
-        }
+        const pool = await dbConnect()
+        const query = 'DELETE FROM customers WHERE email = $1'
+        const client = await pool.connect()
+        const result = await client.query(query, [customerEmail])
+        client.release()
+        
+        return true, result
     }
 
 }
