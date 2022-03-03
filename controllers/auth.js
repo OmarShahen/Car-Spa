@@ -792,7 +792,9 @@ authRouter.post('/employees', async (request, response, next)=>{
 authRouter.get('/employees/login', async (request, response)=>{
     try{
 
-        const employeeData = await employeeDB.getEmployeeByPhoneNumber(request.body.employeePhoneNumber)
+        console.log(request.query)
+
+        const employeeData = await employeeDB.getEmployeeByPhoneNumber(request.query.phone)
         if(employeeData.length == 0)
         {
             return response.status(406).send({
@@ -801,7 +803,7 @@ authRouter.get('/employees/login', async (request, response)=>{
             })
         }
 
-        const isPasswordValid = bcrypt.compareSync(request.body.employeePassword, employeeData[0].password)
+        const isPasswordValid = bcrypt.compareSync(request.query.password, employeeData[0].password)
         if(!isPasswordValid)
         {
             return response.status(406).send({
@@ -821,7 +823,7 @@ authRouter.get('/employees/login', async (request, response)=>{
     }
     catch(error)
     {
-        console.log(error)
+        console.error(error)
         return response.status(500).send({
             accepted: false,
             message: 'internal server error'
