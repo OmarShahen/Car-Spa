@@ -2,7 +2,6 @@
 const customerRoute = require('express').Router()
 const { customerVerifyToken } = require('../middleware/authority')
 const customerDB = require('../models/customers')
-const phoneDB = require('../models/phones')
 const adminDB = require('../models/admins')
 const orderDB = require('../models/orders')
 const doneOrderDB = require('../models/done-orders')
