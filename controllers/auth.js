@@ -792,8 +792,6 @@ authRouter.post('/employees', async (request, response, next)=>{
 authRouter.get('/employees/login', async (request, response)=>{
     try{
 
-        console.log(request.query)
-
         const employeeData = await employeeDB.getEmployeeByPhoneNumber(request.query.phone)
         if(employeeData.length == 0)
         {
