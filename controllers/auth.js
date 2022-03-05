@@ -796,7 +796,8 @@ authRouter.get('/employees/login', async (request, response)=>{
         {
             return response.status(406).send({
                 accepted: false,
-                message: 'this phone number does not exist'
+                message: 'this phone number does not exist',
+                field: 'phone'
             })
         }
 
@@ -805,7 +806,8 @@ authRouter.get('/employees/login', async (request, response)=>{
         {
             return response.status(406).send({
                 accepted: false,
-                message: 'bad credentials'
+                message: 'bad credentials',
+                field: 'password'
             })
         }
 

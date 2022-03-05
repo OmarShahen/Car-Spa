@@ -58,6 +58,12 @@ require('./socket-controller/notifications')(io)
 require('./socket-controller/employees')(io)
 require('./socket-controller/customers')(io)
 
+io.on('connection', socket => {
+    console.log('socket connected')
+
+    socket.on('test', data => console.log(data))
+})
+
 app.get('/', (request, response)=>{
     console.log(request.headers.host)
     return response.sendFile(path.join(__dirname + '/customer.html'))
