@@ -50,6 +50,9 @@ app.use('/api', services)
 const packages = require('./controllers/packages')
 app.use('/api', packages)
 
+// Socket middleware
+//require('./socket-middleware/auth.js')(io)
+
 
 // Socket Part
 require('./socket-controller/orders')(io)
@@ -59,13 +62,18 @@ require('./socket-controller/employees')(io)
 require('./socket-controller/customers')(io)
 
 io.on('connection', socket => {
+
+    /*io.use((socket, next) => {
+        console.log(socket.handshake.auth)
+        next()
+    })*/
+
     console.log('socket connected')
 
     socket.on('test', data => console.log(data))
 })
 
 app.get('/', (request, response)=>{
-    console.log(request.headers.host)
     return response.sendFile(path.join(__dirname + '/customer.html'))
 })
 

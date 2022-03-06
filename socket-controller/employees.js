@@ -2,54 +2,41 @@
 const config = require('../config/config')
 const employeeToken = require('jsonwebtoken')
 const orderDB = require('../models/orders')
+const employeeDB = require('../models/employees')
+const { employeeAuth } = require('../socket-middleware/auth')
 
-const isValidToken = async (token)=>{
-
-    let functionReturn = ''
-    employeeToken.verify(token, config.employeeSecretKey, (error, decoded)=>{
-        if(error)
-        {
-            functionReturn = false
-        }
-        functionReturn = decoded
-    })
-
-    return functionReturn
-}
 
 
 module.exports = io => {
 
-    const employeeNSP = io.of('/orders')
+    const employeeNSP = io.of('/employees')
+    
+
+    // Employee Socket Auth
+
+    employeeAuth(employeeNSP)
 
     employeeNSP.on('connection', socket => {
         
         try {
 
-            socket.on('employee-login', async employeeData => {
+            employeeDB.setEmployeeActive(socket.employeeID)
 
-            const employeeDecodedToken = await isValidToken(employeeData.accessToken)
+            socket.join(`${socket.employeeID}`)
 
-            if(!employeeDecodedToken) {
-
-                return socket.emit('error', {
-                    accepted: false,
-                    message: 'invalid access to data'
-                })
-            }
-
-            console.log(employeeDecodedToken.employeeID)
-
-            socket.join(`${ employeeDecodedToken.employeeID }`)
-
+            socket.on('disconnect', () => {
+                employeeDB.setEmployeeNotActive(socket.employeeID)
             })
 
         } catch(error) {
             console.error(error)
-            return socket.emit('error', {
+            socket.emit('error', {
                 accepted: false,
                 message: 'internal server error'
             })
         }
+
     })
+
+
 }

@@ -25,7 +25,11 @@
 
     </div>
     <script>
-        const socketIO = io('/orders')
+        const socketIO = io('/employees', {
+            auth: {
+                token: 'abc'
+            }
+        })
 
         const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbXBsb3llZUlEIjoiMTUiLCJpYXQiOjE2NDQxNTM1NjEsImV4cCI6MTY0Njc0NTU2MX0.FgYzRv6Gs0sTMoRWAfLrJc1qm7Nx90-7OyA9P1eHqDg'
 

@@ -67,7 +67,11 @@
 
 
 <script>
-    const socketIO = io()
+    const socketIO = io({
+        auth: {
+            token: 'abc'
+        }
+    })
     socketIO.emit('offer', {data: 'maintenance'})
 </script>
 </html>
