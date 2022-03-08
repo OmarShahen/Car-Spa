@@ -1,43 +1,27 @@
 {
-    "namespace": "https://car-spa.io/",
-    "events": [
-
-        /*
-        * "maintenance" event should be triggered from the client 
-        * to the server then the server will trigger the "maintenance" 
-        * in the client to receive notification
-        */
-
-        {
-            "event": "maintenance",
-            "type": "on",
-            "data": "none",
-            "owner": "server"
-        },
-        {
-            "event": "maintenance",
-            "type": "emit",
-            "data": { "message": "string" },
-            "owner": "client"
-        },
-
-        /*
-        * "offer" event should be triggered from the client 
-        * to the server then the server will trigger the "offer" 
-        * in the client to receive notification
-        */
-
-        {
-            "event": "offer",
-            "type": "on",
-            "data": "none",
-            "owner": "server"
-        },
-        {
-           "event": "offer",
-           "type": "emit",
-           "data": { "message": "string" },
-           "owner": "client"  
+    "info": {
+        "title": "CAR-SPA WEB-SOCKET API",
+        "version": "1.0.0",
+        "date": "3/7/2022"
+    },
+    "server": {
+        "production": {
+            "host": "https://car-spa.io" 
         }
-    ]
+    },
+    "namespace": {
+        "url": "/employees?token=accessToken",
+        "events": [
+            {
+                "on": "test",
+                "location": "server",
+                "message": {
+                    "description": "This event is for testing purposes",
+                    "acknowledgement": {
+                        "message": "successful testing"
+                    }
+                }
+            }
+        ]
+    }
 }

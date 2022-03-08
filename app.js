@@ -63,14 +63,12 @@ require('./socket-controller/customers')(io)
 
 io.on('connection', socket => {
 
-    /*io.use((socket, next) => {
-        console.log(socket.handshake.auth)
-        next()
-    })*/
-
-    console.log('socket connected')
-
-    socket.on('test', data => console.log(data))
+    socket.on('test', (message, callback) => {
+        console.log(message)
+        callback({
+            message: 'successful testing'
+        })
+    })
 })
 
 app.get('/', (request, response)=>{

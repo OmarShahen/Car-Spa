@@ -22,7 +22,7 @@ module.exports = io => {
 
             employeeDB.setEmployeeActive(socket.employeeID)
 
-            socket.join(`${socket.employeeID}`)
+            socket.join(`${ socket.employeeID }`)
 
             socket.on('disconnect', () => {
                 employeeDB.setEmployeeNotActive(socket.employeeID)
