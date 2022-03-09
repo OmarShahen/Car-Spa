@@ -10,13 +10,16 @@
         }
     },
     "namespace": {
-        "url": "/employees?token=accessToken",
+        "url": "/",
         "events": [
             {
                 "on": "test",
                 "location": "server",
                 "message": {
                     "description": "This event is for testing purposes",
+                    "payload": {
+                        "message": "string"
+                    },
                     "acknowledgement": {
                         "message": "successful testing"
                     }

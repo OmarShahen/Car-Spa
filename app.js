@@ -63,6 +63,9 @@ require('./socket-controller/customers')(io)
 
 io.on('connection', socket => {
 
+    console.log(socket)
+    console.log('socket connected')
+
     socket.on('test', (message, callback) => {
         console.log(message)
         callback({
