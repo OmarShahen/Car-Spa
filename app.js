@@ -1,6 +1,5 @@
 const app = require('express')()
 const http = require('http').Server(app)
-const io = require('socket.io')(http)
 const express = require('express')
 const morgan = require('morgan')
 const bodyParser = require('body-parser')
@@ -9,13 +8,19 @@ const path = require('path')
 const config = require('./config/config')
 const flash = require('req-flash')
 const session = require('express-session')
-
+const cors = require('cors')
+const io = require('socket.io')(http, {
+    cors: {
+      origin: "*"
+    }
+  })
 
 
 
 
 // Middlewares
 app.use(morgan('dev'))
+app.use(cors())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(fileUpload())
@@ -60,6 +65,7 @@ require('./socket-controller/orders-beta')(io)
 require('./socket-controller/notifications')(io)
 require('./socket-controller/employees')(io)
 require('./socket-controller/customers')(io)
+
 
 io.on('connection', socket => {
 
