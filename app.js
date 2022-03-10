@@ -77,6 +77,10 @@ io.on('connection', socket => {
         callback({
             message: 'successful testing'
         })
+
+    socket.emit('test', {
+        message: 'tested successfully!'
+    })
     })
 })
 

@@ -68,5 +68,12 @@
 
 <script>
     const socketIO = io('https://car-spa.io')
+    
+    socketIO.emit('test', {
+        message:'hey'
+    })
+
+    socketIO.on('test', data => console.log(data))
+
 </script>
 </html>
