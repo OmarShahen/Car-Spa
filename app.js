@@ -15,6 +15,8 @@ const io = require('socket.io')(http, {
     }
   })
 
+//const io = require('socket.io')(http)
+
 
 
 
@@ -72,11 +74,9 @@ io.on('connection', socket => {
     console.log(socket)
     console.log('socket connected')
 
-    socket.on('test', (message, callback) => {
+    socket.on('test', (message) => {
         console.log(message)
-        callback({
-            message: 'successful testing'
-        })
+        
 
     socket.emit('test', {
         message: 'tested successfully!'
