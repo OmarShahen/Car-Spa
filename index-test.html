@@ -26,7 +26,19 @@
 
 
 <script>
-    const socketIO = io('http://localhost:5000')
+    const socket = new WebSocket('ws://echo.websocket.org')
+    socket.onopen = event => {
+        console.log('connection established')
+    }
+
+    socket.onclose = event => {
+        console.log('error occurred: ', event)
+    }
+</script>
+
+<!--
+<script>
+    const socketIO = io('wss://car-spa.io')
     
     socketIO.emit('test', {
         message:'hey'
@@ -34,5 +46,5 @@
 
     socketIO.on('test', data => console.log(data))
 
-</script>
+</script>-->
 </html>
