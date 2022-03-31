@@ -13,7 +13,7 @@ class Admin{
 
     async addAdmin(firstName, lastName, email, password)
     {
-        pool = await dbConnect()
+        const pool = await dbConnect()
         const query = 'INSERT INTO admins (FirstName, LastName, email, password) VALUES ($1, $2, $3, $4)'
         const client = await pool.connect()
         const result = await client.query(query, [firstName, lastName, email, password])
