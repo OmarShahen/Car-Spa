@@ -9,13 +9,13 @@ const config = require('./config/config')
 const flash = require('req-flash')
 const session = require('express-session')
 const cors = require('cors')
-const io = require('socket.io')(http, {
+/*const io = require('socket.io')(http, {
     cors: {
       origin: "*"
     }
-  })
+  })*/
 
-//const io = require('socket.io')(http)
+const io = require('socket.io')(http)
 
 
 
@@ -62,27 +62,13 @@ app.use('/api', packages)
 
 
 // Socket Part
-require('./socket-controller/orders')(io)
+
+//require('./socket-controller/orders')(io)
 require('./socket-controller/orders-beta')(io)
 require('./socket-controller/notifications')(io)
 require('./socket-controller/employees')(io)
 require('./socket-controller/customers')(io)
 
-
-io.on('connection', socket => {
-
-    console.log(socket)
-    console.log('socket connected')
-
-    socket.on('test', (message) => {
-        console.log(message)
-        
-
-    socket.emit('test', {
-        message: 'tested successfully!'
-    })
-    })
-})
 
 app.get('/', (request, response)=>{
     return response.sendFile(path.join(__dirname + '/customer.html'))

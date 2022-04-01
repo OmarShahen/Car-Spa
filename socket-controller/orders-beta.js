@@ -343,9 +343,9 @@ const getHighestRating = (ordersRating) => {
 
 module.exports = (io) => {
 
-    const orderNSP = io.of('/orders')
 
-    orderNSP.on('connection', socket => {
+    io.of('/orders').on('connection', socket => {
+        console.log('connected in orders namespace')
         
         socket.on('book-now', async (orderData) => {
 
@@ -750,7 +750,27 @@ module.exports = (io) => {
             }
         })
 
+        socket.on('order:start', async requestData => {
 
+            try {
+
+                if(!requestData.orderID) {
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'internal server error'
+                    })
+                }
+
+                console.log(requestData)
+
+            } catch(error) {
+                console.error(error)
+                return socket.emit('error', {
+                    accepted: false,
+                    message: 'internal server error'
+                })
+            }
+        })
 
     })
 

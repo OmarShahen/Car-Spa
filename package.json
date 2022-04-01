@@ -34,7 +34,7 @@
     "morgan": "^1.10.0",
     "pg": "^8.6.0",
     "req-flash": "0.0.3",
-    "socket.io": "^4.4.1",
+    "socket.io": "^3.0.0",
     "socket.io-client": "^4.4.1",
     "twilio": "^3.66.1"
   }

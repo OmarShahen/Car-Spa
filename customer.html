@@ -38,6 +38,19 @@
             </form>
         </div>
     </div>
+
+    <script>
+        const socketIO = io('/order')
+
+        console.log('hey')
+        
+        socketIO.emit('employee-order-start', {
+            orderID: 3
+        })
+    
+        socketIO.on('error', data => console.log(data))
+    
+    </script>
     
 </body>
 <!--
@@ -66,15 +79,4 @@
 
 </script>-->
 
-
-<script>
-    const socketIO = io('https://car-spa.io')
-    
-    socketIO.emit('test', {
-        message:'hey'
-    })
-
-    socketIO.on('test', data => console.log(data))
-
-</script>
 </html>
