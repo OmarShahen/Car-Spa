@@ -21,22 +21,7 @@
 <body>
 
     <div class="container">
-        <div style="text-align: center;margin-top: 5rem;">
-            <form id="book-now-form">
-                <div class="form-group">
-                    <input type="text" class="form-control" id="customer-token" placeholder="Customer Token">
-                </div>
-                <div class="form-group">
-                    <input type="text" class="form-control" id="book-date" placeholder="Book Date">
-                </div>
-                <div class="form-group">
-                    <input type="text" class="form-control" id="book-time" placeholder="Book Time">
-                </div>
-                <div>
-                    <input type="submit" value="submit" class="btn btn-primary">
-                </div>
-            </form>
-        </div>
+        <button class="btn btn-primary" id="notification-btn">send notification</button>
     </div>
     
 </body>
@@ -45,11 +30,11 @@
 <script>
     const socketIO = io()
     
-    socketIO.emit('test-1', {
-        message:'hey'
+    document.querySelector('#notification-btn').addEventListener('click', () => {
+        socketIO.emit('init-test', { message: 'init test function' })
     })
 
-    socketIO.on('test-2', data => console.log(data))
+    socketIO.on('test', data => console.log(data))
 
 </script>
 </html>
