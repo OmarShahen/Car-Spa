@@ -10,8 +10,10 @@ app.get('/', (request, response) => {
 io.on('connection', socket => {
     console.log('socket connected')
 
+    socket.join('test')
+
     socket.on('init-test', data => {
-        socket.emit('test', {
+        socket.to('test').emit('test', {
             message: 'hey medhat'
         })
     })
