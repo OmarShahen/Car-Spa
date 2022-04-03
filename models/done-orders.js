@@ -13,7 +13,7 @@ class DoneOrder {
             ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         `
         const client = await pool.connect()
-        const addDoneOrderData = await client.query(query, [customerID, employeeID, orderDate, bookingTimeID, serviceID, rating, orderCreationDate, longitude, latitude, locationName, price])
+        const addDoneOrderData = await client.query(query, [customerID, employeeID, orderDate, bookingTimeID, serviceID, orderCreationDate, longitude, latitude, locationName, price, rating])
         client.release()
 
         return true

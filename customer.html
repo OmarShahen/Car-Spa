@@ -40,16 +40,29 @@
     </div>
 
     <script>
-        const socketIO = io('/order')
+        const socketIO = io('/orders')
 
-        console.log('hey')
+        console.log('done')
         
-        socketIO.emit('employee-order-start', {
-            orderID: 3
+        socketIO.emit('orders:customers:join', {
+            customerID: 14,
+            orderID: 277
         })
+
+        socketIO.on('orders:start', data => console.log(data))
+
+        socketIO.on('orders:rate', data => console.log(data))
+
+        socketIO.on('orders:late', data => console.log(data))
     
         socketIO.on('error', data => console.log(data))
     
+    </script>
+
+    <script>
+        const globalSocket = io()
+
+        globalSocket.emit('maintenance', {})
     </script>
     
 </body>

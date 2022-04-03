@@ -23,6 +23,12 @@
 <body>
     <div id="body">
 
+        <div class="container">
+            <button id="employee-login-btn" class="btn btn-primary">employee login</button>
+            <button id="start-order-btn" class="btn btn-primary">start order</button>
+            <button id="late-order-btn" class="btn btn-primary">late arrival</button>
+            <button id="confirm-order-btn" class="btn btn-primary">confirm order</button>
+        </div>
     </div>
     <!--<script>
         const socketIO = io('/orders')
@@ -71,7 +77,46 @@
 
     <script>
         const socketIO = io('/orders')
-        console.log('done')
+
+        const loginBtn = document.querySelector('#employee-login-btn')
+        loginBtn.addEventListener('click', e => {
+            socketIO.emit('orders:employees:join', {
+                employeeID: 20,
+                orderID: 277
+            })
+        })
+
+        const startOrderBtn = document.querySelector('#start-order-btn')
+        startOrderBtn.addEventListener('click', e => {
+            socketIO.emit('orders:start', {
+                orderID: 277
+            })
+        })
+
+        const lateOrderBtn = document.querySelector('#late-order-btn')
+        lateOrderBtn.addEventListener('click', e => {
+            socketIO.emit('orders:late', {
+                orderID: 277
+            })
+        })
+
+        const confirmOrderBtn = document.querySelector('#confirm-order-btn')
+        confirmOrderBtn.addEventListener('click',  e => {
+            socketIO.emit('orders:confirm', {
+                orderID: 277
+            })
+        })
+
+        socketIO.on('error', error => console.log(error))
+
+    </script>
+
+    <script>
+
+        const globalSocket = io()
+        console.log('in global scope')
+
+        globalSocket.on('maintenance', data => console.log(data))
 
     </script>
 

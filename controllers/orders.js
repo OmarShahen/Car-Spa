@@ -865,8 +865,6 @@ orderRoute.put('/orders/done/rate/:orderID/:rate', customerVerifyToken, async (r
     try {
 
         const doneOrderData = await doneOrderDB.getDoneOrder(request.params.orderID)
-
-        console.log(doneOrderData)
         
         if(doneOrderData.length == 0) {
 

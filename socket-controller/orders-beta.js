@@ -347,7 +347,7 @@ module.exports = (io) => {
     io.of('/orders').on('connection', socket => {
         console.log('connected in orders namespace')
         
-        socket.on('book-now', async (orderData) => {
+        socket.on('book:now', async (orderData) => {
 
             try {
 
@@ -450,12 +450,12 @@ module.exports = (io) => {
                             bookingTime[0].id
                         )
 
-                        socket.emit('book-now', {
+                        socket.emit('book:now', {
                             accepted: true,
                             orderData: assignedOrderData[0]
                         })
 
-                        return socket.to(`${ missingEmployee[0] }`).emit('book-now', {
+                        return socket.to(`${ missingEmployee[0] }`).emit('book:now', {
                             accepted: true,
                             orderData: assignedOrderData[0]
                         })
@@ -508,12 +508,12 @@ module.exports = (io) => {
                             bookingTime[0].id
                         )
 
-                        socket.emit('book-now', {
+                        socket.emit('book:now', {
                             accepted: true,
                             orderData: assignedOrderData[0]
                         })
 
-                        return socket.to(`${ lowestTotalOrdersEmployees[0].employeeid }`).emit('book-now', {
+                        return socket.to(`${ lowestTotalOrdersEmployees[0].employeeid }`).emit('book:now', {
                             accepted: true,
                             orderData: assignedOrderData[0]
                         })
@@ -556,12 +556,12 @@ module.exports = (io) => {
                         bookingTime[0].id
                     )
 
-                    socket.emit('book-now', {
+                    socket.emit('book:now', {
                         accepted: true,
                         orderData: assignedOrderData[0]
                     })
 
-                    return socket.to(`${ highestRatingEmployees[0].employeeid }`).emit('book-now', {
+                    return socket.to(`${ highestRatingEmployees[0].employeeid }`).emit('book:now', {
                         accepted: true,
                         orderData: assignedOrderData[0]
                     })
@@ -750,7 +750,70 @@ module.exports = (io) => {
             }
         })
 
-        socket.on('order:start', async requestData => {
+        socket.on('orders:customers:join', async requestData => {
+
+            try {
+
+                if(!requestData.customerID) {
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'customer ID is required'
+                    })
+                }
+
+
+                const customer = await customerDB.getCustomerByID(requestData.customerID)
+                
+                if(customer.length == 0) {
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'invalid customer id'
+                    })
+                }
+
+                return socket.join(customer.id)
+
+            }  catch(error) {
+                console.error(error)
+                return socket.emit('error', {
+                    accepted: false,
+                    message: 'internal server error'
+                })
+            }
+        })
+
+        socket.on('orders:employees:join', async requestData => {
+
+            try {
+
+                if(!requestData.employeeID) {
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'employee ID is required'
+                    })
+                }
+
+                const employee = await employeeDB.getEmployeeByID(requestData.employeeID)
+
+                if(employee.length ==  0) {
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'employee ID is invalid'
+                    })
+                }
+
+                return socket.join(employee.id)
+
+            } catch(error) {
+                console.error(error)
+                return socket.emit('error', {
+                    accepted: false,
+                    message: 'internal server error'
+                })
+            }
+        })
+
+        socket.on('orders:start', async requestData => {
 
             try {
 
@@ -761,7 +824,105 @@ module.exports = (io) => {
                     })
                 }
 
-                console.log(requestData)
+                const order = await orderDB.getOrderByID(requestData.orderID)
+
+                if(order.length == 0) {
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'invalid order id'
+                    })
+                }
+
+                const activateOrder = await orderDB.setOrderToActive(order[0].id)
+        
+                return socket.in(order.customerID).emit('orders:start', {
+                    message: 'our employee is on his way',
+                    accepted: true
+                })
+
+            } catch(error) {
+                console.error(error)
+                return socket.emit('error', {
+                    accepted: false,
+                    message: 'internal server error'
+                })
+            }
+        })
+
+        socket.on('orders:late', async requestData => {
+
+            try {
+
+                if(!requestData.orderID) {
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'order ID is required'
+                    })
+                }
+
+                const order = await orderDB.getOrderByID(requestData.orderID)
+
+                if(order.length == 0) {
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'invalid order id'
+                    })
+                }
+
+                return socket.to(order.customerID).emit('orders:late', {
+                    message: 'our employee might be late'
+                })
+
+            } catch(error) {
+                console.error(error)
+                return socket.emit('error', {
+                    accepted: false,
+                    message: 'internal server error'
+                })
+            }
+        })
+
+        socket.on('orders:confirm', async requestData => {
+
+            try {
+
+                if(!requestData.orderID) {
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'order ID is required'
+                    })
+                }
+
+                const order = await orderDB.getOrderByID(requestData.orderID)
+
+                if(order.length == 0) {
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'invalid order ID'
+                    })
+                }
+
+                const doneOrderData = {
+                    customerid: order[0].customerid,
+                    employeeid: order[0].employeeid,
+                    orderdate: order[0].orderdate,
+                    bookingtimeid: order[0].bookingtimeid,
+                    serviceid: order[0].serviceid,
+                    ordercreationdate: order[0].ordercreationdate,
+                    longitude: order[0].longitude,
+                    latitude: order[0].latitude,
+                    locationname: order[0].locationname,
+                    price: Number(order[0].price),
+                    rating: 5
+                }   
+
+                const doneOrder = await doneOrderDB.addDoneOrder(doneOrderData)
+
+                //const delOrder = await orderDB.deleteOrderByID(requestData.orderID)
+
+                return socket.to(order.customerid).emit('orders:rate', {
+                    message: 'please rate your wash experience'
+                })
 
             } catch(error) {
                 console.error(error)
