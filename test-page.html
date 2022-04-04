@@ -93,7 +93,7 @@
         const loginBtn = document.querySelector('#employee-login-btn')
         loginBtn.addEventListener('click', e => {
             socketIO.emit('orders:employees:join', {
-                employeeID: 20,
+                employeeID: employeeID,
                 orderID: orderID
             })
         })
