@@ -21,33 +21,35 @@
 <body>
 
     <div class="container">
-        <div style="text-align: center;margin-top: 5rem;">
-            <form id="book-now-form">
-                <div class="form-group">
-                    <input type="text" class="form-control" id="customer-token" placeholder="Customer Token">
-                </div>
-                <div class="form-group">
-                    <input type="text" class="form-control" id="book-date" placeholder="Book Date">
-                </div>
-                <div class="form-group">
-                    <input type="text" class="form-control" id="book-time" placeholder="Book Time">
-                </div>
-                <div>
-                    <input type="submit" value="submit" class="btn btn-primary">
-                </div>
-            </form>
-        </div>
+       
+        <input type="text" id="order-id-input" placeholder="order id"><br>
+        <input type="text" id="customer-id-input" placeholder="customer id"><br>
+        <button class="btn btn-primary" id="join-btn">join</button>
     </div>
 
     <script>
         const socketIO = io('/orders')
 
         console.log('done')
-        
-        socketIO.emit('orders:customers:join', {
-            customerID: 14,
-            orderID: 277
+
+        let orderID
+        let customerID
+
+        document.querySelector('#order-id-input').addEventListener('change', e => {
+            orderID = e.target.value
         })
+
+        document.querySelector('#customer-id-input').addEventListener('change', e => {
+            customerID = e.target.value
+        })
+
+        document.querySelector('#join-btn').addEventListener('click', e => {
+            socketIO.emit('orders:customers:join', {
+            customerID: customerID,
+            orderID: orderID
+            })
+        })
+        
 
         socketIO.on('orders:start', data => console.log(data))
 

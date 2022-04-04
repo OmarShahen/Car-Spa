@@ -24,9 +24,11 @@
     <div id="body">
 
         <div class="container">
-            <button id="employee-login-btn" class="btn btn-primary">employee login</button>
-            <button id="start-order-btn" class="btn btn-primary">start order</button>
-            <button id="late-order-btn" class="btn btn-primary">late arrival</button>
+            <input type="text" id="order-id-input" placeholder="Order ID"><br>
+            <input type="text" id="employee-id-input" placeholder="Employee ID"><br>
+            <button id="employee-login-btn" class="btn btn-primary">employee login</button><br>
+            <button id="start-order-btn" class="btn btn-primary">start order</button><br>
+            <button id="late-order-btn" class="btn btn-primary">late arrival</button><br>
             <button id="confirm-order-btn" class="btn btn-primary">confirm order</button>
         </div>
     </div>
@@ -78,32 +80,42 @@
     <script>
         const socketIO = io('/orders')
 
+        let orderID
+        document.querySelector('#order-id-input').addEventListener('change', e => {
+            orderID = e.target.value
+        })
+
+        let employeeID
+        document.querySelector('#employee-id-input').addEventListener('change', e => {
+            employeeID = e.target.value
+        })
+
         const loginBtn = document.querySelector('#employee-login-btn')
         loginBtn.addEventListener('click', e => {
             socketIO.emit('orders:employees:join', {
                 employeeID: 20,
-                orderID: 277
+                orderID: orderID
             })
         })
 
         const startOrderBtn = document.querySelector('#start-order-btn')
         startOrderBtn.addEventListener('click', e => {
             socketIO.emit('orders:start', {
-                orderID: 277
+                orderID: orderID
             })
         })
 
         const lateOrderBtn = document.querySelector('#late-order-btn')
         lateOrderBtn.addEventListener('click', e => {
             socketIO.emit('orders:late', {
-                orderID: 277
+                orderID: orderID
             })
         })
 
         const confirmOrderBtn = document.querySelector('#confirm-order-btn')
         confirmOrderBtn.addEventListener('click',  e => {
             socketIO.emit('orders:confirm', {
-                orderID: 277
+                orderID: orderID
             })
         })
 

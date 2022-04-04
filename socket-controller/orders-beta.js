@@ -902,23 +902,21 @@ module.exports = (io) => {
                     })
                 }
 
-                const doneOrderData = {
-                    customerid: order[0].customerid,
-                    employeeid: order[0].employeeid,
-                    orderdate: order[0].orderdate,
-                    bookingtimeid: order[0].bookingtimeid,
-                    serviceid: order[0].serviceid,
-                    ordercreationdate: order[0].ordercreationdate,
-                    longitude: order[0].longitude,
-                    latitude: order[0].latitude,
-                    locationname: order[0].locationname,
-                    price: Number(order[0].price),
-                    rating: 5
-                }   
 
-                const doneOrder = await doneOrderDB.addDoneOrder(doneOrderData)
+                const doneOrder = await doneOrderDB.addDoneOrder(
+                    order[0].customerid,
+                    order[0].employeeid,
+                    order[0].orderdate,
+                    order[0].bookingtimeid,
+                    order[0].serviceid,
+                    order[0].ordercreationdate,
+                    order[0].longitude,
+                    order[0].latitude,
+                    order[0].locationname,
+                    order[0].price
+                )
 
-                //const delOrder = await orderDB.deleteOrderByID(requestData.orderID)
+                const delOrder = await orderDB.deleteOrderByID(requestData.orderID)
 
                 return socket.to(order.customerid).emit('orders:rate', {
                     message: 'please rate your wash experience'
