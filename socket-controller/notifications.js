@@ -6,10 +6,15 @@ module.exports = (io)=>{
 
         // Maintenance Notification
 
-        socket.on('maintenance', (data)=>{
-
-            io.emit('maintenance', {
+        socket.on('maintenance:under', data =>{
+            io.emit('maintenance:under', {
                 message: 'app in maintenance mode'
+            })
+        })
+
+        socket.on('maintenance:done', data => {
+            io.emit('maintenance:done', {
+                message: 'back to work'
             })
         })
 
