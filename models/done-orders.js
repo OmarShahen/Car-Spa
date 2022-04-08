@@ -107,6 +107,7 @@ class DoneOrder {
         const pool = await dbConnect()
         const query = `
             SELECT
+            doneOrders.ID,
             customers.userName AS CustomerUserName,
             doneOrders.OrderDate, bookingTimes.BookTime,
             services.name, doneOrders.rating,

@@ -12,7 +12,7 @@ employeeRouter.get('/employees/orders/today', employeeVerifyToken, async (reques
         const todayDate = new Date()
         const todayDateFormatted = `${todayDate.getFullYear()}-${todayDate.getMonth()+1}-${todayDate.getDate()}`
         const employeeOrders = await orderDB.getEmployeeOrdersByDate(request.employeeID, todayDateFormatted)
-
+        
         return response.status(200).send({
             accepted: true,
             ordersData: employeeOrders

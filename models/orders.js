@@ -35,6 +35,7 @@ class Order{
         const pool = await dbConnect()
         const query = `
             SELECT
+            orders.ID,
             customers.ID AS CustomerID, customers.username AS CustomerName, customers.phoneNumber AS CustomerPhoneNumber,
             employees.ID AS EmployeeID, employees.userName AS EmployeeUserName,
             employees.phoneNumber AS EmployeePhoneNumber, orders.OrderDate,
@@ -264,7 +265,8 @@ class Order{
     {
         const pool = await dbConnect()
         const query = `
-            SELECT 
+            SELECT
+            orders.ID, 
             customers.FirstName AS CustomerFirstName, customers.LastName AS CustomerLastName,
             employees.userName AS EmployeeUserName,
             orders.OrderDate, bookingTimes.BookTime,
@@ -290,7 +292,7 @@ class Order{
         const pool = await dbConnect()
         const query = `
             SELECT
-            customers.userName,
+            orders.ID, customers.userName,
             employees.userName AS EmployeeUserName,
             orders.OrderDate, bookingTimes.BookTime,
             services.name, orders.rating,
@@ -316,6 +318,7 @@ class Order{
         const pool = await dbConnect()
         const query = `
             SELECT 
+            orders.ID,
             customers.FirstName AS CustomerFirstName, customers.LastName AS CustomerLastName,
             employees.userName AS EmployeeUserName,
             orders.OrderDate, bookingTimes.BookTime,
@@ -397,15 +400,16 @@ class Order{
         const pool = await dbConnect()
         const query = `
             SELECT
+            orders.ID,
             customers.username AS CustomerName, customers.PhoneNumber AS CustomerPhoneNumber, 
             orders.OrderDate,bookingTimes.BookTime, services.name AS ServiceName,
             orders.longitude, orders.latitude, orders.locationName, orders.price
             FROM orders
-            INNER JOIN customers ON customers.ID = orders.CustomerID
-            INNER JOIN bookingTimes ON bookingTimes.ID = orders.BookingTimeID
-            INNER JOIN services  ON services.ID = orders.ServiceID
+            INNER JOIN customers ON orders.CustomerID = customers.ID
+            INNER JOIN bookingTimes ON orders.BookingTimeID = bookingTimes.ID
+            INNER JOIN services  ON orders.ServiceID = services.ID
             WHERE
-            EmployeeID = $1 AND OrderDate = $2
+            orders.EmployeeID = $1 AND orders.OrderDate = $2
             ORDER BY OrderDate DESC
         `
         const client = await pool.connect()
@@ -420,6 +424,7 @@ class Order{
         const pool = await dbConnect()
         const query = `
             SELECT
+            orders.ID,
             customers.username AS CustomerName, customers.PhoneNumber AS CustomerPhoneNumber, 
             orders.OrderDate,bookingTimes.BookTime, services.name AS ServiceName,
             orders.longitude, orders.latitude, orders.locationName, orders.price

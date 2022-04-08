@@ -9,22 +9,106 @@
             "host": "https://car-spa.io" 
         }
     },
-    "namespace": {
-        "url": "/",
-        "events": [
-            {
-                "on": "test",
-                "location": "server",
-                "message": {
-                    "description": "This event is for testing purposes",
+    "namespace": [
+        {
+            "url": "/",
+            "events": [
+                {
+                    "on": "maintenance",
+                    "location": "client",
+                    "description": "This event is fired when the app is under maintenance",
                     "payload": {
                         "message": "string"
-                    },
-                    "acknowledgement": {
-                        "message": "successful testing"
                     }
                 }
-            }
-        ]
+            ]
+        },
+        {
+            "url": "/orders",
+            "events": [
+                {
+                    "on": "orders:customers:join",
+                    "location": "server",
+                    "description": "This event is fired when the customer connects to orders namespace",
+                    "payload": {
+                        "customerID": "ID"
+                    }
+                },
+                {
+                    "emit": "orders:customers:join",
+                    "location": "mobile",
+                    "description": "This event is fired when the customer connects to orders namespace",
+                    "payload": {
+                        "customerID": "ID"
+                    }
+                },
+                {
+                    "on": "orders:employees:join",
+                    "location": "server",
+                    "description": "This event is fired when the employee connects to orders namespace",
+                    "payload": {
+                        "employeeID": "ID"
+                    }
+                },
+                {
+                    "emit": "orders:employees:join",
+                    "location": "mobile",
+                    "description": "This event is fired when the employee connects to orders namespace",
+                    "payload": {
+                        "employeeID": "ID"
+                    }
+                },
+                {
+                    "on": "orders:start",
+                    "location": "server",
+                    "description": "This event is fired when the employee starts his way to the order location",
+                    "payload": {
+                        "orderID": "ID"
+                    } 
+                },
+                {
+                    "emit": "orders:start",
+                    "location": "client",
+                    "description": "This event is fired when the employee starts his way to the order location",
+                    "payload": {
+                        "orderID": "ID"
+                    }  
+                },
+                {
+                    "on": "orders:late",
+                    "location": "server",
+                    "description": "This event is fired when the employee is going to be late on his order",
+                    "payload": {
+                        "orderID": "ID"
+                    }
+                },
+                {
+                    "emit": "orders:late",
+                    "location": "client",
+                    "description": "This event is fired when the employee is going to be late on his order",
+                    "payload": {
+                        "orderID": "ID"
+                    } 
+                },
+                {
+                    "on": "orders:confirm",
+                    "location": "server",
+                    "description": "This event is fired when the employee confirm that the order is done",
+                    "payload": {
+                        "orderID": "ID"
+                    }
+                }, 
+                {
+                    "emit": "orders:confirm",
+                    "location": "client",
+                    "description": "This event is fired when the employee confirm that the order is done",
+                    "payload": {
+                        "orderID": "ID"
+                    }
+                }
+            ]
+            
+        }
+    ]
     }
-}
+    
