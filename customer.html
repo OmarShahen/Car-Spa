@@ -25,6 +25,8 @@
         <input type="text" id="order-id-input" placeholder="order id"><br>
         <input type="text" id="customer-id-input" placeholder="customer id"><br>
         <button class="btn btn-primary" id="join-btn">join</button>
+        <button class="btn btn-primary" id="maintenance-btn">Maintenance</button>
+        <button class="btn btn-primary" id="maintenance-done-btn">done maintenance</button>
     </div>
 
     <script>
@@ -64,7 +66,15 @@
     <script>
         const globalSocket = io()
 
-        globalSocket.emit('maintenance', {})
+        document.querySelector('#maintenance-btn').addEventListener('click', e => {
+            globalSocket.emit('maintenance:under', {})
+        })
+        
+        document.querySelector('#maintenance-done-btn').addEventListener('click', e => {
+            globalSocket.emit('maintenance:done', {})
+        })
+
+        
     </script>
     
 </body>
