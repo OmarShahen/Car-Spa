@@ -29,6 +29,7 @@
             <button id="employee-login-btn" class="btn btn-primary">employee login</button><br>
             <button id="start-order-btn" class="btn btn-primary">start order</button><br>
             <button id="late-order-btn" class="btn btn-primary">late arrival</button><br>
+            <button class="btn btn-primary" id="confirm-arrival">confirm arrival</button><br>
             <button id="confirm-order-btn" class="btn btn-primary">confirm order</button>
         </div>
     </div>
@@ -108,6 +109,14 @@
         const lateOrderBtn = document.querySelector('#late-order-btn')
         lateOrderBtn.addEventListener('click', e => {
             socketIO.emit('orders:late', {
+                orderID: orderID
+            })
+        })
+
+        const confirmArrivalOrder = document.querySelector('#confirm-arrival')
+        confirmArrivalOrder.addEventListener('click', e => {
+            console.log('confirm order')
+            socketIO.emit('orders:arrival', {
                 orderID: orderID
             })
         })

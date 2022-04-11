@@ -820,7 +820,7 @@ module.exports = (io) => {
                 if(!requestData.orderID) {
                     return socket.emit('error', {
                         accepted: false,
-                        message: 'internal server error'
+                        message: 'order ID is required'
                     })
                 }
 
@@ -835,7 +835,7 @@ module.exports = (io) => {
 
                 const activateOrder = await orderDB.setOrderToActive(order[0].id)
         
-                return socket.in(order.customerID).emit('orders:start', {
+                return socket.in(order[0].customerID).emit('orders:start', {
                     message: 'our employee is on his way',
                     accepted: true
                 })
@@ -869,8 +869,42 @@ module.exports = (io) => {
                     })
                 }
 
-                return socket.to(order.customerID).emit('orders:late', {
+                return socket.to(order[0].customerID).emit('orders:late', {
                     message: 'our employee might be late'
+                })
+
+            } catch(error) {
+                console.error(error)
+                return socket.emit('error', {
+                    accepted: false,
+                    message: 'internal server error'
+                })
+            }
+        })
+
+        socket.on('orders:arrival', async requestData => {
+
+            try {
+
+                if(!requestData.orderID) {
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'order ID is required'
+                    })
+                }
+
+                const order = await orderDB.getOrderByID(requestData.orderID)
+
+                if(order.length == 0) {
+                    return socket.emit('error', {
+                        accepted: false,
+                        message: 'invalid order ID'
+                    })
+                }
+                
+                return socket.in(order[0].customerID).emit('orders:arrival', {
+                    message: 'our employee has arrived',
+                    accepted: true
                 })
 
             } catch(error) {
@@ -918,7 +952,7 @@ module.exports = (io) => {
 
                 const delOrder = await orderDB.deleteOrderByID(requestData.orderID)
 
-                return socket.to(order.customerid).emit('orders:rate', {
+                return socket.to(order[0].customerid).emit('orders:rate', {
                     message: 'please rate your wash experience'
                 })
 

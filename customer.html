@@ -27,6 +27,7 @@
         <button class="btn btn-primary" id="join-btn">join</button>
         <button class="btn btn-primary" id="maintenance-btn">Maintenance</button>
         <button class="btn btn-primary" id="maintenance-done-btn">done maintenance</button>
+        
     </div>
 
     <script>
@@ -51,7 +52,10 @@
             orderID: orderID
             })
         })
+
         
+
+        socketIO.on('orders:arrival', data => console.log(data))
 
         socketIO.on('orders:start', data => console.log(data))
 
