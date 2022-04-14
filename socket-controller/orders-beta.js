@@ -771,6 +771,7 @@ module.exports = (io) => {
                     })
                 }
 
+                console.log(`customer ID in customers:join ${customer[0].id}`)
                 return socket.join(customer[0].id)
 
             }  catch(error) {
@@ -802,6 +803,7 @@ module.exports = (io) => {
                     })
                 }
 
+                console.log(`customer ID in employees:join ${employee[0].id}`)
                 return socket.join(employee[0].id)
 
             } catch(error) {
@@ -834,7 +836,8 @@ module.exports = (io) => {
                 }
 
                 const activateOrder = await orderDB.setOrderToActive(order[0].id)
-        
+                
+                console.log(`customer ID in orders:start ${order[0].customerid}`)
                 return socket.in(order[0].customerid).emit('orders:start', {
                     message: 'our employee is on his way',
                     accepted: true
@@ -869,7 +872,8 @@ module.exports = (io) => {
                     })
                 }
 
-                return socket.to(order[0].customerid).emit('orders:late', {
+                console.log(`employee ID in orders:late ${order[0].customerid}`)
+                return socket.in(order[0].customerid).emit('orders:late', {
                     message: 'our employee might be late'
                 })
 
@@ -902,6 +906,7 @@ module.exports = (io) => {
                     })
                 }
                 
+                console.log(`customer ID in orders:arrival ${order[0].customerid}`)
                 return socket.in(order[0].customerid).emit('orders:arrival', {
                     message: 'our employee has arrived',
                     accepted: true
@@ -951,8 +956,9 @@ module.exports = (io) => {
                 )
 
                 const delOrder = await orderDB.deleteOrderByID(requestData.orderID)
-
-                return socket.to(order[0].customerid).emit('orders:rate', {
+                
+                console.log(`customer ID in orders:confirm ${order[0].customerid}`)
+                return socket.in(order[0].customerid).emit('orders:rate', {
                     message: 'please rate your wash experience'
                 })
 
