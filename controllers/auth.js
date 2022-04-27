@@ -180,6 +180,8 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
 
         const getCustomer = await customerDB.getCustomerByEmail(request.body.customerEmail)
 
+        getCustomer[0].password = ''
+
         return response.status(200).send({
             accepted: true,
             message: 'created account successfully',
@@ -202,7 +204,6 @@ authRouter.post('/customers/sign-up', async (request, response)=>{
 authRouter.post('/customers/login', async (request, response)=>{
     try{
 
-        console.log(request.body)
         const checkEmail = verify.checkEmail(request.body.customerEmail)
         if(!checkEmail)
         {
@@ -217,25 +218,34 @@ authRouter.post('/customers/login', async (request, response)=>{
         {
             return response.status(406).send({
                 accepted: false,
-                message: 'this account does not exist'
+                message: 'this account does not exist',
+                field: 'email'
             })
         }
 
-        console.log('Here')
-        console.log(customerData)
+        if(!customerData[0].password) {
+            return response.status(406).send({
+                accepted: false,
+                message: 'your account is not registered with email and password',
+                field: 'password'
+            })
+        }
+
         if(!bcrypt.compareSync(request.body.customerPassword, customerData[0].password))
         {
             return response.status(406).send({
                 accepted: false,
-                message: 'bad credentials'
+                message: 'bad credentials',
+                field: 'password'
             })
         }
-        console.log('After here')
+
+        customerData[0].password = ''
 
         return response.status(200).send({
             accepted: true,
             message: 'login successfully',
-            id: customerData[0].id,
+            customer: customerData[0],
             token: customerJWT.sign({customerID: customerData[0].id}, config.customerSecretKey, {expiresIn: '30d'})
         })
       
@@ -301,20 +311,17 @@ authRouter.post('/customers/google/sign-up', async (request, response) => {
         if(!request.body.googleID) {
             return response.status(406).send({
                 accepted: false,
-                message: 'google ID is required'
+                message: 'google token is required'
             })
         }
 
         const customerID = await customerDB.getCustomerByGoogleID(request.body.googleID)
-        console.log(customerID)
         if(customerID.length != 0) {
             return response.status(406).send({
                 accepted: false,
-                message: 'invalid google ID'
+                message: 'invalid google token'
             })
         }
-
-
 
         const createCustomer = await customerDB.addGoogleAuthCustomer(
             request.body.customerName,
@@ -330,7 +337,7 @@ authRouter.post('/customers/google/sign-up', async (request, response) => {
             accepted: true,
             message: 'account created successfully',
             customer: getCustomer[0],
-            token: customerJWT.sign({ customerID: getCustomer[0].id }, config.customerSecretKey, { expiresIn: '30d' })
+            token: customerJWT.sign({ customer: getCustomer[0].id }, config.customerSecretKey, { expiresIn: '30d' })
         })
 
     } catch(error) {
@@ -342,9 +349,106 @@ authRouter.post('/customers/google/sign-up', async (request, response) => {
     }
 })
 
-authRouter.get('/customers/google/login', async (request, response) => {
+authRouter.post('/customers/facebook/sign-up', async (request, response) => {
+    try {
+
+        if(!request.body.customerName) {
+            return response.status(406).send({
+                accepted: false,
+                message: 'user name is required'
+            })
+        }
+
+        const checkEmail = verify.checkEmail(request.body.customerEmail)
+        if(!checkEmail.accepted) {
+            return response.status(406).send({
+                accepted: true,
+                message: checkEmail.message
+            })
+        }
+
+        const emailExist = await isUserEmailExist(request.body.customerEmail)
+        if(emailExist)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: 'this email is already taken',
+            })
+        }
+
+        const checkPhone = await checkPhoneNumber(request.body.customerPhoneNumber)
+        if(!checkPhone.accepted)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: checkPhone.message,
+                field: 'phone number'
+            })
+        }
+
+        const phoneNumber = await customerDB.getCustomerByPhoneNumber(request.body.customerPhoneNumber)
+        if(phoneNumber.length != 0)
+        {
+            return response.status(406).send({
+                accepted: false,
+                message: 'this phone number is already taken',
+                field: 'phone number'
+            })
+        }
+
+        if(!request.body.facebookID) {
+            return response.status(406).send({
+                accepted: false,
+                message: 'facebook token is required'
+            })
+        }
+
+        const customerID = await customerDB.getCustomerByFacebookID(request.body.facebookID)
+        if(customerID.length != 0) {
+            return response.status(406).send({
+                accepted: false,
+                message: 'invalid facebook token'
+            })
+        }
+
+        const createCustomer = await customerDB.addFacebookAuthCustomer(
+            request.body.customerName,
+            request.body.customerEmail,
+            request.body.facebookID,
+            request.body.customerPhoneNumber,
+            new Date()
+        )
+
+        const getCustomer = await customerDB.getCustomerByEmail(request.body.customerEmail)
+        getCustomer[0].password = ''
+        
+        return response.status(200).send({
+            accepted: true,
+            message: 'account created successfully',
+            customer: getCustomer[0],
+            token: customerJWT.sign({ customer: getCustomer[0].id }, config.customerSecretKey, { expiresIn: '30d' })
+        })
+
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
+
+authRouter.post('/customers/google/login', async (request, response) => {
 
     try {
+
+        if(!request.body.googleID) {
+            return response.status(406).send({
+                accepted: false,
+                message: 'token is required'
+            })
+        }
 
         const customer = await customerDB.getCustomerByGoogleID(request.body.googleID)
         if(customer.length == 0)
@@ -352,7 +456,7 @@ authRouter.get('/customers/google/login', async (request, response) => {
                 accepted: false,
                 message: 'this account does not exist'
             }) 
-        
+            
             return response.status(200).send({
                 accepted: true,
                 customer: customer[0],
@@ -368,10 +472,42 @@ authRouter.get('/customers/google/login', async (request, response) => {
     }
 })
 
-authRouter.get('/customers/check-email/:email', async (request, response)=>{
+authRouter.post('/customers/facebook/login', async (request, response) => {
+    try {
+
+        if(!request.body.facebookID) {
+            return response.status(406).send({
+                accepted: false,
+                message: 'token is required'
+            })
+        }
+
+        const customer = await customerDB.getCustomerByFacebookID(request.body.facebookID)
+        if(customer.length == 0)
+            return response.status(406).send({
+                accepted: false,
+                message: 'this account does not exist'
+            }) 
+            
+            return response.status(200).send({
+                accepted: true,
+                customer: customer[0],
+                token: customerJWT.sign({ customerID: customer[0].id }, config.customerSecretKey, { expiresIn: '30d' })
+            })
+
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+})
+
+authRouter.post('/customers/check-email', async (request, response)=>{
     try{
 
-        if(!request.params.email)
+        if(!request.body.email)
         {
             return response.status(406).send({
                 accepted: false,
@@ -379,7 +515,7 @@ authRouter.get('/customers/check-email/:email', async (request, response)=>{
             })
         }
 
-        const checkEmail = verify.checkEmail(request.params.email)
+        const checkEmail = verify.checkEmail(request.body.email)
         if(!checkEmail.accepted)
         {
             return response.status(406).send({
@@ -389,7 +525,7 @@ authRouter.get('/customers/check-email/:email', async (request, response)=>{
             })
         }
         
-        const emailExist = await isUserEmailExist(request.params.email)
+        const emailExist = await isUserEmailExist(request.body.email)
         if(emailExist)
         {
             return response.status(406).send({
@@ -461,11 +597,11 @@ authRouter.post('/send-phone-number-verification', async (request, response)=>{
 })
 
 
-authRouter.get('/check-phone-number/:phoneNumber', async (request, response) => {
+authRouter.post('/check-phone-number', async (request, response) => {
 
     try {
 
-        if(request.params.phoneNumber.length != 11) {
+        if(request.body.phoneNumber.length != 11) {
             
             return response.status(406).send({
                 accepted: false,
@@ -474,7 +610,7 @@ authRouter.get('/check-phone-number/:phoneNumber', async (request, response) => 
         }
 
         // Check in customers DB
-        const customerData = await customerDB.getCustomerByPhoneNumber(request.params.phoneNumber)
+        const customerData = await customerDB.getCustomerByPhoneNumber(request.body.phoneNumber)
         if(customerData.length != 0) {
             return response.status(406).send({
                 accepted: false,
@@ -835,15 +971,13 @@ authRouter.post('/customers/phone-number/verification-code', async (request, res
 
     try{
 
-        console.log(request.body)
-
         const verificationCode = getRandomInt()
         const addVerificationCode = await verificationCodeDB.createVerificationCode(
-            `+${request.body.customerPhoneNumber.trim()}`,
+            request.body.customerPhoneNumber,
             verificationCode
         )
 
-       // const isSMSSent = smsVerifiy(request.body.customerPhoneNumber, verificationCode)
+       const isSMSSent = smsVerifiy(request.body.customerPhoneNumber, verificationCode)
 
         return response.status(200).send({
             accepted: true,
@@ -862,15 +996,15 @@ authRouter.post('/customers/phone-number/verification-code', async (request, res
 })
 
 
-authRouter.get('/customers/:phoneNumber/verifiy/:code', async (request, response) => {
+authRouter.post('/customers/check-verification-code', async (request, response) => {
 
     try {
 
         console.log(request.body)
 
         const checkCode = await verificationCodeDB.getVerificationCode(
-            `+${request.params.phoneNumber.trim()}`,
-            request.params.code
+            request.body.phoneNumber,
+            request.body.code
         )
 
         if(checkCode.length != 1)
@@ -881,10 +1015,7 @@ authRouter.get('/customers/:phoneNumber/verifiy/:code', async (request, response
             })
         }
 
-        const deleteCode = await verificationCodeDB.deleteVerificationCodes(
-            `+${request.params.phoneNumber.trim()}`,
-            request.params.code
-            )
+        const deleteCode = await verificationCodeDB.deleteVerificationCodes(request.body.phoneNumber)
 
         return response.status(200).send({
             accepted: true,

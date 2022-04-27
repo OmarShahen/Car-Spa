@@ -36,16 +36,43 @@ class Customer{
         const result = await client.query(query, [userName, email, googleID, phoneNumber, accountCreationDate])
         client.release()
 
-        return result.rows
+        return true
+    }
+
+    async addFacebookAuthCustomer(userName, email, facebookID, phoneNumber, accountCreationDate) {
+
+        const pool = await dbConnect()
+        const query = `
+            INSERT INTO customers
+            (userName, email, facebookID, phoneNumber, accountCreationDate)
+            VALUES
+            ($1, $2, $3, $4, $5)
+        `
+        const client = await pool.connect()
+        const result = await client.query(query, [userName, email, facebookID, phoneNumber, accountCreationDate])
+        client.release()
+
+        return true
     }
 
 
     async getCustomerByGoogleID(googleID) {
 
         const pool = await dbConnect()
-        const query = `SELECT * FROM customers WHERE googleID = $1`
+        const query = `SELECT ID, userName, email, phoneNumber, accountCreationDate FROM customers WHERE googleID = $1`
         const client = await pool.connect()
         const result = await client.query(query, [googleID])
+        client.release()
+
+        return result.rows
+    }
+
+    async getCustomerByFacebookID(facebookID) {
+
+        const pool = await dbConnect()
+        const query = `SELECT ID, userName, email, phoneNumber, accountCreationDate FROM customers WHERE facebookID = $1`
+        const client = await pool.connect()
+        const result = await client.query(query, [facebookID])
         client.release()
 
         return result.rows
@@ -62,6 +89,17 @@ class Customer{
         client.release()
 
         return customersData.rows
+    }
+
+    async getCustomerPublicData(customerID) {
+        const pool = await dbConnect()
+        const query = 'SELECT ID, userName, email, phoneNumber, accountCreationDate FROM customers WHERE ID = $1'
+        const client = await pool.connect()
+        const customerData = await client.query(query, [customerID])
+        client.release()
+
+        return customerData.rows
+
     }
 
 
