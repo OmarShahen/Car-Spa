@@ -273,7 +273,7 @@ orderRoute.post('/orders/check-day/:day', customerVerifyToken, async (request, r
 })
 
 
-orderRoute.get('/orders/book-later/available-times', customerVerifyToken, async (request, response)=>{
+orderRoute.get('/booking-times', customerVerifyToken, async (request, response)=>{
     try{
 
         const availableTimes = await bookingTimeDB.getAvailableTimes()
@@ -721,7 +721,7 @@ orderRoute.post('/orders/book-order/available/:bookDate/:bookTime', customerVeri
         })
     }
 })
-orderRoute.get('/orders/book-now/available-times', customerVerifyToken, async (request, response) => {
+orderRoute.get('/booking-times/now', customerVerifyToken, async (request, response) => {
 
     try {
 

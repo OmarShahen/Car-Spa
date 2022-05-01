@@ -130,7 +130,7 @@ class DoneOrder {
     async getCustomerPreviousLocations(customerID) {
 
         const pool = await dbConnect()
-        const query = `SELECT LocationName, longitude, latitude FROM doneOrders WHERE CustomerID = $1`
+        const query = `SELECT DISTINCT LocationName, longitude, latitude FROM doneOrders WHERE CustomerID = $1`
         const client = await pool.connect()
         const customerLocations = await client.query(query, [customerID])
         client.release()

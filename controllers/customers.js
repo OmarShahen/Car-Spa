@@ -236,7 +236,7 @@ customerRoute.get('/customers/orders/current-orders', customerVerifyToken, async
     }
 })
 
-customerRoute.get('/customers/previous-locations/:customerID', customerVerifyToken, async (request, response) => {
+customerRoute.get('/customers/:customerID/done-orders/location', customerVerifyToken, async (request, response) => {
 
     try {
          
