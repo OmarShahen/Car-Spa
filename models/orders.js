@@ -293,7 +293,7 @@ class Order{
         const query = `
             SELECT
             orders.ID, customers.userName,
-            employees.userName AS EmployeeUserName,
+            employees.userName AS EmployeeUserName, employees.carType, employees.carNumber,
             orders.OrderDate, bookingTimes.BookTime,
             services.name, orders.rating,
             orders.orderCreationDate, orders.locationName,

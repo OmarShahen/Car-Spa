@@ -51,6 +51,9 @@ app.use('/api', admins)
 const orders = require('./controllers/orders')
 app.use('/api', orders)
 
+const doneOrders = require('./controllers/done-orders')
+app.use('/api', doneOrders)
+
 const services = require('./controllers/services')
 app.use('/api', services)
 

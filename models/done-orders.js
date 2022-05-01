@@ -25,7 +25,7 @@ class DoneOrder {
         const pool = await dbConnect()
         const query = `
             SELECT 
-            employees.FirstName AS EmployeeFirstName, employees.LastName AS EmployeeLastName,
+            employees.username AS EmployeeUsername,
             doneOrders.OrderDate, bookingTimes.BookTime, services.name, doneOrders.rating,
             doneOrders.orderCreationDate, doneOrders.longitude, doneOrders.latitude,
             doneOrders.locationName, doneOrders.price

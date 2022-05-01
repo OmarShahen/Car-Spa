@@ -984,5 +984,32 @@ orderRoute.post('/orders/test-package-middleware', customerVerifyToken, checkCus
 
 })
 
+orderRoute.get('/orders/customers/:customerID', customerVerifyToken, async (request, response) => {
+
+    try {
+
+        if(request.customerID != request.params.customerID) {
+            return response.status(406).send({
+                accepted: false,
+                message: 'unauthorized access to data'
+            })
+        }
+
+        const customerOrders = await orderDB.getCustomerUpcomingOrders(request.params.customerID)
+
+        return response.status(200).send({
+            accepted: true,
+            orders: customerOrders
+        })
+
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }   
+})
+
 
 module.exports = orderRoute
