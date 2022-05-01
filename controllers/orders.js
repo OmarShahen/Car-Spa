@@ -1,7 +1,7 @@
 
 const orderRoute = require('express').Router()
 const { customerVerifyToken } = require('../middleware/authority')
-const { checkCustomerPackage } = require('../middleware/customer-package') 
+const { checkCustomerPackage, customerPackagePlaceholder } = require('../middleware/customer-package') 
 const reservedDayDB = require('../models/reserved-days')
 const bookingTimeDB = require('../models/booking-times')
 const employeeDB = require('../models/employees')
@@ -512,7 +512,7 @@ orderRoute.post('/orders/book-later/book-order/:bookDate/:bookTime', customerVer
 })
 
  
-orderRoute.post('/beta/orders/book-later/book-order', customerVerifyToken, checkCustomerPackage, async (request, response) => {
+orderRoute.post('/beta/orders/book-later/book-order', customerVerifyToken, customerPackagePlaceholder, async (request, response) => {
 
     try {
 
@@ -550,10 +550,7 @@ orderRoute.post('/beta/orders/book-later/book-order', customerVerifyToken, check
 
         if((employees.length - orders.length) == 1) {
 
-            console.log('In 1 employee available scope')
-
             const missingEmployee = searchMissingIDs(employeesIDs, ordersEmployeesIDs)
-            console.log(missingEmployee)
 
             const assignOrder = await orderDB.addOrder(
                 request.customerID,
@@ -608,8 +605,6 @@ orderRoute.post('/beta/orders/book-later/book-order', customerVerifyToken, check
         const lowestTotalOrdersEmployees = getLowestTotalOrders(employeesTotalOrders)
 
         if(lowestTotalOrdersEmployees.length == 1) {
-
-            console.log('In Total orders scope')
 
             const assignOrder = await orderDB.addOrder(
                 request.customerID,

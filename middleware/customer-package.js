@@ -4,6 +4,33 @@ const doneOrdersDB = require('../models/done-orders')
 const packageDB = require('../models/packages')
 const serviceDB = require('../models/services')
 
+
+const customerPackagePlaceholder = async (request, response, next) => {
+    
+    try {
+
+        const service = await serviceDB.getServiceByID(request.body.serviceID)
+
+        if(service.length == 0) {
+            return response.status(406).send({
+                accepted: false,
+                message: 'invalid service ID'
+            })
+        }
+
+        request.body.servicePrice = service[0].price
+
+        return next()
+
+    } catch(error) {
+        console.error(error)
+        return response.status(500).send({
+            accepted: false,
+            message: 'internal server error'
+        })
+    }
+}
+
 const checkCustomerPackage = async (request, response, next) => {
 
     try {
@@ -163,5 +190,6 @@ const socketCheckCustomerPackage = async orderData => {
 
 module.exports = {
     checkCustomerPackage,
-    socketCheckCustomerPackage
+    socketCheckCustomerPackage,
+    customerPackagePlaceholder
 }
